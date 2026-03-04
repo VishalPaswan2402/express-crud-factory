@@ -1,0 +1,39 @@
+{
+  "dependencies": {
+    "cors": "^2.8.6",
+    "dotenv": "^17.3.1",
+    "express": "^5.2.1",
+    "joi": "^18.0.2",
+    "mongoose": "^9.2.3",
+    "nodemon": "^3.1.14"
+  },
+  "name": "express-crud-factory",
+  "version": "1.0.0",
+  "description": "An Express router generator that creates reusable CRUD endpoints for Mongoose models with minimal setup.",
+  "main": "index.js",
+  "type": "module",
+  "directories": {
+    "example": "examples",
+    "test": "tests"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "express",
+    "mongoose",
+    "crud",
+    "auto-crud",
+    "router-factory",
+    "rest-api",
+    "nodejs",
+    "express-router",
+    "api-generator",
+    "backend",
+    "mongodb",
+    "model-based-routing",
+    "dynamic-routes"
+  ],
+  "author": "vishal-paswan",
+  "license": "ISC"
+}
