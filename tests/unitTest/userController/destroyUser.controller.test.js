@@ -1,13 +1,12 @@
-import { beforeEach, describe, expect, jest, test } from '@jest/globals'
-import getUserByIdController from '../../../src/controllers/userControllers/getUserById.controller';
-import isValidUserId from '../../../src/middlewares/validUserId.middleware';
+import { beforeEach, describe, expect, jest, test } from "@jest/globals";
+import isValidUserId from "../../../src/middlewares/validUserId.middleware";
+import destroyUserController from "../../../src/controllers/userControllers/destroyUser.controller";
 
-describe("Create Get-User-By-Id Controller Snapshot Test", () => {
+describe("Create Destroy User Controller Snapshot Test", () => {
     let req;
     let res;
     let Model;
     let next;
-
     beforeEach(() => {
         req = {
             params: {
@@ -19,9 +18,34 @@ describe("Create Get-User-By-Id Controller Snapshot Test", () => {
             json: jest.fn()
         };
         Model = {
-            findById: jest.fn()
+            findByIdAndDelete: jest.fn()
         };
         next = jest.fn();
+    });
+
+    test("for invalid user-id.", () => {
+        req.params.userId = "123";
+        isValidUserId(req, res, next);
+        const result = {
+            status: res.status.mock.calls[0][0],
+            body: res.json.mock.calls[0][0]
+        };
+        expect(result).toMatchSnapshot();
+        expect(next).not.toHaveBeenCalled();
+    });
+
+    test("for valid user-id.", async () => {
+        isValidUserId(req, res, next);
+        Model.findByIdAndDelete.mockResolvedValue(null);
+        const controller = destroyUserController(Model);
+        await controller(req, res);
+        const result = {
+            status: res.status.mock.calls[0][0],
+            body: res.json.mock.calls[0][0]
+        }
+        expect(Model.findByIdAndDelete).toHaveBeenCalledWith(req.params.userId);
+        expect(result).toMatchSnapshot();
+        expect(next).toHaveBeenCalled();
     });
 
     test("for empty user-id.", () => {
@@ -35,46 +59,21 @@ describe("Create Get-User-By-Id Controller Snapshot Test", () => {
         expect(next).not.toHaveBeenCalled();
     });
 
-    test("for invalid user-id.", () => {
-        req.params.userId = "123";
-        isValidUserId(req, res, next);
-        const result = {
-            status: res.status.mock.calls[0][0],
-            body: res.json.mock.calls[0][0]
-        }
-        expect(result).toMatchSnapshot();
-        expect(next).not.toHaveBeenCalled();
-    });
-
-    test("for valid user-id.", async () => {
-        isValidUserId(req, res, next);
-        Model.findById.mockResolvedValue(null);
-        const controller = getUserByIdController(Model);
+    test("for user with user-id not found.", async () => {
+        Model.findByIdAndDelete.mockResolvedValue(null);
+        const controller = destroyUserController(Model);
         await controller(req, res);
         const result = {
             status: res.status.mock.calls[0][0],
             body: res.json.mock.calls[0][0]
-        }
-        expect(Model.findById).toHaveBeenCalledWith(req.params.userId);
-        expect(result).toMatchSnapshot();
-        expect(next).toHaveBeenCalled();
-    });
-
-    test("for user not exist.", async () => {
-        Model.findById.mockResolvedValue(null);
-        const controller = getUserByIdController(Model);
-        await controller(req, res);
-        const result = {
-            status: res.status.mock.calls[0][0],
-            body: res.json.mock.calls[0][0]
-        }
-        expect(Model.findById).toHaveBeenCalledWith(req.params.userId);
+        };
+        expect(Model.findByIdAndDelete).toHaveBeenCalledWith(req.params.userId);
         expect(result).toMatchSnapshot();
     });
 
-    test("for user found successfully.", async () => {
-        let findData = {
-            _id: "507f1f77bcf86cd799439011",
+    test("for find user by Id and delete it.", async () => {
+        let savedData = {
+            _id: req.params.userId,
             email: "test@gmail.com",
             fullname: "UserTest",
             password: "testPassword",
@@ -82,25 +81,25 @@ describe("Create Get-User-By-Id Controller Snapshot Test", () => {
             isActive: true,
             articles: []
         };
-        Model.findById.mockResolvedValue(findData);
-        const controller = getUserByIdController(Model);
+        Model.findByIdAndDelete.mockResolvedValue(savedData);
+        const controller = destroyUserController(Model);
         await controller(req, res);
         const result = {
             status: res.status.mock.calls[0][0],
             body: res.json.mock.calls[0][0]
-        }
-        expect(Model.findById).toHaveBeenCalledWith(req.params.userId);
+        };
+        expect(Model.findByIdAndDelete).toHaveBeenCalledWith(req.params.userId);
         expect(result).toMatchSnapshot();
     });
 
-    test("internal server error.", async () => {
-        Model.findById.mockRejectedValue(new Error("Server error"));
-        const controller = getUserByIdController(Model);
+    test("for internal server error.", async () => {
+        Model.findByIdAndDelete.mockRejectedValue(new Error("Internal server error."));
+        const controller = destroyUserController(Model);
         await controller(req, res);
         const result = {
             status: res.status.mock.calls[0][0],
             body: res.json.mock.calls[0][0]
-        }
+        };
         expect(result).toMatchSnapshot();
     });
 

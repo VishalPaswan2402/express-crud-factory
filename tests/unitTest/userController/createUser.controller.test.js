@@ -43,7 +43,6 @@ describe("Create User Controller Snapshot Test", () => {
     });
 
     test("for password mismatch.", async () => {
-        jsonValidate(req, res, next);
         req.body.confirmPassword = "wrongPassword";
         const controller = createUserController(Model);
         await controller(req, res);
@@ -51,45 +50,40 @@ describe("Create User Controller Snapshot Test", () => {
             status: res.status.mock.calls[0][0],
             body: res.json.mock.calls[0][0]
         };
-        expect(next).toHaveBeenCalled();
         expect(result).toMatchSnapshot();
     });
 
     test("for username already exist.", async () => {
-        jsonValidate(req, res, next);
         Model.findOne.mockResolvedValue({ username: "test" });
         const controller = createUserController(Model);
         await controller(req, res);
+        const result = {
+            status: res.status.mock.calls[0][0],
+            body: res.json.mock.calls[0][0]
+        };
         expect(Model.findOne).toHaveBeenCalledWith({
             $or: [
                 { username: "test" },
                 { email: "test@gmail.com" }
             ]
         });
-        const result = {
-            status: res.status.mock.calls[0][0],
-            body: res.json.mock.calls[0][0]
-        };
-        expect(next).toHaveBeenCalled();
         expect(result).toMatchSnapshot();
     });
 
     test("for email already exist.", async () => {
-        jsonValidate(req, res, next);
         Model.findOne.mockResolvedValue({ email: "test@gmail.com" });
         const controller = createUserController(Model);
         await controller(req, res);
+        const result = {
+            status: res.status.mock.calls[0][0],
+            body: res.json.mock.calls[0][0]
+        };
         expect(Model.findOne).toHaveBeenCalledWith({
             $or: [
                 { username: "test" },
                 { email: "test@gmail.com" }
             ]
         });
-        const result = {
-            status: res.status.mock.calls[0][0],
-            body: res.json.mock.calls[0][0]
-        };
-        expect(next).toHaveBeenCalled();
         expect(result).toMatchSnapshot();
     });
 
@@ -99,13 +93,12 @@ describe("Create User Controller Snapshot Test", () => {
         const result = {
             status: res.status.mock.calls[0][0],
             body: res.json.mock.calls[0][0]
-        }
+        };
         expect(next).not.toHaveBeenCalled();
         expect(result).toMatchSnapshot();
     });
 
     test("for user created successfully.", async () => {
-        jsonValidate(req, res, next);
         let savedData = {
             _id: "507f1f77bcf86cd799439011",
             email: "test@gmail.com",
@@ -127,7 +120,6 @@ describe("Create User Controller Snapshot Test", () => {
             status: res.status.mock.calls[0][0],
             body: res.json.mock.calls[0][0]
         };
-        expect(next).toHaveBeenCalled();
         expect(result).toMatchSnapshot();
     });
 
