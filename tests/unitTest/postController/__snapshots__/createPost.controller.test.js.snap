@@ -1,0 +1,90 @@
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+
+exports[`Create Post Controller Snapshot Test for empty request body. 1`] = `
+{
+  "body": {
+    "message": "Request body is required",
+    "success": false,
+  },
+  "status": 400,
+}
+`;
+
+exports[`Create Post Controller Snapshot Test for error while saving post. 1`] = `
+{
+  "body": {
+    "message": "Oops! Something went wrong while saving post.",
+    "success": false,
+  },
+  "status": 500,
+}
+`;
+
+exports[`Create Post Controller Snapshot Test for invalid user-id. 1`] = `
+{
+  "body": {
+    "message": "Invalid userID.",
+    "success": false,
+  },
+  "status": 400,
+}
+`;
+
+exports[`Create Post Controller Snapshot Test for missing description. 1`] = `
+{
+  "body": {
+    "message": "Please provide title and description correctly.",
+    "success": false,
+  },
+  "status": 400,
+}
+`;
+
+exports[`Create Post Controller Snapshot Test for missing title. 1`] = `
+{
+  "body": {
+    "message": "Please provide title and description correctly.",
+    "success": false,
+  },
+  "status": 400,
+}
+`;
+
+exports[`Create Post Controller Snapshot Test for successful post creation. 1`] = `
+{
+  "body": {
+    "data": {
+      "_id": "507f1f77bcf86cd799438978",
+      "author": "507f1f77bcf86cd799439011",
+      "comments": 12,
+      "createdAt": "2026-03-04T17:00:19.599Z",
+      "description": "postDescription",
+      "like": 924,
+      "title": "postTitle",
+    },
+    "message": "New article created successfully.",
+    "success": true,
+  },
+  "status": 200,
+}
+`;
+
+exports[`Create Post Controller Snapshot Test for valid user-id. 1`] = `
+{
+  "body": {
+    "message": "User doesn't exist. Please create your account.",
+    "success": false,
+  },
+  "status": 404,
+}
+`;
+
+exports[`Create Post Controller Snapshot Test when user not found. 1`] = `
+{
+  "body": {
+    "message": "User doesn't exist. Please create your account.",
+    "success": false,
+  },
+  "status": 404,
+}
+`;

@@ -1,5 +1,4 @@
 const createPostController = (UserModel, PostModel) => async (req, res) => {
-    console.log("Create post article Api called...");
     try {
         const { userId } = req.params;
         const { title, description } = req.body;
@@ -34,10 +33,8 @@ const createPostController = (UserModel, PostModel) => async (req, res) => {
             success: true
         });
     } catch (error) {
-        console.log("Create post API error...");
-        console.log(error);
         return res.status(500).json({
-            message: "Oops! Something went wrong on our end.",
+            message: "Oops! Something went wrong while saving post.",
             success: false
         });
     }
