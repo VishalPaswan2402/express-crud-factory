@@ -1,7 +1,6 @@
 import mongoose from "mongoose"
 
 const isValidUserId = (req, res, next) => {
-    console.log("Validating user id.");
     const { userId } = req.params;
     if (!userId) {
         return res.status(400).json({

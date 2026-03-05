@@ -13,7 +13,7 @@ exports[`Create User Controller Snapshot Test for email already exist. 1`] = `
 exports[`Create User Controller Snapshot Test for empty request body. 1`] = `
 {
   "body": {
-    "message": "Please fill all data correctly.",
+    "message": "Request body is required",
     "success": false,
   },
   "status": 400,
@@ -54,10 +54,11 @@ exports[`Create User Controller Snapshot Test for user created successfully. 1`]
 {
   "body": {
     "data": {
-      "_id": "123",
-      "confirmPassword": "testPassword",
+      "_id": "507f1f77bcf86cd799439011",
+      "articles": [],
       "email": "test@gmail.com",
       "fullname": "UserTest",
+      "isActive": true,
       "password": "testPassword",
       "username": "test",
     },

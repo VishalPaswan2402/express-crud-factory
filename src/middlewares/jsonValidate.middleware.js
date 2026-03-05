@@ -5,7 +5,6 @@ const jsonValidate = (req, res, next) => {
             message: "Request body is required"
         });
     }
-
     next();
 };
 

@@ -1,5 +1,4 @@
 const getUserByIdController = (Model) => async (req, res) => {
-    console.log("Get user by ID Api called...");
     try {
         const { userId } = req.params;
         // finding user from userID.
@@ -16,10 +15,8 @@ const getUserByIdController = (Model) => async (req, res) => {
             success: true
         });
     } catch (error) {
-        console.log("GetUser API error...");
-        console.log(error);
         return res.status(500).json({
-            message: "Oops! Something went wrong on our end.",
+            message: "Oops! Something went wrong while finding user.",
             success: false
         });
     }
