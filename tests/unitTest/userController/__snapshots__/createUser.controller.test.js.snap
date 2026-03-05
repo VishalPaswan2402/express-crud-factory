@@ -1,0 +1,89 @@
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+
+exports[`Create User Controller Snapshot Test for email already exist. 1`] = `
+{
+  "body": {
+    "message": "Looks like someone already registered with that username or email.",
+    "success": false,
+  },
+  "status": 400,
+}
+`;
+
+exports[`Create User Controller Snapshot Test for empty request body. 1`] = `
+{
+  "body": {
+    "message": "Please fill all data correctly.",
+    "success": false,
+  },
+  "status": 400,
+}
+`;
+
+exports[`Create User Controller Snapshot Test for missing fields. 1`] = `
+{
+  "body": {
+    "message": "Please fill all data correctly.",
+    "success": false,
+  },
+  "status": 400,
+}
+`;
+
+exports[`Create User Controller Snapshot Test for password mismatch. 1`] = `
+{
+  "body": {
+    "message": "Oops! Your passwords don't match.",
+    "success": false,
+  },
+  "status": 400,
+}
+`;
+
+exports[`Create User Controller Snapshot Test for server error. 1`] = `
+{
+  "body": {
+    "message": "Oops! Something went wrong while saving new user.Try again later.",
+    "success": false,
+  },
+  "status": 500,
+}
+`;
+
+exports[`Create User Controller Snapshot Test for user created successfully. 1`] = `
+{
+  "body": {
+    "data": {
+      "_id": "123",
+      "confirmPassword": "testPassword",
+      "email": "test@gmail.com",
+      "fullname": "UserTest",
+      "password": "testPassword",
+      "username": "test",
+    },
+    "message": "New user created successfully.",
+    "success": true,
+  },
+  "status": 200,
+}
+`;
+
+exports[`Create User Controller Snapshot Test for username already exist. 1`] = `
+{
+  "body": {
+    "message": "Looks like someone already registered with that username or email.",
+    "success": false,
+  },
+  "status": 400,
+}
+`;
+
+exports[`Create User Controller Snapshot Test user saving failed. 1`] = `
+{
+  "body": {
+    "message": "Oops! Something went wrong while saving new user.Try again later.",
+    "success": false,
+  },
+  "status": 500,
+}
+`;

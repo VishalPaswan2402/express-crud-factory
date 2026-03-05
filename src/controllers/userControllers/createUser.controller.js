@@ -1,5 +1,4 @@
 const createUserController = (Model) => async (req, res) => {
-    console.log("Create user Api called...");
     try {
         // validating input data.
         const { email, username, fullname, password, confirmPassword } = req.body;
@@ -38,10 +37,8 @@ const createUserController = (Model) => async (req, res) => {
             success: true
         });
     } catch (error) {
-        console.log("Create API error...");
-        console.log(error);
         return res.status(500).json({
-            message: "Oops! Something went wrong on our end.",
+            message: "Oops! Something went wrong while saving new user.Try again later.",
             success: false
         });
     }
