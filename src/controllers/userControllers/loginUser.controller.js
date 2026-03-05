@@ -1,5 +1,4 @@
 const loginUserController = (Model) => async (req, res) => {
-    console.log("Login user Api is called...");
     try {
         const { username, password } = req.body;
         // validate username and password
@@ -30,10 +29,8 @@ const loginUserController = (Model) => async (req, res) => {
             success: true
         });
     } catch (error) {
-        console.log("Login API error...");
-        console.log(error);
         return res.status(500).json({
-            message: "Oops! Something went wrong on our end.",
+            message: "Oops! Something went wrong while logging.",
             success: false
         });
     }

@@ -1,0 +1,80 @@
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+
+exports[`Create Login User Controller Snapshot Test for checking user not exist. 1`] = `
+{
+  "body": {
+    "message": "Looks like that user doesn't exist in our system.",
+    "success": false,
+  },
+  "status": 404,
+}
+`;
+
+exports[`Create Login User Controller Snapshot Test for expty request body. 1`] = `
+{
+  "body": {
+    "message": "Request body is required",
+    "success": false,
+  },
+  "status": 400,
+}
+`;
+
+exports[`Create Login User Controller Snapshot Test for incorrect password. 1`] = `
+{
+  "body": {
+    "message": "Oops! you have entered incorrect password.",
+    "success": false,
+  },
+  "status": 401,
+}
+`;
+
+exports[`Create Login User Controller Snapshot Test for internal server error. 1`] = `
+{
+  "body": {
+    "message": "Oops! Something went wrong while logging.",
+    "success": false,
+  },
+  "status": 500,
+}
+`;
+
+exports[`Create Login User Controller Snapshot Test for missing password. 1`] = `
+{
+  "body": {
+    "message": "Both username and password is required.",
+    "success": false,
+  },
+  "status": 400,
+}
+`;
+
+exports[`Create Login User Controller Snapshot Test for missing username. 1`] = `
+{
+  "body": {
+    "message": "Both username and password is required.",
+    "success": false,
+  },
+  "status": 400,
+}
+`;
+
+exports[`Create Login User Controller Snapshot Test for successfull login. 1`] = `
+{
+  "body": {
+    "data": {
+      "_id": "507f1f77bcf86cd799439011",
+      "articles": [],
+      "email": "test@gmail.com",
+      "fullname": "UserTest",
+      "isActive": true,
+      "password": "testPassword",
+      "username": "test",
+    },
+    "message": "User logged-in successfully.",
+    "success": true,
+  },
+  "status": 200,
+}
+`;
