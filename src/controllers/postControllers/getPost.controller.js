@@ -1,5 +1,4 @@
 const getPostController = (UserModel, PostModel) => async (req, res) => {
-    console.log("Get post Api called...");
     try {
         const { postId, userId } = req.params;
         // finding user.
@@ -24,10 +23,8 @@ const getPostController = (UserModel, PostModel) => async (req, res) => {
             success: true
         });
     } catch (error) {
-        console.log("Create post API error...");
-        console.log(error);
         return res.status(500).json({
-            message: "Oops! Something went wrong on our end.",
+            message: "Oops! Something went wrong while finding post.",
             success: false
         });
     }
