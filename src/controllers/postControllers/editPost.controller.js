@@ -1,5 +1,4 @@
 const editPostController = (UserModel, PostModel) => async (req, res) => {
-    console.log("Edit post Api is called...");
     try {
         const { userId, postId } = req.params;
         const { title, description } = req.body;
@@ -30,16 +29,15 @@ const editPostController = (UserModel, PostModel) => async (req, res) => {
         postData.title = title;
         postData.description = description;
         await postData.save();
+        const updatedData = await PostModel.findById(postId).lean();
         return res.status(200).json({
-            data: postData,
+            data: updatedData,
             message: "Post article edited successfully.",
             success: true
         });
     } catch (error) {
-        console.log("Edit post API error...");
-        console.log(error);
         return res.status(500).json({
-            message: "Oops! Something went wrong on our end.",
+            message: "Oops! Something went wrong while editing post.",
             success: false
         });
     }

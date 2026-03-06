@@ -1,0 +1,80 @@
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+
+exports[`Edit Post Controller Snapshot Test for author not found. 1`] = `
+{
+  "body": {
+    "message": "User doesn't exist. Please create your account.",
+    "success": false,
+  },
+  "status": 404,
+}
+`;
+
+exports[`Edit Post Controller Snapshot Test for empty request body, 1`] = `
+{
+  "body": {
+    "message": "Request body is required",
+    "success": false,
+  },
+  "status": 400,
+}
+`;
+
+exports[`Edit Post Controller Snapshot Test for internal server error. 1`] = `
+{
+  "body": {
+    "message": "Oops! Something went wrong while editing post.",
+    "success": false,
+  },
+  "status": 500,
+}
+`;
+
+exports[`Edit Post Controller Snapshot Test for missing description. 1`] = `
+{
+  "body": {
+    "message": "Please provide title and description correctly.",
+    "success": false,
+  },
+  "status": 400,
+}
+`;
+
+exports[`Edit Post Controller Snapshot Test for missing title. 1`] = `
+{
+  "body": {
+    "message": "Please provide title and description correctly.",
+    "success": false,
+  },
+  "status": 400,
+}
+`;
+
+exports[`Edit Post Controller Snapshot Test for post article not found. 1`] = `
+{
+  "body": {
+    "message": "Posted article not found.",
+    "success": false,
+  },
+  "status": 404,
+}
+`;
+
+exports[`Edit Post Controller Snapshot Test for update post successfully. 1`] = `
+{
+  "body": {
+    "data": {
+      "author": "507f1f77bcf86cd799439011",
+      "comments": 12,
+      "createdAt": "2026-03-04T17:00:19.599Z",
+      "description": "newUpdatedDescription",
+      "id": "69a8652b69726b384c21b27d",
+      "likes": 924,
+      "title": "newUpdatedTitle",
+    },
+    "message": "Post article edited successfully.",
+    "success": true,
+  },
+  "status": 200,
+}
+`;
