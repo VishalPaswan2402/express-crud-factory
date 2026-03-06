@@ -16,6 +16,10 @@
     "example": "examples",
     "test": "tests"
   },
+  "files": [
+    "src",
+    "index.js"
+  ],
   "scripts": {
     "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js",
     "test:coverage": "node --experimental-vm-modules node_modules/jest/bin/jest.js --coverage"
