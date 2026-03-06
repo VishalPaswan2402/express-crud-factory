@@ -1,4 +1,4 @@
-# Secure API Practice Kit
+# Express CRUD Factory
 
 A **practice-ready backend API kit** designed for developers who want to **learn secure API integration using real-world authentication and CRUD operations**.
 
@@ -18,7 +18,7 @@ This package provides a **ready-to-use backend with User Authentication and Post
 ## Why This Package?
 Many frontend developers struggle to practice API integration because they don't have a backend.
 
-**Secure API Practice Kit solves this problem.**
+**Express-crud-factory solves this problem.**
 
 It provides a **simple backend API system** that you can connect with:
 
@@ -54,7 +54,7 @@ Install all these required dependencies after project setup :
 
 You can try the package instantly using the starter repository.
 GitHub Quick Setup Project:
-[https://github.com/VishalPaswan2402/secure-api-practice-kit](https://github.com/VishalPaswan2402/secure-api-practice-kit)
+[https://github.com/VishalPaswan2402/express-crud-factory](https://github.com/VishalPaswan2402/express-crud-factory)
 
 ```
 npm init
@@ -67,7 +67,7 @@ npm install express mongoose cors dotenv
 ```
 
 ```
-npm install secure-api-practice-kit
+npm install express-crud-factory
 ```
 
 ## Quick Start
@@ -76,7 +76,7 @@ Import installed dependencies :
 ```
 import express from "express";
 import mongoose from "mongoose";
-import { loginSignupFactory, postArticleFactory } from  "secure-api-practice-kit";
+import { loginSignupFactory, postArticleFactory } from  "express-crud-factory";
 
 const app = express();
 app.use(express.json());
@@ -150,7 +150,7 @@ DELETE Request : /user/post/:userId/:postId/delete-post
 
 ## Project Structure
 ```
-secure-api-practice-kit-quickstart
+express-crud-factory-quickstart
 │
 ├── models
 │   ├── user.model.js
@@ -216,6 +216,6 @@ Passionate about building interactive and practical developer tools.
 
 ## Support
 
-⭐ If this project helps you, consider giving it a star on [GitHub.](https://github.com/VishalPaswan2402/secure-api-practice-kit)
+⭐ If this project helps you, consider giving it a star on [GitHub.](https://github.com/VishalPaswan2402/express-crud-factory)
 
 Your support helps improve the project and motivates further development.
