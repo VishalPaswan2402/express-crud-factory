@@ -69,16 +69,6 @@ exports[`Create Post Controller Snapshot Test for successful post creation. 1`] 
 }
 `;
 
-exports[`Create Post Controller Snapshot Test for valid user-id. 1`] = `
-{
-  "body": {
-    "message": "User doesn't exist. Please create your account.",
-    "success": false,
-  },
-  "status": 404,
-}
-`;
-
 exports[`Create Post Controller Snapshot Test when user not found. 1`] = `
 {
   "body": {

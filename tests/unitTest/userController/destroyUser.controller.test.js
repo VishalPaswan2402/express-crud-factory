@@ -36,15 +36,6 @@ describe("Create Destroy User Controller Snapshot Test", () => {
 
     test("for valid user-id.", async () => {
         isValidUserId(req, res, next);
-        Model.findByIdAndDelete.mockResolvedValue(null);
-        const controller = destroyUserController(Model);
-        await controller(req, res);
-        const result = {
-            status: res.status.mock.calls[0][0],
-            body: res.json.mock.calls[0][0]
-        }
-        expect(Model.findByIdAndDelete).toHaveBeenCalledWith(req.params.userId);
-        expect(result).toMatchSnapshot();
         expect(next).toHaveBeenCalled();
     });
 

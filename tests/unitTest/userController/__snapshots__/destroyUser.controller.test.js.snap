@@ -58,13 +58,3 @@ exports[`Create Destroy User Controller Snapshot Test for user with user-id not 
   "status": 404,
 }
 `;
-
-exports[`Create Destroy User Controller Snapshot Test for valid user-id. 1`] = `
-{
-  "body": {
-    "message": "Looks like that user doesn't exist in our system.",
-    "success": false,
-  },
-  "status": 404,
-}
-`;

@@ -54,15 +54,6 @@ describe("Create Post Controller Snapshot Test", () => {
 
     test("for valid user-id.", async () => {
         isValidUserId(req, res, next);
-        UserModel.findById.mockResolvedValue(null);
-        const controller = createPostController(UserModel, PostModel);
-        await controller(req, res);
-        const result = {
-            status: res.status.mock.calls[0][0],
-            body: res.json.mock.calls[0][0]
-        }
-        expect(UserModel.findById).toHaveBeenCalledWith(req.params.userId);
-        expect(result).toMatchSnapshot();
         expect(next).toHaveBeenCalled();
     });
 

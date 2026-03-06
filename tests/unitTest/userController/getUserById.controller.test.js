@@ -41,22 +41,13 @@ describe("Create Get-User-By-Id Controller Snapshot Test", () => {
         const result = {
             status: res.status.mock.calls[0][0],
             body: res.json.mock.calls[0][0]
-        }
+        };
         expect(result).toMatchSnapshot();
         expect(next).not.toHaveBeenCalled();
     });
 
     test("for valid user-id.", async () => {
         isValidUserId(req, res, next);
-        Model.findById.mockResolvedValue(null);
-        const controller = getUserByIdController(Model);
-        await controller(req, res);
-        const result = {
-            status: res.status.mock.calls[0][0],
-            body: res.json.mock.calls[0][0]
-        }
-        expect(Model.findById).toHaveBeenCalledWith(req.params.userId);
-        expect(result).toMatchSnapshot();
         expect(next).toHaveBeenCalled();
     });
 
@@ -67,7 +58,7 @@ describe("Create Get-User-By-Id Controller Snapshot Test", () => {
         const result = {
             status: res.status.mock.calls[0][0],
             body: res.json.mock.calls[0][0]
-        }
+        };
         expect(Model.findById).toHaveBeenCalledWith(req.params.userId);
         expect(result).toMatchSnapshot();
     });
@@ -88,7 +79,7 @@ describe("Create Get-User-By-Id Controller Snapshot Test", () => {
         const result = {
             status: res.status.mock.calls[0][0],
             body: res.json.mock.calls[0][0]
-        }
+        };
         expect(Model.findById).toHaveBeenCalledWith(req.params.userId);
         expect(result).toMatchSnapshot();
     });
@@ -100,7 +91,7 @@ describe("Create Get-User-By-Id Controller Snapshot Test", () => {
         const result = {
             status: res.status.mock.calls[0][0],
             body: res.json.mock.calls[0][0]
-        }
+        };
         expect(result).toMatchSnapshot();
     });
 

@@ -49,16 +49,6 @@ exports[`Create Get-User-By-Id Controller Snapshot Test for user not exist. 1`] 
 }
 `;
 
-exports[`Create Get-User-By-Id Controller Snapshot Test for valid user-id. 1`] = `
-{
-  "body": {
-    "message": "Looks like that user doesn't exist in our system.",
-    "success": false,
-  },
-  "status": 404,
-}
-`;
-
 exports[`Create Get-User-By-Id Controller Snapshot Test internal server error. 1`] = `
 {
   "body": {
