@@ -1,6 +1,7 @@
 import { jest, describe, test, expect, beforeEach } from "@jest/globals";
 import createUserController from "../../../src/controllers/userControllers/createUser.controller";
 import jsonValidate from "../../../src/middlewares/jsonValidate.middleware";
+import { passwordHashing } from "../../../src/utils/password.utils";
 
 describe("Create User Controller Snapshot Test", () => {
     let req;
@@ -27,6 +28,11 @@ describe("Create User Controller Snapshot Test", () => {
             findOne: jest.fn()
         };
         next = jest.fn();
+        jest.spyOn(passwordHashing, "hashPassword").mockReset();
+    });
+
+    afterEach(() => {
+        jest.clearAllMocks();
     });
 
     test("for missing fields.", async () => {
@@ -99,16 +105,21 @@ describe("Create User Controller Snapshot Test", () => {
     });
 
     test("for user created successfully.", async () => {
+        Model.findOne.mockResolvedValue(null);
+        jest.spyOn(passwordHashing, "hashPassword").mockResolvedValue("hashedPassword");
         let savedData = {
             _id: "507f1f77bcf86cd799439011",
             email: "test@gmail.com",
             fullname: "UserTest",
-            password: "testPassword",
+            password: "hashedPassword",
             username: "test",
             isActive: true,
-            articles: []
+            articles: [],
+            toObject: function () {
+                const { toObject, ...rest } = this;
+                return { ...rest };
+            }
         };
-        Model.findOne.mockResolvedValue(null);
         const mockSave = jest.fn().mockResolvedValue(savedData);
         const MockModel = jest.fn().mockImplementation(() => ({
             save: mockSave
@@ -120,6 +131,8 @@ describe("Create User Controller Snapshot Test", () => {
             status: res.status.mock.calls[0][0],
             body: res.json.mock.calls[0][0]
         };
+        expect(result.body.data.password).toBeUndefined();
+        expect(passwordHashing.hashPassword).toHaveBeenCalledWith("testPassword");
         expect(result).toMatchSnapshot();
     });
 

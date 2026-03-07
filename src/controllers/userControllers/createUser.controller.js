@@ -1,3 +1,5 @@
+import { passwordHashing } from "../../utils/password.utils.js";
+
 const createUserController = (Model) => async (req, res) => {
     try {
         // validating input data.
@@ -28,11 +30,15 @@ const createUserController = (Model) => async (req, res) => {
                 success: false
             });
         }
+        // hash plain password.
+        const hashedPassword = await passwordHashing.hashPassword(password);
         // saving data.
-        const modelData = new Model(req.body);
+        const modelData = new Model({ ...req.body, password: hashedPassword });
         const data = await modelData.save();
+        const savedData=data.toObject();
+        delete savedData.password;
         return res.status(200).json({
-            data: data,
+            data: savedData,
             message: "New user created successfully.",
             success: true
         });

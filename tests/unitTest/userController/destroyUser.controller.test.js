@@ -23,6 +23,10 @@ describe("Create Destroy User Controller Snapshot Test", () => {
         next = jest.fn();
     });
 
+    afterEach(() => {
+        jest.clearAllMocks();
+    });
+
     test("for invalid user-id.", () => {
         req.params.userId = "123";
         isValidUserId(req, res, next);
@@ -67,7 +71,6 @@ describe("Create Destroy User Controller Snapshot Test", () => {
             _id: req.params.userId,
             email: "test@gmail.com",
             fullname: "UserTest",
-            password: "testPassword",
             username: "test",
             isActive: true,
             articles: []

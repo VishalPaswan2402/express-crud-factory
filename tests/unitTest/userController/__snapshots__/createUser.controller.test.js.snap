@@ -59,7 +59,6 @@ exports[`Create User Controller Snapshot Test for user created successfully. 1`]
       "email": "test@gmail.com",
       "fullname": "UserTest",
       "isActive": true,
-      "password": "testPassword",
       "username": "test",
     },
     "message": "New user created successfully.",

@@ -17,7 +17,8 @@ const defaultUserSchema = new Schema({
     },
     password: {
         type: String,
-        required: true
+        required: true,
+        select: false
     },
     isActive: {
         type: Boolean,

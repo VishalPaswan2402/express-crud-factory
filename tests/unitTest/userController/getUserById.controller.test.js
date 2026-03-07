@@ -24,6 +24,10 @@ describe("Create Get-User-By-Id Controller Snapshot Test", () => {
         next = jest.fn();
     });
 
+    afterEach(() => {
+        jest.clearAllMocks();
+    });
+
     test("for empty user-id.", () => {
         req.params = {};
         isValidUserId(req, res, next);
@@ -68,7 +72,6 @@ describe("Create Get-User-By-Id Controller Snapshot Test", () => {
             _id: "507f1f77bcf86cd799439011",
             email: "test@gmail.com",
             fullname: "UserTest",
-            password: "testPassword",
             username: "test",
             isActive: true,
             articles: []
@@ -80,6 +83,7 @@ describe("Create Get-User-By-Id Controller Snapshot Test", () => {
             status: res.status.mock.calls[0][0],
             body: res.json.mock.calls[0][0]
         };
+        expect(result.body.data.password).toBeUndefined();
         expect(Model.findById).toHaveBeenCalledWith(req.params.userId);
         expect(result).toMatchSnapshot();
     });

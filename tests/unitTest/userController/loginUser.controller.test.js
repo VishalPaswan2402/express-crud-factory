@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, jest } from '@jest/globals'
 import jsonValidate from '../../../src/middlewares/jsonValidate.middleware';
 import loginUserController from '../../../src/controllers/userControllers/loginUser.controller';
+import { passwordHashing } from '../../../src/utils/password.utils.js';
 
 describe("Create Login User Controller Snapshot Test", () => {
     let req;
@@ -23,6 +24,11 @@ describe("Create Login User Controller Snapshot Test", () => {
             findOne: jest.fn()
         };
         next = jest.fn();
+        jest.spyOn(passwordHashing, "comparePassword").mockReset();
+    });
+
+    afterEach(() => {
+        jest.clearAllMocks();
     });
 
     test("for expty request body.", async () => {
@@ -63,12 +69,20 @@ describe("Create Login User Controller Snapshot Test", () => {
             _id: "507f1f77bcf86cd799439011",
             email: "test@gmail.com",
             fullname: "UserTest",
-            password: "testPassword",
+            password: "hashedPassword",
             username: "test",
             isActive: true,
-            articles: []
+            articles: [],
+            toObject: function () {
+                const { toObject, ...rest } = this;
+                return { ...rest };
+            }
         };
-        Model.findOne.mockResolvedValue(savedData);
+        Model.findOne = jest.fn().mockReturnValue({
+            select: jest.fn().mockResolvedValue(savedData)
+        });
+        // Model.findOne = mockFindOne;
+        jest.spyOn(passwordHashing, "comparePassword").mockResolvedValue(true);
         const controller = loginUserController(Model);
         await controller(req, res);
         const result = {
@@ -78,6 +92,8 @@ describe("Create Login User Controller Snapshot Test", () => {
         expect(Model.findOne).toHaveBeenCalledWith({
             username: req.body.username
         });
+        expect(passwordHashing.comparePassword).toHaveBeenCalledWith(req.body.password, savedData.password);
+        expect(result.body.data.password).toBeUndefined();
         expect(result).toMatchSnapshot();
     });
 
@@ -89,21 +105,26 @@ describe("Create Login User Controller Snapshot Test", () => {
             password: "testPassword",
             username: "test",
             isActive: true,
-            articles: []
+            articles: [],
+            toObject: function () { return { ...this }; }
         };
-        Model.findOne.mockResolvedValue(savedData);
-        req.body.password = "wrongPassword";
+        Model.findOne = jest.fn().mockReturnValue({
+            select: jest.fn().mockResolvedValue(savedData)
+        });
+        jest.spyOn(passwordHashing, "comparePassword").mockResolvedValue(false);
         const controller = loginUserController(Model);
         await controller(req, res);
         const result = {
             status: res.status.mock.calls[0][0],
             body: res.json.mock.calls[0][0]
         };
+        expect(passwordHashing.comparePassword).toHaveBeenCalledWith(req.body.password, savedData.password);
         expect(result).toMatchSnapshot();
     });
 
     test("for checking user not exist.", async () => {
-        Model.findOne.mockResolvedValue(null);
+        const selectMock = jest.fn().mockResolvedValue(null);
+        Model.findOne = jest.fn(() => ({ select: selectMock }));
         const controller = loginUserController(Model);
         await controller(req, res);
         const result = {
@@ -117,7 +138,9 @@ describe("Create Login User Controller Snapshot Test", () => {
     });
 
     test("for internal server error.", async () => {
-        Model.findOne.mockRejectedValue(new Error("Server error"));
+        Model.findOne = jest.fn().mockReturnValue({
+            select: jest.fn().mockRejectedValue(new Error("Server error"))
+        });
         const controller = loginUserController(Model);
         await controller(req, res);
         const result = {

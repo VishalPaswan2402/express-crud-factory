@@ -29,7 +29,6 @@ exports[`Create Get-User-By-Id Controller Snapshot Test for user found successfu
       "email": "test@gmail.com",
       "fullname": "UserTest",
       "isActive": true,
-      "password": "testPassword",
       "username": "test",
     },
     "message": "User found successfully.",

@@ -1,3 +1,5 @@
+import { passwordHashing } from "../../utils/password.utils.js";
+
 const loginUserController = (Model) => async (req, res) => {
     try {
         const { username, password } = req.body;
@@ -9,7 +11,7 @@ const loginUserController = (Model) => async (req, res) => {
             });
         }
         // find user by username
-        const dataByUsername = await Model.findOne({ username: username });
+        const dataByUsername = await Model.findOne({ username: username }).select("+password");
         if (!dataByUsername) {
             return res.status(404).json({
                 message: "Looks like that user doesn't exist in our system.",
@@ -17,14 +19,17 @@ const loginUserController = (Model) => async (req, res) => {
             });
         }
         // verify password
-        if (dataByUsername.password != password) {
+        let isValid = await passwordHashing.comparePassword(password, dataByUsername.password);
+        if (!isValid) {
             return res.status(401).json({
                 message: "Oops! you have entered incorrect password.",
                 success: false
             })
         }
+        const findData = dataByUsername.toObject();
+        delete findData.password;
         return res.status(200).json({
-            data: dataByUsername,
+            data: findData,
             message: "User logged-in successfully.",
             success: true
         });

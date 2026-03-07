@@ -19,7 +19,6 @@ exports[`Create Destroy User Controller Snapshot Test for find user by Id and de
       "email": "test@gmail.com",
       "fullname": "UserTest",
       "isActive": true,
-      "password": "testPassword",
       "username": "test",
     },
     "message": "User data deleted successfully.",
