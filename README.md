@@ -74,7 +74,7 @@ You can clone it and explore a fully configured project to see how everything wo
 ```js
 import express from 'express'
 import mongoose from 'mongoose';
-import { loginSignupFactory, postArticleFactory } from "../express-crud-factory/index.js";
+import { loginSignupFactory, postArticleFactory } from "express-crud-factory";
 import UserModel from './models/user.model.js';
 import PostModel from './models/post.model.js';
 
@@ -167,7 +167,7 @@ Run your backend application :
 node index.js
 ```
 ```
-Server is running on port 8080
+Server is running on port 3000
 ```
 
 ## API Endpoints
