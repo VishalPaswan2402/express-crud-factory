@@ -10,6 +10,9 @@ function loginSignupFactory(UserModel, configOptions = {}) {
     if (!jwtSecret || Object.keys(jwtSecret).length === 0) {
         throw new Error("Jwt secret is required to Login_Signup_Factory");
     }
+    if (!jwtSecret.secretKey || jwtSecret.secretKey == "") {
+        throw new Error("Jwt secretKey is required to Login_Signup_Factory");
+    }
     const userSecretConfig = authSecretConfig(jwtSecret, bcryptSecret);
     return loginSignupApi(UserModel, userSecretConfig);
 };
@@ -22,6 +25,9 @@ function postArticleFactory(UserModel, PostModel, configOptions = {}) {
     }
     if (!jwtSecret || Object.keys(jwtSecret).length === 0) {
         throw new Error("Jwt secret is required to Post_Article_Factory.");
+    }
+    if (!jwtSecret.secretKey || jwtSecret.secretKey == "") {
+        throw new Error("Jwt secretKey is required to Post_Article_Factory");
     }
     const userSecretConfig = authSecretConfig(jwtSecret, bcryptSecret);
     return postArticleAPI(UserModel, PostModel, userSecretConfig);
