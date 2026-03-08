@@ -1,4 +1,4 @@
-<img src="./src//image/logo.png" alt="Express CRUD Factory Starter Logo" width="100%"/>
+<img src="./assets/logo.png" alt="Express CRUD Factory Starter Logo" width="100%"/>
 
 # Secure API Practice Kit
 [![Npm Pa](https://img.shields.io/badge/NPM-Package-blue)](https://www.npmjs.com/package/express-crud-factory) [![Project Downloads](https://img.shields.io/npm/dt/express-crud-factory?label=Project%20Setup%20Downloads)](https://github.com/VishalPaswan2402/express-crud-factory-setup)  [![License](https://img.shields.io/npm/l/express-crud-factory?label=License)](https://www.npmjs.com/package/express-crud-factory) [![Contributors](https://img.shields.io/badge/Contributors-1-orange)](https://github.com/VishalPaswan2402)
