@@ -20,6 +20,16 @@ exports[`Get Post Controller Snapshot Test for internal server error. 1`] = `
 }
 `;
 
+exports[`Get Post Controller Snapshot Test for no permission to view post. 1`] = `
+{
+  "body": {
+    "message": "No permission to view this post article.",
+    "success": false,
+  },
+  "status": 403,
+}
+`;
+
 exports[`Get Post Controller Snapshot Test for not valid post Id. 1`] = `
 {
   "body": {

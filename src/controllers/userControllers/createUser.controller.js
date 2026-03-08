@@ -1,6 +1,7 @@
-import { passwordHashing } from "../../utils/password.utils.js";
+import { generateJwtToken } from "../../utils/generateJwtToken.utils.js";
+import { passwordHashing } from "../../utils/passwordHashing.utils.js";
 
-const createUserController = (Model) => async (req, res) => {
+const createUserController = (UserModel, userSecretConfig) => async (req, res) => {
     try {
         // validating input data.
         const { email, username, fullname, password, confirmPassword } = req.body;
@@ -18,7 +19,7 @@ const createUserController = (Model) => async (req, res) => {
             });
         }
         // finding if username or email already exist.
-        const userExist = await Model.findOne({
+        const userExist = await UserModel.findOne({
             $or: [
                 { username: username },
                 { email: email }
@@ -31,18 +32,22 @@ const createUserController = (Model) => async (req, res) => {
             });
         }
         // hash plain password.
-        const hashedPassword = await passwordHashing.hashPassword(password);
+        const hashedPassword = await passwordHashing.hashPassword(password, userSecretConfig.bcryptSecret);
         // saving data.
-        const modelData = new Model({ ...req.body, password: hashedPassword });
+        const modelData = new UserModel({ ...req.body, password: hashedPassword });
         const data = await modelData.save();
-        const savedData=data.toObject();
+        const savedData = data.toObject();
         delete savedData.password;
-        return res.status(200).json({
+        // generate jwt token
+        const token = generateJwtToken(savedData, userSecretConfig.jwtSecret);
+        return res.status(201).json({
             data: savedData,
+            token: token,
             message: "New user created successfully.",
             success: true
         });
-    } catch (error) {
+    }
+    catch (error) {
         return res.status(500).json({
             message: "Oops! Something went wrong while saving new user.Try again later.",
             success: false

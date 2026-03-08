@@ -1,13 +1,20 @@
 import { jest, describe, test, expect, beforeEach } from "@jest/globals";
 import createUserController from "../../../src/controllers/userControllers/createUser.controller";
 import jsonValidate from "../../../src/middlewares/jsonValidate.middleware";
-import { passwordHashing } from "../../../src/utils/password.utils";
+import { passwordHashing } from "../../../src/utils/passwordHashing.utils";
+
+await jest.unstable_mockModule("../../../src/utils/generateJwtToken.utils.js", () => ({
+    generateJwtToken: jest.fn()
+}));
+const { generateJwtToken } = await import("../../../src/utils/generateJwtToken.utils.js");
 
 describe("Create User Controller Snapshot Test", () => {
     let req;
     let res;
     let Model;
     let next;
+    let bcryptSecret;
+    let userSecretConfig;
     beforeEach(() => {
         req = {
             body: {
@@ -27,7 +34,20 @@ describe("Create User Controller Snapshot Test", () => {
         Model = {
             findOne: jest.fn()
         };
+        bcryptSecret = {
+            salts: 10,
+        };
+        userSecretConfig = {
+            jwtSecret: {
+                secret: "test-secret",
+                expireIn: "7d"
+            },
+            bcryptSecret: {
+                salts: 10,
+            }
+        };
         next = jest.fn();
+        generateJwtToken.mockReset();
         jest.spyOn(passwordHashing, "hashPassword").mockReset();
     });
 
@@ -120,19 +140,21 @@ describe("Create User Controller Snapshot Test", () => {
                 return { ...rest };
             }
         };
+        // passwordHashing.hashPassword.mockResolvedValue("hashedPassword");
         const mockSave = jest.fn().mockResolvedValue(savedData);
         const MockModel = jest.fn().mockImplementation(() => ({
             save: mockSave
         }));
         MockModel.findOne = Model.findOne;
-        const controller = createUserController(MockModel);
+        generateJwtToken.mockResolvedValue("fake-token");
+        const controller = createUserController(MockModel, userSecretConfig);
         await controller(req, res);
         const result = {
             status: res.status.mock.calls[0][0],
-            body: res.json.mock.calls[0][0]
+            body: { ...res.json.mock.calls[0][0], token: "fake-token" }
         };
         expect(result.body.data.password).toBeUndefined();
-        expect(passwordHashing.hashPassword).toHaveBeenCalledWith("testPassword");
+        expect(passwordHashing.hashPassword).toHaveBeenCalledWith(req.body.password, bcryptSecret);
         expect(result).toMatchSnapshot();
     });
 

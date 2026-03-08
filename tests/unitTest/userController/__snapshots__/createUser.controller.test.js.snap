@@ -63,8 +63,9 @@ exports[`Create User Controller Snapshot Test for user created successfully. 1`]
     },
     "message": "New user created successfully.",
     "success": true,
+    "token": "fake-token",
   },
-  "status": 200,
+  "status": 201,
 }
 `;
 

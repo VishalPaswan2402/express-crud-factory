@@ -25,6 +25,13 @@ const editPostController = (UserModel, PostModel) => async (req, res) => {
                 success: false
             });
         }
+        // check author
+        if (postData.author != userId) {
+            return res.status(403).json({
+                message: "No permission to edit this post article.",
+                success: false
+            });
+        }
         // updating value
         postData.title = title;
         postData.description = description;
@@ -35,7 +42,8 @@ const editPostController = (UserModel, PostModel) => async (req, res) => {
             message: "Post article edited successfully.",
             success: true
         });
-    } catch (error) {
+    }
+    catch (error) {
         return res.status(500).json({
             message: "Oops! Something went wrong while editing post.",
             success: false

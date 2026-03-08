@@ -32,7 +32,8 @@ const createPostController = (UserModel, PostModel) => async (req, res) => {
             message: "New article created successfully.",
             success: true
         });
-    } catch (error) {
+    }
+    catch (error) {
         return res.status(500).json({
             message: "Oops! Something went wrong while saving post.",
             success: false

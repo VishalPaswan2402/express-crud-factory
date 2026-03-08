@@ -17,12 +17,20 @@ const getPostController = (UserModel, PostModel) => async (req, res) => {
                 success: false
             });
         }
+        // check author
+        if (postData.author != userId) {
+            return res.status(403).json({
+                message: "No permission to view this post article.",
+                success: false
+            });
+        }
         return res.status(200).json({
             data: postData,
             message: "Post article found successfully.",
             success: true
         });
-    } catch (error) {
+    }
+    catch (error) {
         return res.status(500).json({
             message: "Oops! Something went wrong while finding post.",
             success: false

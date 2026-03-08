@@ -9,15 +9,24 @@ const deletePostController = (UserModel, PostModel) => async (req, res) => {
                 success: false
             });
         }
-        // delete post.
-        const deletedPost = await PostModel.findByIdAndDelete(postId);
-        if (!deletedPost) {
+        // finding post.
+        const postData = await PostModel.findById(postId);
+        if (!postData) {
             return res.status(404).json({
                 message: "Posted article not found.",
                 success: false
             });
         }
-        // removing reference from user.
+        // check author
+        if (postData.author != userId) {
+            return res.status(403).json({
+                message: "No permission to delete this post article.",
+                success: false
+            });
+        }
+        // delete post.
+        const deletedPost = await PostModel.findByIdAndDelete(postId);
+        // remove reference from user.
         const removeReference = await UserModel.findByIdAndUpdate(userId, {
             $pull: { articles: postId }
         });
@@ -26,7 +35,8 @@ const deletePostController = (UserModel, PostModel) => async (req, res) => {
             message: "Article deleted successfully.",
             success: true
         });
-    } catch (error) {
+    }
+    catch (error) {
         return res.status(500).json({
             message: "Oops! Something went wrong while deleting post.",
             success: false

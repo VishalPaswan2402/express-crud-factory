@@ -1,19 +1,30 @@
+import { authSecretConfig } from './config/authSecret.config.js';
 import { loginSignupApi, postArticleAPI } from './routes/crud.routes.js';
 
 // for new user account setup
-function loginSignupFactory(Model) {
-    if (!Model) {
-        throw new Error("Model must be provided to Login Signup Factory");
+function loginSignupFactory(UserModel, configOptions = {}) {
+    const { jwtSecret = {}, bcryptSecret = {} } = configOptions;
+    if (!UserModel) {
+        throw new Error("UserModel is required to Login_Signup_Factory");
     }
-    return loginSignupApi(Model);
-}
+    if (!jwtSecret || Object.keys(jwtSecret).length === 0) {
+        throw new Error("Jwt secret is required to Login_Signup_Factory");
+    }
+    const userSecretConfig = authSecretConfig(jwtSecret, bcryptSecret);
+    return loginSignupApi(UserModel, userSecretConfig);
+};
 
 // for posting article.
-function postArticleFactory(Model1, Model2) {
-    if (!Model1 || !Model2) {
-        throw new Error("Model must be provided to Post Article Factory");
+function postArticleFactory(UserModel, PostModel, configOptions = {}) {
+    const { jwtSecret = {}, bcryptSecret = {} } = configOptions;
+    if (!UserModel || !PostModel) {
+        throw new Error("UserModel and PostModel is required to Post_Article_Factory.");
     }
-    return postArticleAPI(Model1, Model2);
-}
+    if (!jwtSecret || Object.keys(jwtSecret).length === 0) {
+        throw new Error("Jwt secret is required to Post_Article_Factory.");
+    }
+    const userSecretConfig = authSecretConfig(jwtSecret, bcryptSecret);
+    return postArticleAPI(UserModel, PostModel, userSecretConfig);
+};
 
 export { loginSignupFactory, postArticleFactory };

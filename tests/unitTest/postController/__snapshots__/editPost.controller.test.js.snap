@@ -50,6 +50,16 @@ exports[`Edit Post Controller Snapshot Test for missing title. 1`] = `
 }
 `;
 
+exports[`Edit Post Controller Snapshot Test for no permission to edit post. 1`] = `
+{
+  "body": {
+    "message": "No permission to edit this post article.",
+    "success": false,
+  },
+  "status": 403,
+}
+`;
+
 exports[`Edit Post Controller Snapshot Test for post article not found. 1`] = `
 {
   "body": {

@@ -25,7 +25,8 @@ describe("Delete Post Controller Snapshot Test", () => {
             findByIdAndUpdate: jest.fn()
         };
         PostModel = {
-            findByIdAndDelete: jest.fn()
+            findByIdAndDelete: jest.fn(),
+            findById: jest.fn()
         };
         next = jest.fn();
     });
@@ -90,7 +91,7 @@ describe("Delete Post Controller Snapshot Test", () => {
             articles: []
         };
         UserModel.findById.mockResolvedValue(savedData);
-        PostModel.findByIdAndDelete.mockResolvedValue(null);
+        PostModel.findById.mockResolvedValue(null);
         const controller = deletePostController(UserModel, PostModel);
         await controller(req, res);
         const result = {
@@ -120,6 +121,7 @@ describe("Delete Post Controller Snapshot Test", () => {
             like: 924,
             title: "postTitle"
         };
+        PostModel.findById.mockResolvedValue(savedPost);
         PostModel.findByIdAndDelete.mockResolvedValue(savedPost);
         let updateData = {
             ...savedData,
@@ -140,8 +142,22 @@ describe("Delete Post Controller Snapshot Test", () => {
         expect(result).toMatchSnapshot();
     });
 
+    test("for no permission to delete post.", async () => {
+        UserModel.findById.mockResolvedValue({ _id: "user-123", username: "testuser" });
+        const postData = { _id: "post-abc", title: "Test Post", author: "different-user-id" };
+        PostModel.findById.mockResolvedValue(postData);
+        const controller = deletePostController(UserModel, PostModel);
+        await controller(req, res);
+        const result = {
+            status: res.status.mock.calls[0][0],
+            body: res.json.mock.calls[0][0]
+        };
+        expect(res.status).toHaveBeenCalledWith(403);
+        expect(result).toMatchSnapshot();
+    });
+
     test("for internal server error.", async () => {
-        PostModel.findByIdAndDelete.mockRejectedValue(new Error("Internal server error."));
+        PostModel.findById.mockRejectedValue(new Error("Internal server error."));
         const controller = deletePostController(PostModel);
         await controller(req, res);
         const result = {

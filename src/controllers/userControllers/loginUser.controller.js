@@ -1,6 +1,7 @@
-import { passwordHashing } from "../../utils/password.utils.js";
+import { generateJwtToken } from "../../utils/generateJwtToken.utils.js";
+import { passwordHashing } from "../../utils/passwordHashing.utils.js";
 
-const loginUserController = (Model) => async (req, res) => {
+const loginUserController = (UserModel, userSecretConfig) => async (req, res) => {
     try {
         const { username, password } = req.body;
         // validate username and password
@@ -11,7 +12,7 @@ const loginUserController = (Model) => async (req, res) => {
             });
         }
         // find user by username
-        const dataByUsername = await Model.findOne({ username: username }).select("+password");
+        const dataByUsername = await UserModel.findOne({ username: username }).select("+password");
         if (!dataByUsername) {
             return res.status(404).json({
                 message: "Looks like that user doesn't exist in our system.",
@@ -28,12 +29,16 @@ const loginUserController = (Model) => async (req, res) => {
         }
         const findData = dataByUsername.toObject();
         delete findData.password;
+        // generate jwt token 
+        const token = generateJwtToken(findData, userSecretConfig.jwtSecret);
         return res.status(200).json({
             data: findData,
+            token: token,
             message: "User logged-in successfully.",
             success: true
         });
-    } catch (error) {
+    }
+    catch (error) {
         return res.status(500).json({
             message: "Oops! Something went wrong while logging.",
             success: false

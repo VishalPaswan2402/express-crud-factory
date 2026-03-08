@@ -1,8 +1,8 @@
-const getUserByIdController = (Model) => async (req, res) => {
+const getUserByIdController = (UserModel) => async (req, res) => {
     try {
         const { userId } = req.params;
         // finding user from userID.
-        const data = await Model.findById(userId);
+        const data = await UserModel.findById(userId);
         if (!data) {
             return res.status(404).json({
                 message: "Looks like that user doesn't exist in our system.",
@@ -14,7 +14,8 @@ const getUserByIdController = (Model) => async (req, res) => {
             message: "User found successfully.",
             success: true
         });
-    } catch (error) {
+    }
+    catch (error) {
         return res.status(500).json({
             message: "Oops! Something went wrong while finding user.",
             success: false

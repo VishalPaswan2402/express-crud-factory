@@ -134,6 +134,20 @@ describe("Get Post Controller Snapshot Test", () => {
         expect(result).toMatchSnapshot();
     });
 
+    test("for no permission to view post.", async () => {
+        UserModel.findById.mockResolvedValue({ _id: "user-123", username: "testuser" });
+        const postData = { _id: "post-abc", title: "Test Post", author: "different-user-id" };
+        PostModel.findById.mockResolvedValue(postData);
+        const controller = getPostController(UserModel, PostModel);
+        await controller(req, res);
+        const result = {
+            status: res.status.mock.calls[0][0],
+            body: res.json.mock.calls[0][0]
+        };
+        expect(res.status).toHaveBeenCalledWith(403);
+        expect(result).toMatchSnapshot();
+    })
+
     test("for internal server error.", async () => {
         UserModel.findById.mockRejectedValue(new Error("Internal server error."));
         const controller = getPostController(UserModel, PostModel);

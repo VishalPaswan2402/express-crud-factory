@@ -1,8 +1,8 @@
-const destroyUserController = (Model) => async (req, res) => {
+const destroyUserController = (UserModel) => async (req, res) => {
     try {
         const { userId } = req.params;
         // finding user from userID and deleting.
-        const deleteData = await Model.findByIdAndDelete(userId);
+        const deleteData = await UserModel.findByIdAndDelete(userId);
         if (!deleteData) {
             return res.status(404).json({
                 message: "Looks like that user doesn't exist in our system.",
@@ -14,7 +14,8 @@ const destroyUserController = (Model) => async (req, res) => {
             message: "User data deleted successfully.",
             success: true
         });
-    } catch (error) {
+    }
+    catch (error) {
         return res.status(500).json({
             message: "Oops! Something went wrong while deleting user data.",
             success: false

@@ -18,7 +18,8 @@ app.use((err, req, res, next) => {
     next(err);
 });
 
-const db_url = 'mongodb://127.0.0.1:27017/crudTest';
+// database setup
+const db_url = 'mongodb://127.0.0.1:27017/packageTest';
 mongooseFunction()
     .then(() => {
         console.log("Connected to crud-test DB")
@@ -30,8 +31,19 @@ async function mongooseFunction() {
     await mongoose.connect(db_url);
 };
 
-app.use('/user', loginSignupFactory(DefaultUser));
-app.use('/user/post', postArticleFactory(DefaultUser, DefaultPost));
+// secret config.
+const secretsConfig = {
+    jwtSecret: {
+        secretKey: "i3nbhkgw8i3nbhkgw8",
+        expireIn: "1d"
+    },
+    bcryptSecret: {
+        saltRounds: 10
+    }
+};
+
+app.use('/user', loginSignupFactory(DefaultUser, secretsConfig));
+app.use('/user/post', postArticleFactory(DefaultUser, DefaultPost, secretsConfig));
 
 app.listen(3000, () => {
     console.log("Server running on port 3000");

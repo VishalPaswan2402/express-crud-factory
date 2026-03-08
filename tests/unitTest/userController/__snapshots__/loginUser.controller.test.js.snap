@@ -73,6 +73,7 @@ exports[`Create Login User Controller Snapshot Test for successfull login. 1`] =
     },
     "message": "User logged-in successfully.",
     "success": true,
+    "token": "fake-jwt-token",
   },
   "status": 200,
 }
