@@ -1,7 +1,7 @@
 <img src="./assets/logo.png" alt="Express CRUD Factory Starter Logo" width="100%"/>
 
 # Secure API Practice Kit
-[![Npm Pa](https://img.shields.io/badge/NPM-Package-blue)](https://www.npmjs.com/package/express-crud-factory) [![Project Downloads](https://img.shields.io/npm/dt/express-crud-factory?label=Project%20Setup%20Downloads)](https://github.com/VishalPaswan2402/express-crud-factory-setup)  [![License](https://img.shields.io/npm/l/express-crud-factory?label=License)](https://www.npmjs.com/package/express-crud-factory) [![Contributors](https://img.shields.io/badge/Contributors-1-orange)](https://github.com/VishalPaswan2402)
+[![Npm Pa](https://img.shields.io/badge/NPM-Package-blue)](https://www.npmjs.com/package/express-crud-factory) [![Project Downloads](https://img.shields.io/npm/dt/express-crud-factory?label=Project%20Setup%20Downloads)](https://github.com/VishalPaswan2402/express-crud-factory-setup)  [![License](https://img.shields.io/npm/l/express-crud-factory?label=License)](https://express-crud-factory-license.onrender.com/) [![Contributors](https://img.shields.io/badge/Contributors-1-orange)](https://github.com/VishalPaswan2402)
 
 
 A **practice-ready backend API kit** designed for developers who want to **learn secure API integration using real-world authentication and CRUD operations**.
@@ -73,36 +73,17 @@ You can clone it and explore a fully configured project to see how everything wo
 
 ```js
 import express from 'express'
-import mongoose from 'mongoose';
-import { loginSignupFactory, postArticleFactory } from "express-crud-factory";
+import { loginSignupFactory, postArticleFactory, jsonErrorHandler, connectDatabase } from "express-crud-factory";
 import UserModel from './models/user.model.js';
 import PostModel from './models/post.model.js';
 
+const port = 3000;
 const app = express();
 app.use(express.json());
-const port = 3000;
-
-app.use((err, req, res, next) => {
-    if (err.type === "entity.parse.failed") {
-        return res.status(400).json({
-            success: false,
-            message: "Invalid JSON format"
-        });
-    }
-    next(err);
-});
+app.use(jsonErrorHandler);
 
 const db_url = 'mongodb://127.0.0.1:27017/crudUserTest';
-mongooseFunction()
-    .then(() => {
-        console.log("Connected to external-crud-test DB")
-    })
-    .catch((err) => {
-        console.log(err);
-    });
-async function mongooseFunction() {
-    await mongoose.connect(db_url);
-};
+await connectDatabase(db_url);
 
 const secretConfig = {
     jwtSecret: {
@@ -134,8 +115,9 @@ const userSchema = new Schema({
     email: { type: String,unique: true,required: true },
     password: { type: String,required: true,select: false },
     isActive: { type: Boolean,default: true },
-    articles: [ {type: mongoose.Schema.Types.ObjectId,ref: "DefaultPost"} ]
+    articles: [ {type: mongoose.Schema.Types.ObjectId,ref: "PostModel"} ]
 });
+
 const UserModel = mongoose.model("UserModel", userSchema);
 export default UserModel;
 ```
@@ -149,11 +131,14 @@ const Schema = mongoose.Schema;
 const postSchema = new Schema({
     title: { type: String,required: true },
     description: { type: String,required: true },
-    author: { type: mongoose.Schema.Types.ObjectId,ref: "DefaultUser",required: true },
+    author: { type: mongoose.Schema.Types.ObjectId,ref: "UserModel",required: true },
     likes: { type: Number,default: () => Math.floor(Math.random() * 1000 + 1) },
     comments: { type: Number,default: () => Math.floor(Math.random() * 100 + 1) },
-    createdAt: { type: Date,default: Date.now() }
-})
+    isPinned: { type: Boolean,default: false },
+    isTrashed: { type: Boolean,default: false },
+    deletedAt: { type: Date,default: null }
+},{ timestamps: true });
+
 const PostModel =mongoose.model("PostModel", postSchema);
 export default PostModel;
 ```
@@ -172,7 +157,7 @@ Server is running on port 3000
 
 ## API Endpoints
 
-```py
+```
 # User API Endpoints
 POST Request : /user/signup
 GET Request : /user/:userId
@@ -182,8 +167,12 @@ DELETE Request : /user/:userId
 # Post Articles API Endpoints
 POST Request : /user/post/:userId/new-post
 GET Request : /user/post/:userId/:postId/get-post
-PUT Request : /user/post/:userId/:postId/edit-post
+PATCH Request : /user/post/:userId/:postId/edit-post
 DELETE Request : /user/post/:userId/:postId/delete-post
+GET Request : /user/post/:postId/share-post
+PATCH Request : /user/post/:postId/pin-post
+GET Request : /user/post/:postId/all-post
+PATCH Request : /user/post/:postId/trash-post
 ```
 
 ## Full Setup / Starter Repository  :
@@ -219,7 +208,7 @@ This package is helpful for:
 
 ## License
 
-This project is licensed under the ISC License.  
+This project is licensed under the ISC License. [https://express-crud-factory-license.onrender.com/](https://express-crud-factory-license.onrender.com/)
   
 Copyright (c) 2026 Vishal Paswan
 

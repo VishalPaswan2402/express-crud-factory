@@ -30,6 +30,10 @@ describe("Create Post Controller Snapshot Test", () => {
         next = jest.fn();
     });
 
+    afterEach(() => {
+        jest.clearAllMocks();
+    });
+
     test("for empty request body.", () => {
         req.body = {};
         jsonValidate(req, res, next);
@@ -109,8 +113,12 @@ describe("Create Post Controller Snapshot Test", () => {
             this.author = data.author;
             this._id = "507f1f77bcf86cd799438978";
             this.createdAt = "2026-03-04T17:00:19.599Z",
+            this.updatedAt = "2026-03-04T17:00:19.599Z",
                 this.likes = 924,
                 this.comments = 12,
+                this.isPinned = false,
+                this.isTrashed = false,
+                this.deletedAt = null,
                 this.save = jest.fn().mockResolvedValue({
                     _id: this._id,
                     title: this.title,
@@ -118,7 +126,11 @@ describe("Create Post Controller Snapshot Test", () => {
                     author: this.author,
                     like: this.likes,
                     comments: this.comments,
-                    createdAt: this.createdAt
+                    createdAt: this.createdAt,
+                    isPinned: this.isPinned,
+                    isTrashed: this.isTrashed,
+                    deletedAt: this.deletedAt,
+                    updatedAt: this.updatedAt
                 });
         };
         const controller = createPostController(UserModel, PostModel);

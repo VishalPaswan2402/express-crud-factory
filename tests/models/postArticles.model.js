@@ -11,10 +11,9 @@ const defaultPostSchema = new Schema({
         required: true
     },
     author: {
-        type: mongoose.Schema.Types.ObjectId,
+        type: Schema.Types.ObjectId,
         ref: "DefaultUser",
         required: true
-
     },
     likes: {
         type: Number,
@@ -24,13 +23,19 @@ const defaultPostSchema = new Schema({
         type: Number,
         default: () => Math.floor(Math.random() * 100 + 1)
     },
-    createdAt: {
+    isPinned: {
+        type: Boolean,
+        default: false
+    },
+    isTrashed: {
+        type: Boolean,
+        default: false
+    },
+    deletedAt: {
         type: Date,
-        default: Date.now()
-    }
-})
+        default: null
+    },
+}, { timestamps: true });
 
-const DefaultPost =
-    mongoose.models.DefaultPost ||
-    mongoose.model("DefaultPost", defaultPostSchema);
+const DefaultPost = mongoose.model("DefaultPost", defaultPostSchema);
 export default DefaultPost;

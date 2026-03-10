@@ -1,0 +1,87 @@
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+
+exports[`Mark Post Controller Snapshot Test for author not found. 1`] = `
+{
+  "body": {
+    "message": "User doesn't exist. Please create your account.",
+    "success": false,
+  },
+  "status": 404,
+}
+`;
+
+exports[`Mark Post Controller Snapshot Test for internal server error. 1`] = `
+{
+  "body": {
+    "message": "Oops! Something went wrong while marking post.",
+    "success": false,
+  },
+  "status": 500,
+}
+`;
+
+exports[`Mark Post Controller Snapshot Test for no permission to edit post. 1`] = `
+{
+  "body": {
+    "message": "You do not have permission to mark this post.",
+    "success": false,
+  },
+  "status": 403,
+}
+`;
+
+exports[`Mark Post Controller Snapshot Test for post article not found. 1`] = `
+{
+  "body": {
+    "message": "Posted article not found.",
+    "success": false,
+  },
+  "status": 404,
+}
+`;
+
+exports[`Mark Post Controller Snapshot Test for post pinned and unpinned successfully. 1`] = `
+{
+  "body": {
+    "data": {
+      "author": "507f1f77bcf86cd799439011",
+      "comments": 12,
+      "createdAt": "2026-03-04T17:00:19.599Z",
+      "deletedAt": null,
+      "description": "postDescription",
+      "id": "69a8652b69726b384c21b27d",
+      "isPinned": true,
+      "isTrashed": false,
+      "likes": 924,
+      "title": "postTitle",
+      "updatedAt": "2026-03-04T17:00:19.599Z",
+    },
+    "message": "Post article marked as important.",
+    "success": true,
+  },
+  "status": 200,
+}
+`;
+
+exports[`Mark Post Controller Snapshot Test for post trashed and untrashed successfully. 1`] = `
+{
+  "body": {
+    "data": {
+      "author": "507f1f77bcf86cd799439011",
+      "comments": 12,
+      "createdAt": "2026-03-04T17:00:19.599Z",
+      "deletedAt": "2026-03-10T18:33:35.098Z",
+      "description": "postDescription",
+      "id": "69a8652b69726b384c21b27d",
+      "isPinned": false,
+      "isTrashed": true,
+      "likes": 924,
+      "title": "postTitle",
+      "updatedAt": "2026-03-04T17:00:19.599Z",
+    },
+    "message": "Post article moved to trash file.",
+    "success": true,
+  },
+  "status": 200,
+}
+`;

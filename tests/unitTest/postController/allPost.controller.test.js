@@ -1,8 +1,8 @@
 import { beforeEach, describe, expect, jest } from "@jest/globals";
-import isValidUserPostId from "../../../src/middlewares/validUserPostId.middleware";
-import getPostController from "../../../src/controllers/postControllers/getPost.controller";
+import isValidUserId from "../../../src/middlewares/validUserId.middleware";
+import allPostController from "../../../src/controllers/postControllers/allPost.controller";
 
-describe("Get Post Controller Snapshot Test", () => {
+describe("Get All Post Controller Snapshot Test", () => {
     let req;
     let res;
     let UserModel;
@@ -24,7 +24,8 @@ describe("Get Post Controller Snapshot Test", () => {
             findById: jest.fn()
         };
         PostModel = {
-            findById: jest.fn()
+            findById: jest.fn(),
+            find: jest.fn()
         };
         next = jest.fn();
     });
@@ -33,9 +34,9 @@ describe("Get Post Controller Snapshot Test", () => {
         jest.clearAllMocks();
     });
 
-    test("for user Id or post Id not found.", async () => {
+    test("for user Id not found.", async () => {
         req.params.userId = ""
-        isValidUserPostId(req, res, next);
+        isValidUserId(req, res, next);
         const result = {
             status: res.status.mock.calls[0][0],
             body: res.json.mock.calls[0][0]
@@ -44,25 +45,14 @@ describe("Get Post Controller Snapshot Test", () => {
         expect(result).toMatchSnapshot();
     });
 
-    test("for valid user Id and post Id.", async () => {
-        isValidUserPostId(req, res, next);
+    test("for valid user Id.", async () => {
+        isValidUserId(req, res, next);
         expect(next).toHaveBeenCalled();
-    });
-
-    test("for not valid post Id.", async () => {
-        req.params.postId = "456";
-        isValidUserPostId(req, res, next);
-        const result = {
-            status: res.status.mock.calls[0][0],
-            body: res.json.mock.calls[0][0]
-        };
-        expect(next).not.toHaveBeenCalled();
-        expect(result).toMatchSnapshot();
     });
 
     test("for not valid user Id.", async () => {
         req.params.userId = "123";
-        isValidUserPostId(req, res, next);
+        isValidUserId(req, res, next);
         const result = {
             status: res.status.mock.calls[0][0],
             body: res.json.mock.calls[0][0]
@@ -73,7 +63,7 @@ describe("Get Post Controller Snapshot Test", () => {
 
     test("for author not found.", async () => {
         UserModel.findById.mockResolvedValue(null);
-        const controller = getPostController(UserModel, PostModel);
+        const controller = allPostController(UserModel, PostModel);
         await controller(req, res);
         const result = {
             status: res.status.mock.calls[0][0],
@@ -93,15 +83,17 @@ describe("Get Post Controller Snapshot Test", () => {
             articles: []
         };
         UserModel.findById.mockResolvedValue(savedUser);
-        PostModel.findById.mockResolvedValue(null);
-        const controller = getPostController(UserModel, PostModel);
+        PostModel.find.mockReturnValue({
+            sort: jest.fn().mockResolvedValue([])
+        });
+        const controller = allPostController(UserModel, PostModel);
         await controller(req, res);
         const result = {
             status: res.status.mock.calls[0][0],
             body: res.json.mock.calls[0][0]
         };
         expect(UserModel.findById).toHaveBeenCalledWith(req.params.userId);
-        expect(PostModel.findById).toHaveBeenCalledWith(req.params.postId);
+        expect(PostModel.find).toHaveBeenCalledWith({ author: req.params.userId });
         expect(result).toMatchSnapshot();
     });
 
@@ -129,36 +121,24 @@ describe("Get Post Controller Snapshot Test", () => {
             isTrashed: false,
             deletedAt: null
         };
-        PostModel.findById.mockResolvedValue(savedPost);
-        const controller = getPostController(UserModel, PostModel);
+        PostModel.find.mockReturnValue({
+            sort: jest.fn().mockResolvedValue(savedPost)
+        });
+        const controller = allPostController(UserModel, PostModel);
         await controller(req, res);
         const result = {
             status: res.status.mock.calls[0][0],
             body: res.json.mock.calls[0][0]
         };
         expect(UserModel.findById).toHaveBeenCalledWith(req.params.userId);
-        expect(PostModel.findById).toHaveBeenCalledWith(req.params.postId);
-        expect(findData.articles).toContain(req.params.postId);
+        expect(PostModel.find).toHaveBeenCalledWith({ author: req.params.userId });
+        expect(savedPost.author).toContain(req.params.userId);
         expect(result).toMatchSnapshot();
     });
 
-    test("for no permission to view post.", async () => {
-        UserModel.findById.mockResolvedValue({ _id: "user-123", username: "testuser" });
-        const postData = { _id: "post-abc", title: "Test Post", author: "different-user-id" };
-        PostModel.findById.mockResolvedValue(postData);
-        const controller = getPostController(UserModel, PostModel);
-        await controller(req, res);
-        const result = {
-            status: res.status.mock.calls[0][0],
-            body: res.json.mock.calls[0][0]
-        };
-        expect(res.status).toHaveBeenCalledWith(403);
-        expect(result).toMatchSnapshot();
-    })
-
     test("for internal server error.", async () => {
         UserModel.findById.mockRejectedValue(new Error("Internal server error."));
-        const controller = getPostController(UserModel, PostModel);
+        const controller = allPostController(UserModel, PostModel);
         await controller(req, res);
         const result = {
             status: res.status.mock.calls[0][0],

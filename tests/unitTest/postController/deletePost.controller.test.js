@@ -31,6 +31,10 @@ describe("Delete Post Controller Snapshot Test", () => {
         next = jest.fn();
     });
 
+    afterEach(() => {
+        jest.clearAllMocks();
+    });
+
     test("for not valid user Id.", async () => {
         req.params.userId = "123";
         isValidUserPostId(req, res, next);
@@ -117,9 +121,13 @@ describe("Delete Post Controller Snapshot Test", () => {
             author: req.params.userId,
             comments: 12,
             createdAt: "2026-03-04T17:00:19.599Z",
+            updatedAt: "2026-03-04T17:40:19.599Z",
             description: "postDescription",
             like: 924,
-            title: "postTitle"
+            title: "postTitle",
+            isPinned: false,
+            isTrashed: false,
+            deletedAt: "2026-03-04T17:40:19.599Z"
         };
         PostModel.findById.mockResolvedValue(savedPost);
         PostModel.findByIdAndDelete.mockResolvedValue(savedPost);

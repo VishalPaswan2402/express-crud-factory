@@ -1,8 +1,7 @@
 import { beforeEach, describe, expect, jest, test } from "@jest/globals";
-import jsonValidate from "../../../src/middlewares/jsonValidate.middleware";
-import editPostController from "../../../src/controllers/postControllers/editPost.controller";
+import markPostController from "../../../src/controllers/postControllers/markPost.controller";
 
-describe("Edit Post Controller Snapshot Test", () => {
+describe("Mark Post Controller Snapshot Test", () => {
     let req;
     let res;
     let UserModel;
@@ -36,42 +35,9 @@ describe("Edit Post Controller Snapshot Test", () => {
         jest.clearAllMocks();
     });
 
-    test("for empty request body,", async () => {
-        req.body = {};
-        jsonValidate(req, res, next);
-        const result = {
-            status: res.status.mock.calls[0][0],
-            body: res.json.mock.calls[0][0]
-        };
-        expect(next).not.toHaveBeenCalled();
-        expect(result).toMatchSnapshot();
-    });
-
-    test("for missing title.", async () => {
-        req.body.title = "";
-        const controller = editPostController(UserModel, PostModel);
-        await controller(req, res);
-        const result = {
-            status: res.status.mock.calls[0][0],
-            body: res.json.mock.calls[0][0]
-        };
-        expect(result).toMatchSnapshot();
-    });
-
-    test("for missing description.", async () => {
-        req.body.description = "";
-        const controller = editPostController(UserModel, PostModel);
-        await controller(req, res);
-        const result = {
-            status: res.status.mock.calls[0][0],
-            body: res.json.mock.calls[0][0]
-        };
-        expect(result).toMatchSnapshot();
-    });
-
     test("for author not found.", async () => {
         UserModel.findById.mockResolvedValue(null);
-        const controller = editPostController(UserModel, PostModel);
+        const controller = markPostController(UserModel, PostModel, false);
         await controller(req, res);
         const result = {
             status: res.status.mock.calls[0][0],
@@ -92,7 +58,7 @@ describe("Edit Post Controller Snapshot Test", () => {
         };
         UserModel.findById.mockResolvedValue(savedUser);
         PostModel.findById.mockResolvedValue(null);
-        const controller = editPostController(UserModel, PostModel);
+        const controller = markPostController(UserModel, PostModel, false);
         await controller(req, res);
         const result = {
             status: res.status.mock.calls[0][0],
@@ -103,7 +69,7 @@ describe("Edit Post Controller Snapshot Test", () => {
         expect(result).toMatchSnapshot();
     });
 
-    test("for update post successfully.", async () => {
+    test("for post pinned and unpinned successfully.", async () => {
         let savedUser = {
             _id: req.params.userId,
             email: "test@gmail.com",
@@ -119,7 +85,7 @@ describe("Edit Post Controller Snapshot Test", () => {
             author: req.params.userId,
             comments: 12,
             createdAt: "2026-03-04T17:00:19.599Z",
-            updatedAt: "2026-03-04T17:40:19.599Z",
+            updatedAt: "2026-03-04T17:00:19.599Z",
             description: "postDescription",
             likes: 924,
             title: "postTitle",
@@ -137,15 +103,15 @@ describe("Edit Post Controller Snapshot Test", () => {
                     comments: savedPost.comments,
                     createdAt: savedPost.createdAt,
                     updatedAt: savedPost.updatedAt,
-                    description: req.body.description,
+                    description: savedPost.description,
                     likes: savedPost.likes,
-                    title: req.body.title,
-                    isPinned: savedPost.isPinned,
+                    title: savedPost.title,
+                    isPinned: !savedPost.isPinned,
                     isTrashed: savedPost.isTrashed,
                     deletedAt: savedPost.deletedAt
                 })
             });
-        const controller = editPostController(UserModel, PostModel);
+        const controller = markPostController(UserModel, PostModel, false);
         await controller(req, res);
         const result = {
             status: res.status.mock.calls[0][0],
@@ -153,8 +119,61 @@ describe("Edit Post Controller Snapshot Test", () => {
         };
         expect(UserModel.findById).toHaveBeenCalledWith(req.params.userId);
         expect(PostModel.findById).toHaveBeenCalledWith(req.params.postId);
-        expect(savedPost.title).toBe(req.body.title);
-        expect(savedPost.description).toBe(req.body.description);
+        expect(savedPost.isPinned).toBe(true);
+        expect(result).toMatchSnapshot();
+    });
+
+    test("for post trashed and untrashed successfully.", async () => {
+        let savedUser = {
+            _id: req.params.userId,
+            email: "test@gmail.com",
+            fullname: "UserTest",
+            password: "testPassword",
+            username: "test",
+            isActive: true,
+            articles: [req.params.postId]
+        };
+        UserModel.findById.mockResolvedValue(savedUser);
+        const savedPost = {
+            _id: req.params.postId,
+            author: req.params.userId,
+            comments: 12,
+            createdAt: "2026-03-04T17:00:19.599Z",
+            updatedAt: "2026-03-04T17:00:19.599Z",
+            description: "postDescription",
+            likes: 924,
+            title: "postTitle",
+            isPinned: false,
+            isTrashed: false,
+            deletedAt: null,
+            save: jest.fn().mockResolvedValue(true)
+        };
+        PostModel.findById
+            .mockReturnValueOnce(savedPost)
+            .mockReturnValueOnce({
+                lean: jest.fn().mockResolvedValue({
+                    id: savedPost._id,
+                    author: savedPost.author,
+                    comments: savedPost.comments,
+                    createdAt: savedPost.createdAt,
+                    updatedAt: savedPost.updatedAt,
+                    description: savedPost.description,
+                    likes: savedPost.likes,
+                    title: savedPost.title,
+                    isPinned: savedPost.isPinned,
+                    isTrashed: !savedPost.isTrashed,
+                    deletedAt: "2026-03-10T18:33:35.098Z"
+                })
+            });
+        const controller = markPostController(UserModel, PostModel, true);
+        await controller(req, res);
+        const result = {
+            status: res.status.mock.calls[0][0],
+            body: res.json.mock.calls[0][0]
+        };
+        expect(UserModel.findById).toHaveBeenCalledWith(req.params.userId);
+        expect(PostModel.findById).toHaveBeenCalledWith(req.params.postId);
+        expect(savedPost.isTrashed).toBe(true);
         expect(result).toMatchSnapshot();
     });
 
@@ -162,7 +181,7 @@ describe("Edit Post Controller Snapshot Test", () => {
         UserModel.findById.mockResolvedValue({ _id: "user-123", username: "testuser" });
         const postData = { _id: "post-abc", title: "Test Post", author: "different-user-id" };
         PostModel.findById.mockResolvedValue(postData);
-        const controller = editPostController(UserModel, PostModel);
+        const controller = markPostController(UserModel, PostModel, true);
         await controller(req, res);
         const result = {
             status: res.status.mock.calls[0][0],
@@ -174,7 +193,7 @@ describe("Edit Post Controller Snapshot Test", () => {
 
     test("for internal server error.", async () => {
         PostModel.findById.mockRejectedValue(new Error("Internal server error."));
-        const controller = editPostController(PostModel);
+        const controller = markPostController(PostModel);
         await controller(req, res);
         const result = {
             status: res.status.mock.calls[0][0],

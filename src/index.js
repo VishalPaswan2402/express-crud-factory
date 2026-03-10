@@ -1,5 +1,7 @@
 import { authSecretConfig } from './config/authSecret.config.js';
+import { jsonErrorHandler } from './middlewares/jsonErrorHandler.middleware.js';
 import { loginSignupApi, postArticleAPI } from './routes/crud.routes.js';
+import { connectDatabase } from './utils/connectDatabase.utils.js';
 
 // for new user account setup
 function loginSignupFactory(UserModel, configOptions = {}) {
@@ -33,4 +35,4 @@ function postArticleFactory(UserModel, PostModel, configOptions = {}) {
     return postArticleAPI(UserModel, PostModel, userSecretConfig);
 };
 
-export { loginSignupFactory, postArticleFactory };
+export { loginSignupFactory, postArticleFactory, jsonErrorHandler, connectDatabase };
