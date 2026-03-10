@@ -87,7 +87,7 @@ await connectDatabase(db_url);
 
 const secretConfig = {
     jwtSecret: {
-        secretKey: "123456789",
+        secretKey: "1jsd23owie45xnzbm67pqlmx89",
         expireIn: "1h"
     },
     bcryptSecret: {
@@ -208,7 +208,9 @@ This package is helpful for:
 
 ## License
 
-This project is licensed under the ISC License. [https://express-crud-factory-license.onrender.com/](https://express-crud-factory-license.onrender.com/)
+This project is licensed under the ISC License. 
+
+[https://express-crud-factory-license.onrender.com/](https://express-crud-factory-license.onrender.com/)
   
 Copyright (c) 2026 Vishal Paswan
 
