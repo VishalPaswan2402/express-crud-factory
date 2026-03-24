@@ -16,11 +16,15 @@ import allPostController from '../controllers/postControllers/allPost.controller
 import getPostController from '../controllers/postControllers/getPost.controller.js';
 import isValidUserId from '../middlewares/validUserId.middleware.js';
 import isValidPostId from '../middlewares/validPostId.middleware.js';
+import verifySignupEmail from '../controllers/userControllers/verifySignupEmail.controller.js';
+import verifySignupOtp from '../controllers/userControllers/verifySignupOtp.controller.js';
 
-function loginSignupApi(UserModel, userSecretConfig) {
+function loginSignupApi(UserModel, userSecretConfig, emailSender, verifyMethod) {
     const router = express.Router({ mergeParams: true });
     router.post("/login", jsonValidate, loginUserController(UserModel, userSecretConfig));
-    router.post("/signup", jsonValidate, createUserController(UserModel, userSecretConfig));
+    router.post("/signup", jsonValidate, createUserController(UserModel, userSecretConfig, emailSender, verifyMethod));
+    router.get("/signup/verify-email", verifySignupEmail(UserModel, userSecretConfig));
+    router.post("/signup/:userId/verify-email", isValidUserId, verifySignupOtp(UserModel, userSecretConfig));
     router.get("/:userId", isValidUserId, authenticateUser(userSecretConfig.jwtSecret), authorizeUser, getUserByIdController(UserModel));
     router.delete("/:userId", isValidUserId, authenticateUser(userSecretConfig.jwtSecret), authorizeUser, destroyUserController(UserModel));
     return router;

@@ -5,12 +5,13 @@ import DefaultPost from "./models/postArticles.model.js";
 const app = express();
 app.use(express.json());
 app.use(jsonErrorHandler);
+const port = 3000;
 
 // database setup
 const db_url = 'mongodb://127.0.0.1:27017/packageTest';
 await connectDatabase(db_url);
 
-// secret config.
+// secret configuration
 const secretsConfig = {
     jwtSecret: {
         secretKey: "i3nbhkgw8i3nbhkgw8",
@@ -21,9 +22,25 @@ const secretsConfig = {
     }
 };
 
-app.use('/user', loginSignupFactory(DefaultUser, secretsConfig));
+// email configuration
+const emailConfig = {
+    mailProvider: {
+        host: "smtp.ethereal.email",
+        secure: false,
+        username: "patrick.rice9@ethereal.email",
+        password: "XXyT7k2dW1b1WyKxPB"
+    },
+    verifyMethod: {
+        projectName: "Express-Crud-Factory",
+        expireAfterMinute: 2, // positive integer
+        usingLink: true, // true -> link and false -> OTP
+        frontendBaseUrl: `http://localhost:${port}` // if usinglink = true
+    }
+}
+
+app.use('/user', loginSignupFactory(DefaultUser, secretsConfig, emailConfig));
 app.use('/user/post', postArticleFactory(DefaultUser, DefaultPost, secretsConfig));
 
-app.listen(3000, () => {
-    console.log("Server running on port 3000");
+app.listen(port, () => {
+    console.log("Server running on port", port);
 });

@@ -22,7 +22,21 @@ const defaultUserSchema = new Schema({
     },
     isActive: {
         type: Boolean,
-        default: true
+        default: false
+    },
+    emailVerified: {
+        type: Boolean,
+        default: false
+    },
+    verifyToken: {
+        type: String,
+        default: null,
+        select: false
+    },
+    verifyTokenExpires: {
+        type: Date,
+        default: null,
+        select: false
     },
     articles: [{
         type: mongoose.Schema.Types.ObjectId,

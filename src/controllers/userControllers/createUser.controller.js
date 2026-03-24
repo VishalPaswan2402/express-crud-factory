@@ -1,7 +1,9 @@
-import { generateJwtToken } from "../../utils/generateJwtToken.utils.js";
+import { emailTokenGenerator } from "../../utils/emailTokenGenerator.utils.js";
 import { passwordHashing } from "../../utils/passwordHashing.utils.js";
+import { getVerificationEmailTemplate } from "../../utils/verifyEmailBodyTemplate.utils.js";
+import { getOtpVerificationEmailTemplate } from "../../utils/verifyOtpBodyTemplate.utils.js";
 
-const createUserController = (UserModel, userSecretConfig) => async (req, res) => {
+const createUserController = (UserModel, userSecretConfig, emailSender, verifyMethod) => async (req, res) => {
     try {
         // validating input data.
         const { email, username, fullname, password, confirmPassword } = req.body;
@@ -24,26 +26,52 @@ const createUserController = (UserModel, userSecretConfig) => async (req, res) =
                 { username: username },
                 { email: email }
             ]
-        });
+        }).select("+verifyTokenExpires");
         if (userExist) {
-            return res.status(400).json({
-                message: "Looks like someone already registered with that username or email.",
-                success: false
-            });
+            if (userExist.emailVerified || userExist.verifyTokenExpires >= Date.now()) {
+                return res.status(400).json({
+                    message: "Looks like someone already registered with that username or email.",
+                    success: false
+                });
+            }
+            else {
+                await UserModel.findByIdAndDelete(userExist._id);
+            }
         }
         // hash plain password.
         const hashedPassword = await passwordHashing.hashPassword(password, userSecretConfig.bcryptSecret);
+        let verificationSave = null;
+        let verificationSend = null;
+        // generate link or otp
+        if (verifyMethod.usingLink) {
+            verificationSave = emailTokenGenerator.emailToken();
+            verificationSend = `${verifyMethod.frontendBaseUrl}/user/signup/verify-email?token=${verificationSave}`;
+        }
+        else {
+            verificationSend = Math.floor(100000 + Math.random() * 900000).toString();
+            verificationSave = await emailTokenGenerator.emailOtp(verificationSend, userSecretConfig.bcryptSecret);
+        }
         // saving data.
-        const modelData = new UserModel({ ...req.body, password: hashedPassword });
+        const modelData = new UserModel({
+            ...req.body,
+            password: hashedPassword,
+            verifyToken: verificationSave,
+            verifyTokenExpires: new Date(Date.now() + verifyMethod.expireAfterMinute * 60 * 1000)
+        });
         const data = await modelData.save();
-        const savedData = data.toObject();
-        delete savedData.password;
-        // generate jwt token
-        const token = generateJwtToken(savedData, userSecretConfig.jwtSecret);
-        return res.status(201).json({
-            data: savedData,
-            token: token,
-            message: "New user created successfully.",
+        // send mail
+        await emailSender.sendMail({
+            from: `${verifyMethod.projectName} <${emailSender.options.auth.user}>`,
+            to: email,
+            subject: "Verify your Email",
+            text: `${verifyMethod.usingLink ? "Link" : "OTP"} to verify email : ${verificationSend}`,
+            html: verifyMethod.usingLink ? getVerificationEmailTemplate(verificationSend, fullname, verifyMethod.projectName) : getOtpVerificationEmailTemplate(verificationSend, fullname, verifyMethod.projectName)
+        });
+        // send userId for otp verify
+        const userData = { userId: data._id };
+        return res.status(200).json({
+            data: userData,
+            message: `Verification ${verifyMethod.usingLink ? "link" : "OTP"} sended to your email successfully.`,
             success: true
         });
     }
