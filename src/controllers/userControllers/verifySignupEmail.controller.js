@@ -10,20 +10,28 @@ const verifySignupEmail = (UserModel, userSecretConfig) => async (req, res) => {
             });
         }
         // find user by token
-        const user = await UserModel.findOne({ verifyToken: token }).select("+verifyToken +verifyTokenExpires");
+        const user = await UserModel.findOne({ verifyToken: token }).select("+verifyToken +verifyTokenExpires +destroyDataAfter");
         if (!user) {
             return res.status(400).json({
                 message: "Invalid token",
                 success: false
             });
         }
-        if(user.emailVerified){
+        if (user.emailVerified) {
             return res.status(200).json({
                 message: "Email already verified.",
                 success: true
             });
         }
-        // check expiry
+        // check data expiry
+        if (!user.destroyDataAfter || user.destroyDataAfter < Date.now()) {
+            await UserModel.findByIdAndDelete(user._id);
+            return res.status(400).json({
+                message: "User is not registered, signup again.",
+                success: false
+            });
+        }
+        // check token expiry
         if (!user.verifyTokenExpires || user.verifyTokenExpires < Date.now()) {
             return res.status(400).json({
                 message: "Token expired, generate new token.",
@@ -35,12 +43,14 @@ const verifySignupEmail = (UserModel, userSecretConfig) => async (req, res) => {
         user.isActive = true;
         user.verifyToken = null;
         user.verifyTokenExpires = null;
+        user.destroyDataAfter = null;
         const data = await user.save();
         // make response data
         const savedData = data.toObject();
         delete savedData.password;
         delete savedData.verifyToken;
         delete savedData.verifyTokenExpires;
+        delete savedData.destroyDataAfter;
         // generate jwt token
         const jwtToken = generateJwtToken(savedData, userSecretConfig.jwtSecret);
         return res.status(201).json({

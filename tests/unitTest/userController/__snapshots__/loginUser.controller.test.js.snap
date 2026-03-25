@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
-exports[`Create Login User Controller Snapshot Test for checking user not exist. 1`] = `
+exports[`Login User Controller Snapshot Test delete expired unverified user 1`] = `
 {
   "body": {
     "message": "Looks like that user doesn't exist in our system.",
@@ -10,7 +10,7 @@ exports[`Create Login User Controller Snapshot Test for checking user not exist.
 }
 `;
 
-exports[`Create Login User Controller Snapshot Test for expty request body. 1`] = `
+exports[`Login User Controller Snapshot Test for empty request body. 1`] = `
 {
   "body": {
     "message": "Request body is required",
@@ -20,7 +20,7 @@ exports[`Create Login User Controller Snapshot Test for expty request body. 1`] 
 }
 `;
 
-exports[`Create Login User Controller Snapshot Test for incorrect password. 1`] = `
+exports[`Login User Controller Snapshot Test for incorrect password. 1`] = `
 {
   "body": {
     "message": "Oops! you have entered incorrect password.",
@@ -30,7 +30,7 @@ exports[`Create Login User Controller Snapshot Test for incorrect password. 1`] 
 }
 `;
 
-exports[`Create Login User Controller Snapshot Test for internal server error. 1`] = `
+exports[`Login User Controller Snapshot Test for internal server error. 1`] = `
 {
   "body": {
     "message": "Oops! Something went wrong while logging.",
@@ -40,7 +40,7 @@ exports[`Create Login User Controller Snapshot Test for internal server error. 1
 }
 `;
 
-exports[`Create Login User Controller Snapshot Test for missing password. 1`] = `
+exports[`Login User Controller Snapshot Test for missing password. 1`] = `
 {
   "body": {
     "message": "Both username and password is required.",
@@ -50,7 +50,7 @@ exports[`Create Login User Controller Snapshot Test for missing password. 1`] = 
 }
 `;
 
-exports[`Create Login User Controller Snapshot Test for missing username. 1`] = `
+exports[`Login User Controller Snapshot Test for missing username. 1`] = `
 {
   "body": {
     "message": "Both username and password is required.",
@@ -60,21 +60,40 @@ exports[`Create Login User Controller Snapshot Test for missing username. 1`] = 
 }
 `;
 
-exports[`Create Login User Controller Snapshot Test for successfull login. 1`] = `
+exports[`Login User Controller Snapshot Test for successful login. 1`] = `
 {
   "body": {
     "data": {
       "_id": "507f1f77bcf86cd799439011",
-      "articles": [],
       "email": "test@gmail.com",
+      "emailVerified": true,
       "fullname": "UserTest",
-      "isActive": true,
       "username": "test",
     },
     "message": "User logged-in successfully.",
     "success": true,
-    "token": "fake-jwt-token",
+    "token": "mocked-jwt-token",
   },
   "status": 200,
+}
+`;
+
+exports[`Login User Controller Snapshot Test for unverified email but not expired. 1`] = `
+{
+  "body": {
+    "message": "Oops! you have not verified your email yet.",
+    "success": false,
+  },
+  "status": 404,
+}
+`;
+
+exports[`Login User Controller Snapshot Test for user not exist. 1`] = `
+{
+  "body": {
+    "message": "Looks like that user doesn't exist in our system.",
+    "success": false,
+  },
+  "status": 404,
 }
 `;

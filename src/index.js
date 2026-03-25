@@ -32,7 +32,8 @@ function loginSignupFactory(UserModel, configOptions = {}, emailConfig = {}) {
         || emailConfig.mailProvider.password == ""
         || !emailConfig.verifyMethod.projectName
         || emailConfig.verifyMethod.projectName == ""
-        || typeof (emailConfig.verifyMethod.expireAfterMinute) !== "number"
+        || typeof (emailConfig.verifyMethod.otpLinkExpiryMinutes) !== "number"
+        || typeof (emailConfig.verifyMethod.unverifiedUserExpiryDays) !== "number"
         || typeof (emailConfig.verifyMethod.usingLink) !== "boolean"
     ) {
         throw new Error("Email configuration values are missing.");
@@ -45,8 +46,11 @@ function loginSignupFactory(UserModel, configOptions = {}, emailConfig = {}) {
             throw new Error("Email configuration frontendBaseUrl are missing.");
         }
     }
-    if (emailConfig.verifyMethod.expireAfterMinute <= 0) {
-        throw new Error("Email expiry minute must be greater than or equal to 1.");
+    if (emailConfig.verifyMethod.otpLinkExpiryMinutes <= 0) {
+        throw new Error("OTP/link expiry minutes must be greater than or equal to 1.");
+    }
+    if (emailConfig.verifyMethod.unverifiedUserExpiryDays <= 0) {
+        throw new Error("Unverified user expiry days must be greater than or equal to 1.");
     }
     const emailSender = nodemailerConfig(emailConfig.mailProvider);
     const userSecretConfig = authSecretConfig(jwtSecret, bcryptSecret);

@@ -1,3 +1,4 @@
+import { dataExpiryTime } from "../../utils/dataExpiryTime.utils.js";
 import { emailTokenGenerator } from "../../utils/emailTokenGenerator.utils.js";
 import { passwordHashing } from "../../utils/passwordHashing.utils.js";
 import { getVerificationEmailTemplate } from "../../utils/verifyEmailBodyTemplate.utils.js";
@@ -26,9 +27,9 @@ const createUserController = (UserModel, userSecretConfig, emailSender, verifyMe
                 { username: username },
                 { email: email }
             ]
-        }).select("+verifyTokenExpires");
+        }).select("+destroyDataAfter");
         if (userExist) {
-            if (userExist.emailVerified || userExist.verifyTokenExpires >= Date.now()) {
+            if (userExist.emailVerified || userExist.destroyDataAfter > Date.now()) {
                 return res.status(400).json({
                     message: "Looks like someone already registered with that username or email.",
                     success: false
@@ -48,15 +49,16 @@ const createUserController = (UserModel, userSecretConfig, emailSender, verifyMe
             verificationSend = `${verifyMethod.frontendBaseUrl}/user/signup/verify-email?token=${verificationSave}`;
         }
         else {
-            verificationSend = Math.floor(100000 + Math.random() * 900000).toString();
-            verificationSave = await emailTokenGenerator.emailOtp(verificationSend, userSecretConfig.bcryptSecret);
+            verificationSend = emailTokenGenerator.generateOtp();
+            verificationSave = await emailTokenGenerator.hashOtp(verificationSend, userSecretConfig.bcryptSecret);
         }
         // saving data.
         const modelData = new UserModel({
             ...req.body,
             password: hashedPassword,
             verifyToken: verificationSave,
-            verifyTokenExpires: new Date(Date.now() + verifyMethod.expireAfterMinute * 60 * 1000)
+            verifyTokenExpires: dataExpiryTime.otpLinkExpire(verifyMethod.otpLinkExpiryMinutes),
+            destroyDataAfter: dataExpiryTime.userDataExpire(verifyMethod.unverifiedUserExpiryDays)
         });
         const data = await modelData.save();
         // send mail

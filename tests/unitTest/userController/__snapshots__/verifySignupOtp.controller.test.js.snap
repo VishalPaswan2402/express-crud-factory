@@ -1,0 +1,90 @@
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+
+exports[`Verify Signup OTP Controller Snapshot Test already verified 1`] = `
+{
+  "body": {
+    "message": "Email already verified.",
+    "success": true,
+  },
+  "status": 200,
+}
+`;
+
+exports[`Verify Signup OTP Controller Snapshot Test delete expired user 1`] = `
+{
+  "body": {
+    "message": "User is not registered, signup again.",
+    "success": false,
+  },
+  "status": 400,
+}
+`;
+
+exports[`Verify Signup OTP Controller Snapshot Test internal server error 1`] = `
+{
+  "body": {
+    "message": "Oops! Something went wrong while verifying OTP.Try again.",
+    "success": false,
+  },
+  "status": 500,
+}
+`;
+
+exports[`Verify Signup OTP Controller Snapshot Test invalid otp 1`] = `
+{
+  "body": {
+    "message": "Invalid, please enter correct OTP.",
+    "success": false,
+  },
+  "status": 400,
+}
+`;
+
+exports[`Verify Signup OTP Controller Snapshot Test invalid user 1`] = `
+{
+  "body": {
+    "message": "Invalid request. Please signup again.",
+    "success": false,
+  },
+  "status": 404,
+}
+`;
+
+exports[`Verify Signup OTP Controller Snapshot Test otp expired 1`] = `
+{
+  "body": {
+    "message": "OTP expired, generate new OTP.",
+    "success": false,
+  },
+  "status": 400,
+}
+`;
+
+exports[`Verify Signup OTP Controller Snapshot Test otp missing 1`] = `
+{
+  "body": {
+    "message": "Please fill OTP correctly.",
+    "success": false,
+  },
+  "status": 400,
+}
+`;
+
+exports[`Verify Signup OTP Controller Snapshot Test successful otp verification 1`] = `
+{
+  "body": {
+    "data": {
+      "_id": "123",
+      "email": "test@gmail.com",
+      "emailVerified": true,
+      "isActive": true,
+      "toObject": [Function],
+      "username": "test",
+    },
+    "message": "Email verified and account created successfully.",
+    "success": true,
+    "token": "mocked-jwt-token",
+  },
+  "status": 201,
+}
+`;

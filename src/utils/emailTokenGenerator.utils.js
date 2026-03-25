@@ -2,7 +2,11 @@ import crypto from "crypto";
 import bcrypt from 'bcrypt';
 
 export const emailTokenGenerator = {
-    emailOtp: async (otp, bcryptSecret) => {
+    generateOtp: () => {
+        const otp = Math.floor(100000 + Math.random() * 900000).toString();
+        return otp;
+    },
+    hashOtp: async (otp, bcryptSecret) => {
         const saltRounds = bcryptSecret.salts;
         const hashedOtp = await bcrypt.hash(otp, saltRounds);
         return hashedOtp;

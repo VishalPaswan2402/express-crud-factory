@@ -1,5 +1,31 @@
 // Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
+exports[`Create User Controller Snapshot Test for create user with OTP verification 1`] = `
+{
+  "body": {
+    "data": {
+      "userId": "mocked-user-id",
+    },
+    "message": "Verification OTP sended to your email successfully.",
+    "success": true,
+  },
+  "status": 200,
+}
+`;
+
+exports[`Create User Controller Snapshot Test for delete expired unverified user and create new one 1`] = `
+{
+  "body": {
+    "data": {
+      "userId": "mocked-user-id",
+    },
+    "message": "Verification link sended to your email successfully.",
+    "success": true,
+  },
+  "status": 200,
+}
+`;
+
 exports[`Create User Controller Snapshot Test for email already exist. 1`] = `
 {
   "body": {
@@ -17,6 +43,16 @@ exports[`Create User Controller Snapshot Test for empty request body. 1`] = `
     "success": false,
   },
   "status": 400,
+}
+`;
+
+exports[`Create User Controller Snapshot Test for handle email sending failure 1`] = `
+{
+  "body": {
+    "message": "Oops! Something went wrong while saving new user.Try again later.",
+    "success": false,
+  },
+  "status": 500,
 }
 `;
 
@@ -40,6 +76,19 @@ exports[`Create User Controller Snapshot Test for password mismatch. 1`] = `
 }
 `;
 
+exports[`Create User Controller Snapshot Test for send verification link in email 1`] = `
+{
+  "body": {
+    "data": {
+      "userId": "mocked-user-id",
+    },
+    "message": "Verification link sended to your email successfully.",
+    "success": true,
+  },
+  "status": 200,
+}
+`;
+
 exports[`Create User Controller Snapshot Test for server error. 1`] = `
 {
   "body": {
@@ -50,22 +99,39 @@ exports[`Create User Controller Snapshot Test for server error. 1`] = `
 }
 `;
 
+exports[`Create User Controller Snapshot Test for set verifyTokenExpires and destroyDataAfter 1`] = `
+{
+  "body": {
+    "data": {
+      "userId": "mocked-user-id",
+    },
+    "message": "Verification link sended to your email successfully.",
+    "success": true,
+  },
+  "status": 200,
+}
+`;
+
 exports[`Create User Controller Snapshot Test for user created successfully. 1`] = `
 {
   "body": {
     "data": {
-      "_id": "507f1f77bcf86cd799439011",
-      "articles": [],
-      "email": "test@gmail.com",
-      "fullname": "UserTest",
-      "isActive": true,
-      "username": "test",
+      "userId": "mocked-user-id",
     },
-    "message": "New user created successfully.",
+    "message": "Verification link sended to your email successfully.",
     "success": true,
-    "token": "fake-token",
   },
-  "status": 201,
+  "status": 200,
+}
+`;
+
+exports[`Create User Controller Snapshot Test for user saving failed. 1`] = `
+{
+  "body": {
+    "message": "Oops! Something went wrong while saving new user.Try again later.",
+    "success": false,
+  },
+  "status": 500,
 }
 `;
 
@@ -76,15 +142,5 @@ exports[`Create User Controller Snapshot Test for username already exist. 1`] = 
     "success": false,
   },
   "status": 400,
-}
-`;
-
-exports[`Create User Controller Snapshot Test user saving failed. 1`] = `
-{
-  "body": {
-    "message": "Oops! Something went wrong while saving new user.Try again later.",
-    "success": false,
-  },
-  "status": 500,
 }
 `;

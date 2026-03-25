@@ -12,7 +12,7 @@ const loginUserController = (UserModel, userSecretConfig) => async (req, res) =>
             });
         }
         // find user by username
-        const dataByUsername = await UserModel.findOne({ username: username }).select("+password +verifyTokenExpires");
+        const dataByUsername = await UserModel.findOne({ username: username }).select("+password +destroyDataAfter");
         if (!dataByUsername) {
             return res.status(404).json({
                 message: "Looks like that user doesn't exist in our system.",
@@ -28,7 +28,7 @@ const loginUserController = (UserModel, userSecretConfig) => async (req, res) =>
             })
         }
         if (!dataByUsername.emailVerified) {
-            if (dataByUsername.verifyTokenExpires >= Date.now()) {
+            if (dataByUsername.destroyDataAfter > Date.now()) {
                 return res.status(404).json({
                     message: "Oops! you have not verified your email yet.",
                     success: false
@@ -44,7 +44,7 @@ const loginUserController = (UserModel, userSecretConfig) => async (req, res) =>
         }
         const findData = dataByUsername.toObject();
         delete findData.password;
-        delete findData.verifyTokenExpires;
+        delete findData.destroyDataAfter;
         // generate jwt token 
         const token = generateJwtToken(findData, userSecretConfig.jwtSecret);
         return res.status(200).json({

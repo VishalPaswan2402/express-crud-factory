@@ -32,7 +32,8 @@ const emailConfig = {
     },
     verifyMethod: {
         projectName: "Express-Crud-Factory",
-        expireAfterMinute: 2, // positive integer
+        otpLinkExpiryMinutes: 2,
+        unverifiedUserExpiryDays: 1,
         usingLink: true, // true -> link and false -> OTP
         frontendBaseUrl: `http://localhost:${port}` // if usinglink = true
     }

@@ -38,6 +38,11 @@ const defaultUserSchema = new Schema({
         default: null,
         select: false
     },
+    destroyDataAfter: {
+        type: Date,
+        default: null,
+        select: false
+    },
     articles: [{
         type: mongoose.Schema.Types.ObjectId,
         ref: "DefaultPost"
