@@ -1,4 +1,4 @@
-export const getOtpVerificationEmailTemplate = (otp, username, companyName) => {
+export const getOtpVerificationEmailTemplate = (otp, expiryTime, create, username, companyName) => {
     return `
     <!DOCTYPE html>
     <html>
@@ -25,7 +25,7 @@ export const getOtpVerificationEmailTemplate = (otp, username, companyName) => {
                 color: #ffffff;
                 text-align: center;
                 padding: 25px;
-                font-size: 24px;
+                font-size: 20px;
                 font-weight: bold;
             }
             .content {
@@ -67,7 +67,7 @@ export const getOtpVerificationEmailTemplate = (otp, username, companyName) => {
     <body>
         <div class="container">
             <div class="header">
-                Email Verification
+                Verify Your Email to ${create ? "Activate" : "Deactivate"} Your Account
             </div>
 
             <div class="content">
@@ -81,7 +81,7 @@ export const getOtpVerificationEmailTemplate = (otp, username, companyName) => {
                 </div>
 
                 <p>
-                    This OTP is valid for <strong>5 minutes</strong>. Please do not share it with anyone.
+                    This OTP is valid for <strong>${expiryTime} minutes</strong>. Please do not share it with anyone.
                 </p>
 
                 <p class="warning">

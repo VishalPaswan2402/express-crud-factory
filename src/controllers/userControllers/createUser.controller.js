@@ -1,8 +1,7 @@
 import { dataExpiryTime } from "../../utils/dataExpiryTime.utils.js";
-import { emailTokenGenerator } from "../../utils/emailTokenGenerator.utils.js";
 import { passwordHashing } from "../../utils/passwordHashing.utils.js";
-import { getVerificationEmailTemplate } from "../../utils/verifyEmailBodyTemplate.utils.js";
-import { getOtpVerificationEmailTemplate } from "../../utils/verifyOtpBodyTemplate.utils.js";
+import { verificationMailSender } from "../../utils/verificationMailSender.utils.js";
+import { verificationToken } from "../../utils/verificationToken.utils.js";
 
 const createUserController = (UserModel, userSecretConfig, emailSender, verifyMethod) => async (req, res) => {
     try {
@@ -41,36 +40,28 @@ const createUserController = (UserModel, userSecretConfig, emailSender, verifyMe
         }
         // hash plain password.
         const hashedPassword = await passwordHashing.hashPassword(password, userSecretConfig.bcryptSecret);
-        let verificationSave = null;
-        let verificationSend = null;
         // generate link or otp
-        if (verifyMethod.usingLink) {
-            verificationSave = emailTokenGenerator.emailToken();
-            verificationSend = `${verifyMethod.frontendBaseUrl}/user/signup/verify-email?token=${verificationSave}`;
-        }
-        else {
-            verificationSend = emailTokenGenerator.generateOtp();
-            verificationSave = await emailTokenGenerator.hashOtp(verificationSend, userSecretConfig.bcryptSecret);
-        }
+        const generatedToken = await verificationToken.saveSendToken(verifyMethod, userSecretConfig, true, null);
+        let verificationSave = generatedToken.saveToken;
+        let verificationSend = generatedToken.sendToken;
         // saving data.
         const modelData = new UserModel({
             ...req.body,
             password: hashedPassword,
             verifyToken: verificationSave,
+            otpRequestCount: 1,
             verifyTokenExpires: dataExpiryTime.otpLinkExpire(verifyMethod.otpLinkExpiryMinutes),
             destroyDataAfter: dataExpiryTime.userDataExpire(verifyMethod.unverifiedUserExpiryDays)
         });
         const data = await modelData.save();
         // send mail
-        await emailSender.sendMail({
-            from: `${verifyMethod.projectName} <${emailSender.options.auth.user}>`,
-            to: email,
-            subject: "Verify your Email",
-            text: `${verifyMethod.usingLink ? "Link" : "OTP"} to verify email : ${verificationSend}`,
-            html: verifyMethod.usingLink ? getVerificationEmailTemplate(verificationSend, fullname, verifyMethod.projectName) : getOtpVerificationEmailTemplate(verificationSend, fullname, verifyMethod.projectName)
-        });
+        await verificationMailSender.sendEmail(emailSender, verifyMethod, data.email, true, data.fullname, verificationSend);
         // send userId for otp verify
-        const userData = { userId: data._id };
+        const userData = {
+            userId: data._id,
+            fullName: fullname,
+            email: email
+        };
         return res.status(200).json({
             data: userData,
             message: `Verification ${verifyMethod.usingLink ? "link" : "OTP"} sended to your email successfully.`,

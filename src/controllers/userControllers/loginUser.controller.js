@@ -29,7 +29,13 @@ const loginUserController = (UserModel, userSecretConfig) => async (req, res) =>
         }
         if (!dataByUsername.emailVerified) {
             if (dataByUsername.destroyDataAfter > Date.now()) {
+                const userData = {
+                    userId: dataByUsername._id,
+                    fullName: dataByUsername.fullName,
+                    email: dataByUsername.email
+                };
                 return res.status(404).json({
+                    data: userData,
                     message: "Oops! you have not verified your email yet.",
                     success: false
                 })
@@ -41,6 +47,12 @@ const loginUserController = (UserModel, userSecretConfig) => async (req, res) =>
                     success: false
                 });
             }
+        }
+        if (!dataByUsername.isActive) {
+            return res.status(404).json({
+                message: "Looks like your account is blocked.",
+                success: false
+            });
         }
         const findData = dataByUsername.toObject();
         delete findData.password;

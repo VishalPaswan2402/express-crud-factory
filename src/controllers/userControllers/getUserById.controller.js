@@ -9,6 +9,12 @@ const getUserByIdController = (UserModel) => async (req, res) => {
                 success: false
             });
         }
+        if (!data.isActive) {
+            return res.status(400).json({
+                message: "Your account is blocked, you can't access it.",
+                success: false
+            });
+        }
         return res.status(200).json({
             data: data,
             message: "User found successfully.",

@@ -43,6 +43,16 @@ const defaultUserSchema = new Schema({
         default: null,
         select: false
     },
+    otpRequestCount: {
+        type: Number,
+        default: 0,
+        select: false
+    },
+    otpLastRequest: {
+        type: Date,
+        default: null,
+        select: false
+    },
     articles: [{
         type: mongoose.Schema.Types.ObjectId,
         ref: "DefaultPost"

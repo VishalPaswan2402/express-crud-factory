@@ -1,4 +1,4 @@
-export const getVerificationEmailTemplate = (verificationLink, username, companyName) => {
+export const getVerificationEmailTemplate = (verificationLink, expiryTime, create, username, companyName) => {
     return `
     <!DOCTYPE html>
     <html>
@@ -25,7 +25,7 @@ export const getVerificationEmailTemplate = (verificationLink, username, company
                 color: #ffffff;
                 text-align: center;
                 padding: 25px;
-                font-size: 24px;
+                font-size: 20px;
                 font-weight: bold;
             }
             .content {
@@ -77,7 +77,7 @@ export const getVerificationEmailTemplate = (verificationLink, username, company
     <body>
         <div class="container">
             <div class="header">
-                Email Verification
+                Verify Your Email to ${create ? "Activate" : "Deactivate"} Your Account
             </div>
 
             <div class="content">
@@ -87,7 +87,7 @@ export const getVerificationEmailTemplate = (verificationLink, username, company
                 </p>
 
                 <a href="${verificationLink}" class="btn">
-                    Verify Email
+                    Click to ${create ? 'Activate' : 'Deactivate'} Account
                 </a>
 
                 <p>If the button doesn’t work, use this link:</p>
@@ -97,7 +97,7 @@ export const getVerificationEmailTemplate = (verificationLink, username, company
                 </div>
 
                 <p class="warning">
-                    This link is valid for <strong>5 minutes</strong>. Do not share it with anyone.
+                    This link is valid for <strong>${expiryTime} minutes</strong>. Do not share it with anyone.
                 </p>
 
                 <p class="warning">

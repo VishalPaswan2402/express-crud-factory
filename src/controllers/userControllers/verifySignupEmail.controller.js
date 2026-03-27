@@ -1,6 +1,7 @@
 import { generateJwtToken } from "../../utils/generateJwtToken.utils.js";
+import { userAfterVerification } from "../../utils/userAfterVerification.utils.js";
 
-const verifySignupEmail = (UserModel, userSecretConfig) => async (req, res) => {
+const verifySignupEmailController = (UserModel, userSecretConfig) => async (req, res) => {
     try {
         const { token } = req.query;
         if (!token) {
@@ -10,7 +11,7 @@ const verifySignupEmail = (UserModel, userSecretConfig) => async (req, res) => {
             });
         }
         // find user by token
-        const user = await UserModel.findOne({ verifyToken: token }).select("+verifyToken +verifyTokenExpires +destroyDataAfter");
+        const user = await UserModel.findOne({ verifyToken: token }).select("+verifyToken +verifyTokenExpires +destroyDataAfter +otpRequestCount +otpLastRequest");
         if (!user) {
             return res.status(400).json({
                 message: "Invalid token",
@@ -38,19 +39,8 @@ const verifySignupEmail = (UserModel, userSecretConfig) => async (req, res) => {
                 success: false
             });
         }
-        // update user
-        user.emailVerified = true;
-        user.isActive = true;
-        user.verifyToken = null;
-        user.verifyTokenExpires = null;
-        user.destroyDataAfter = null;
-        const data = await user.save();
-        // make response data
-        const savedData = data.toObject();
-        delete savedData.password;
-        delete savedData.verifyToken;
-        delete savedData.verifyTokenExpires;
-        delete savedData.destroyDataAfter;
+        // // update user
+        const savedData = await userAfterVerification(user);
         // generate jwt token
         const jwtToken = generateJwtToken(savedData, userSecretConfig.jwtSecret);
         return res.status(201).json({
@@ -68,4 +58,4 @@ const verifySignupEmail = (UserModel, userSecretConfig) => async (req, res) => {
     }
 };
 
-export default verifySignupEmail;
+export default verifySignupEmailController;

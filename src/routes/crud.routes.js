@@ -5,7 +5,6 @@ import isValidUserPostId from '../middlewares/validUserPostId.middleware.js';
 import loginUserController from '../controllers/userControllers/loginUser.controller.js';
 import createUserController from '../controllers/userControllers/createUser.controller.js';
 import getUserByIdController from '../controllers/userControllers/getUserById.controller.js';
-import destroyUserController from '../controllers/userControllers/destroyUser.controller.js';
 import { authenticateUser } from '../middlewares/authenticateUser.middleware.js';
 import createPostController from '../controllers/postControllers/createPost.controller.js';
 import deletePostController from '../controllers/postControllers/deletePost.controller.js';
@@ -16,17 +15,24 @@ import allPostController from '../controllers/postControllers/allPost.controller
 import getPostController from '../controllers/postControllers/getPost.controller.js';
 import isValidUserId from '../middlewares/validUserId.middleware.js';
 import isValidPostId from '../middlewares/validPostId.middleware.js';
-import verifySignupEmail from '../controllers/userControllers/verifySignupEmail.controller.js';
-import verifySignupOtp from '../controllers/userControllers/verifySignupOtp.controller.js';
+import destroyUserOtpController from '../controllers/userControllers/destroyUserOtp.controller.js';
+import emailForDestroyUserController from '../controllers/userControllers/emailForDestroyUser.controller.js';
+import sendVerificationEmailController from '../controllers/userControllers/sendVerificationEmail.controller.js';
+import verifySignupEmailController from '../controllers/userControllers/verifySignupEmail.controller.js';
+import verifySignupOtpController from '../controllers/userControllers/verifySignupOtp.controller.js';
+import destroyUserEmailController from '../controllers/userControllers/destroyUserEmail.controller.js';
 
 function loginSignupApi(UserModel, userSecretConfig, emailSender, verifyMethod) {
     const router = express.Router({ mergeParams: true });
     router.post("/login", jsonValidate, loginUserController(UserModel, userSecretConfig));
     router.post("/signup", jsonValidate, createUserController(UserModel, userSecretConfig, emailSender, verifyMethod));
-    router.get("/signup/verify-email", verifySignupEmail(UserModel, userSecretConfig));
-    router.post("/signup/:userId/verify-email", isValidUserId, verifySignupOtp(UserModel, userSecretConfig));
+    router.get("/signup/verify-email", verifySignupEmailController(UserModel, userSecretConfig));
+    router.post("/signup/:userId/send-email", isValidUserId, sendVerificationEmailController(UserModel, userSecretConfig, emailSender, verifyMethod));
+    router.post("/destroy/:userId/send-email", isValidUserId, authenticateUser(userSecretConfig.jwtSecret), authorizeUser, emailForDestroyUserController(UserModel, userSecretConfig, emailSender, verifyMethod));
+    router.post("/signup/:userId/verify-email", jsonValidate, isValidUserId, verifySignupOtpController(UserModel, userSecretConfig));
     router.get("/:userId", isValidUserId, authenticateUser(userSecretConfig.jwtSecret), authorizeUser, getUserByIdController(UserModel));
-    router.delete("/:userId", isValidUserId, authenticateUser(userSecretConfig.jwtSecret), authorizeUser, destroyUserController(UserModel));
+    router.post("/destroy/:userId/verify-email", jsonValidate, isValidUserId, authenticateUser(userSecretConfig.jwtSecret), authorizeUser, destroyUserOtpController(UserModel));
+    router.delete("/destroy/:userId/verify-email", isValidUserId, destroyUserEmailController(UserModel));
     return router;
 }
 

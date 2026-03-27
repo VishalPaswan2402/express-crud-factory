@@ -1,7 +1,8 @@
 import { emailTokenGenerator } from "../../utils/emailTokenGenerator.utils.js";
 import { generateJwtToken } from "../../utils/generateJwtToken.utils.js";
+import { userAfterVerification } from "../../utils/userAfterVerification.utils.js";
 
-const verifySignupOtp = (UserModel, userSecretConfig) => async (req, res) => {
+const verifySignupOtpController = (UserModel, userSecretConfig) => async (req, res) => {
     try {
         const { userId } = req.params;
         const { otp } = req.body;
@@ -12,7 +13,7 @@ const verifySignupOtp = (UserModel, userSecretConfig) => async (req, res) => {
             });
         }
         // find user
-        const user = await UserModel.findById(userId).select("+verifyToken +verifyTokenExpires +destroyDataAfter");
+        const user = await UserModel.findById(userId).select("+verifyToken +verifyTokenExpires +destroyDataAfter +otpRequestCount +otpLastRequest");
         if (!user) {
             return res.status(404).json({
                 message: "Invalid request. Please signup again.",
@@ -50,18 +51,7 @@ const verifySignupOtp = (UserModel, userSecretConfig) => async (req, res) => {
             });
         }
         // update user
-        user.emailVerified = true;
-        user.isActive = true;
-        user.verifyToken = null;
-        user.verifyTokenExpires = null;
-        user.destroyDataAfter = null;
-        const data = await user.save();
-        // create response data
-        const savedData = data.toObject();
-        delete savedData.password;
-        delete savedData.verifyToken;
-        delete savedData.verifyTokenExpires;
-        delete savedData.destroyDataAfter;
+        const savedData = await userAfterVerification(user);
         // generate jwt token
         const jwtToken = generateJwtToken(savedData, userSecretConfig.jwtSecret);
         return res.status(201).json({
@@ -79,4 +69,4 @@ const verifySignupOtp = (UserModel, userSecretConfig) => async (req, res) => {
     }
 }
 
-export default verifySignupOtp;
+export default verifySignupOtpController;
