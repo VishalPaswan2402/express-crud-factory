@@ -1,0 +1,66 @@
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+
+exports[`Send Verification Email Controller Snapshot Test for destroyDataAfter expired and delete user. 1`] = `
+{
+  "body": {
+    "message": "Verification time ended, signup again.",
+    "success": false,
+  },
+  "status": 400,
+}
+`;
+
+exports[`Send Verification Email Controller Snapshot Test for email already verified. 1`] = `
+{
+  "body": {
+    "message": "Email already verified.",
+    "success": true,
+  },
+  "status": 200,
+}
+`;
+
+exports[`Send Verification Email Controller Snapshot Test for otp request limit. 1`] = `
+{
+  "body": {
+    "message": "OTP request exceed, try again later.",
+    "success": false,
+  },
+  "status": 429,
+}
+`;
+
+exports[`Send Verification Email Controller Snapshot Test for server error. 1`] = `
+{
+  "body": {
+    "message": "Oops! Something went wrong while sending link.Try again later.",
+    "success": false,
+  },
+  "status": 500,
+}
+`;
+
+exports[`Send Verification Email Controller Snapshot Test for success. 1`] = `
+{
+  "body": {
+    "data": {
+      "email": "test@gmail.com",
+      "fullName": "Test User",
+      "userId": "123",
+    },
+    "message": "Verification OTP sended to your email successfully.",
+    "success": true,
+  },
+  "status": 200,
+}
+`;
+
+exports[`Send Verification Email Controller Snapshot Test for user not found. 1`] = `
+{
+  "body": {
+    "message": "Looks like that user doesn't exist in our system.",
+    "success": false,
+  },
+  "status": 404,
+}
+`;

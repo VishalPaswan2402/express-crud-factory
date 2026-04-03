@@ -10,6 +10,16 @@ exports[`Login User Controller Snapshot Test delete expired unverified user 1`] 
 }
 `;
 
+exports[`Login User Controller Snapshot Test for blocked user. 1`] = `
+{
+  "body": {
+    "message": "Looks like your account is blocked.",
+    "success": false,
+  },
+  "status": 404,
+}
+`;
+
 exports[`Login User Controller Snapshot Test for empty request body. 1`] = `
 {
   "body": {
@@ -67,7 +77,8 @@ exports[`Login User Controller Snapshot Test for successful login. 1`] = `
       "_id": "507f1f77bcf86cd799439011",
       "email": "test@gmail.com",
       "emailVerified": true,
-      "fullname": "UserTest",
+      "fullName": "User Test",
+      "isActive": true,
       "username": "test",
     },
     "message": "User logged-in successfully.",
@@ -81,6 +92,11 @@ exports[`Login User Controller Snapshot Test for successful login. 1`] = `
 exports[`Login User Controller Snapshot Test for unverified email but not expired. 1`] = `
 {
   "body": {
+    "data": {
+      "email": "test@gmail.com",
+      "fullName": "User Test",
+      "userId": "507f1f77bcf86cd799439011",
+    },
     "message": "Oops! you have not verified your email yet.",
     "success": false,
   },
