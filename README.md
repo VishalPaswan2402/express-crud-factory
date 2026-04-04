@@ -164,12 +164,17 @@ export default PostModel;
 npm init
 ```
 
-#### 2. To install dependencies run command in terminal :
+#### 2. Changes in package.json file :
+```
+"type": "module"
+```
+
+#### 3. To install dependencies run command in terminal :
 ```
 npm install express-crud-factory
 ```
 
-#### 3. Create models folder and index.js files as given in project structure :
+#### 4. Create models folder and index.js files as given in project structure :
 ```
 projectFolder 
 │
@@ -182,7 +187,7 @@ projectFolder
 └── package.json  
 ```
 
-#### 4. Content of files :
+#### 5. Content of files :
 
 ```
 ## In post.model.js file
@@ -195,12 +200,12 @@ Copy user model schema code.
 Copy project starter code.
 ```
 
-#### 5. Run your backend application :
+#### 6. Run your backend application :
 ```
 node index.js
 ```
 
-#### 6. After successful run you will see :
+#### 7. After successful run you will see :
 ```
 Server is running on port 3000
 ```
