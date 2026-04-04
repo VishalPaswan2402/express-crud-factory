@@ -19,7 +19,7 @@ This package provides a **ready-to-use backend with User Authentication and Post
 -   Full Stack Development
 
 
-## Why This Package?
+## Why this package ?
 Many frontend developers struggle to practice API integration because they don't have a backend.
 
 **Secure API Practice Kit solves this problem.**
@@ -57,19 +57,9 @@ Or using yarn
 yarn add express-crud-factory
 ```
 
-## Full Setup Example
+## How to use factory
 
-For a complete, working example of this setup, check out the starter repository :
-
-Express-Crud-Factory-Starter :
-[https://github.com/VishalPaswan2402/express-crud-factory-starter](https://github.com/VishalPaswan2402/express-crud-factory-starter)
-
-You can clone it and explore a fully configured project to see how everything works end-to-end.
-
-
-## Kit Uses
-
-**Basic starter code setup :**
+Project starter :
 
 ```js
 import express from 'express'
@@ -82,24 +72,42 @@ const app = express();
 app.use(express.json());
 app.use(jsonErrorHandler);
 
-const db_url = 'mongodb://127.0.0.1:27017/crudUserTest';
+const db_url = 'mongodb://127.0.0.1:27017/expressCrudFactory';
 await connectDatabase(db_url);
 
+// jwt secret and hashing configuration
 const secretConfig = {
     jwtSecret: {
-        secretKey: "1jsd23owie45xnzbm67pqlmx89",
-        expireIn: "1h"
+        secretKey: "1jsd23owie45xnzbm67pqlmx89", // your secret key for jwt signature
+        expireIn: "1h"  // token expire in hour
     },
     bcryptSecret: {
-        saltRounds: 10
+        saltRounds: 10 // hashing salt round
     }
 }
 
-app.use("/user", loginSignupFactory(UserModel, secretConfig));
+// email and verify method configuration
+const emailConfig = {
+    mailProvider: {
+        host: "smtp.ethereal.email", // your email host provider
+        secure: false, // true in production
+        username: "patrick.rice9@ethereal.email", // your email username
+        password: "XXyT7k2dW1b1WyKxPB" // your email password
+    },
+    verifyMethod: {
+        projectName: "Express-Crud-Factory", // your project name
+        otpLinkExpiryMinutes: 2, // otp expires in minutes
+        unverifiedUserExpiryDays: 1, // user destroyed if email not verified in days
+        usingLink: true, // true -> link verification method , false -> OTP verification method
+        frontendBaseUrl: `http://localhost:${port}` // use if usinglink = true , else optional
+    }
+}
+
+app.use("/user", loginSignupFactory(UserModel, secretConfig, emailConfig));
 app.use("/user/post", postArticleFactory(UserModel, PostModel, secretConfig));
 
 app.listen(port, () => {
-    console.log("Testing server is running...", port)
+    console.log("Server is running on port...", port)
 })
 ```
 
@@ -115,6 +123,12 @@ const userSchema = new Schema({
     email: { type: String,unique: true,required: true },
     password: { type: String,required: true,select: false },
     isActive: { type: Boolean,default: true },
+    emailVerified: { type: Boolean,default: false },
+    verifyToken: { type: String,default: null,select: false },
+    verifyTokenExpires: { type: Date,default: null,select: false },
+    destroyDataAfter: { type: Date,default: null,select: false },
+    otpRequestCount: { type: Number,default: 0,select: false },
+    otpLastRequest: { type: Date,default: null,select: false },
     articles: [ {type: mongoose.Schema.Types.ObjectId,ref: "PostModel"} ]
 });
 
@@ -143,46 +157,93 @@ const PostModel =mongoose.model("PostModel", postSchema);
 export default PostModel;
 ```
 
-Install dependencies :
+## Project setup
+
+#### 1. Create a projectFolder and run this command in terminal :
+```
+npm init
+```
+
+#### 2. To install dependencies run command in terminal :
 ```
 npm install express-crud-factory
 ```
-Run your backend application :
+
+#### 3. Create models folder and index.js files as given in project structure :
+```
+projectFolder 
+│
+├── models
+│ 	└── post.model.js
+│ 	└── user.model.js 
+│   
+├── index.js
+├── package-lock.json
+└── package.json  
+```
+
+#### 4. Content of files :
+
+```
+## In post.model.js file
+Copy post model schema code.
+
+## In user.model.js file
+Copy user model schema code.
+
+## In index.js file
+Copy project starter code.
+```
+
+#### 5. Run your backend application :
 ```
 node index.js
 ```
+
+#### 6. After successful run you will see :
 ```
 Server is running on port 3000
 ```
 
-## API Endpoints
+## API end-points
 
 ```
 # User API Endpoints
-POST Request : /user/signup
-GET Request : /user/:userId
-POST Request : /user/login
-DELETE Request : /user/:userId
+
+POST Request     :   /user/signup
+POST Request     :   /user/login
+GET Request      :   /user/signup/verify-email
+POST Request     :   /user/signup/:userId/send-email
+POST Request     :   /user/destroy/:userId/send-email
+POST Request     :   /user/signup/:userId/verify-email
+GET Request      :   /user/:userId
+POST Request     :   /user/destroy/:userId/verify-email
+DELETE Request   :   /user/destroy/:userId/verify-email
+
 
 # Post Articles API Endpoints
-POST Request : /user/post/:userId/new-post
-GET Request : /user/post/:userId/:postId/get-post
-PATCH Request : /user/post/:userId/:postId/edit-post
-DELETE Request : /user/post/:userId/:postId/delete-post
-GET Request : /user/post/:postId/share-post
-PATCH Request : /user/post/:postId/pin-post
-GET Request : /user/post/:postId/all-post
-PATCH Request : /user/post/:postId/trash-post
+
+POST Request     :   /user/post/:userId/new-post
+GET Request      :   /user/post/:userId/:postId/get-post
+GET Request      :   /user/post/:userId/all-post
+GET Request      :   /user/post/:postId/share-post
+PATCH Request    :   /user/post/:userId/:postId/edit-post
+PATCH Request    :   /user/post/:userId/:postId/pin-post
+PATCH Request    :   /user/post/:userId/:postId/trash-post
+DELETE Request   :   /user/post/:userId/:postId/delete-post
 ```
 
-## Full Setup / Starter Repository  :
+Visit [https://github.com/VishalPaswan2402/express-crud-factory-starter/tree/main/docs](https://github.com/VishalPaswan2402/express-crud-factory-starter/tree/main/docs) for detailed API request / response samples and use-cases.
+
+
+## Quick setup with starter repository
 
 For a full working example of setup and usage, visit :
 
 [https://github.com/VishalPaswan2402/express-crud-factory-starter](https://github.com/VishalPaswan2402/express-crud-factory-starter)
 
 
-## Projects You Can Build
+## Projects you can build
 
 Using this API you can practice building these following projects :
 
@@ -196,7 +257,7 @@ Using this API you can practice building these following projects :
     
 -   Full Stack MERN Apps
 
-## Target Audience
+## Target audience
 
 This package is helpful for:
 
