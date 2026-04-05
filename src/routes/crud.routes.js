@@ -21,7 +21,7 @@ import sendVerificationEmailController from '../controllers/userControllers/send
 import verifySignupEmailController from '../controllers/userControllers/verifySignupEmail.controller.js';
 import verifySignupOtpController from '../controllers/userControllers/verifySignupOtp.controller.js';
 import destroyUserEmailController from '../controllers/userControllers/destroyUserEmail.controller.js';
-import searchByTitle from '../controllers/postControllers/searchByTitle.controller.js';
+import searchByTitleController from '../controllers/postControllers/searchByTitle.controller.js';
 
 function loginSignupApi(UserModel, userSecretConfig, emailSender, verifyMethod) {
     const router = express.Router({ mergeParams: true });
@@ -47,7 +47,7 @@ function postArticleAPI(UserModel, PostModel, userSecretConfig) {
     router.patch("/:userId/:postId/pin-post", isValidUserPostId, authenticateUser(userSecretConfig.jwtSecret), authorizeUser, markPostController(UserModel, PostModel, false));
     router.patch("/:userId/:postId/trash-post", isValidUserPostId, authenticateUser(userSecretConfig.jwtSecret), authorizeUser, markPostController(UserModel, PostModel, true));
     router.delete("/:userId/:postId/delete-post", isValidUserPostId, authenticateUser(userSecretConfig.jwtSecret), authorizeUser, deletePostController(UserModel, PostModel));
-    router.get("/:userId/search", isValidUserId, authenticateUser(userSecretConfig.jwtSecret), authorizeUser, searchByTitle(PostModel));
+    router.get("/:userId/search", isValidUserId, authenticateUser(userSecretConfig.jwtSecret), authorizeUser, searchByTitleController(PostModel));
     return router;
 }
 

@@ -1,13 +1,28 @@
-import { beforeEach, describe, expect, jest } from "@jest/globals";
-import searchByTitle from "../../../src/controllers/postControllers/searchByTitle.controller.js";
+import { beforeEach, beforeAll, describe, expect, jest } from "@jest/globals";
+
+const mockPageRange = jest.fn();
+const mockQueryData = jest.fn();
+
+jest.unstable_mockModule("../../../src/utils/querySearch.utils.js", () => ({
+    querySearch: {
+        pageRange: mockPageRange,
+        queryData: mockQueryData
+    }
+}));
+
+let searchByTitleController;
+
+beforeAll(async () => {
+    const module = await import(
+        "../../../src/controllers/postControllers/searchByTitle.controller.js"
+    );
+    searchByTitleController = module.default;
+});
 
 describe("Search By Title Controller Snapshot Tests", () => {
     let req, res, PostModel;
     const sanitizeResponse = (res) => {
         const body = { ...res.json.mock.calls[0][0] };
-        if (body?.token) {
-            body.token = "mocked-jwt-token";
-        }
         return {
             status: res.status.mock.calls[0][0],
             body
@@ -22,69 +37,84 @@ describe("Search By Title Controller Snapshot Tests", () => {
             status: jest.fn().mockReturnThis(),
             json: jest.fn()
         };
-        PostModel = {
-            countDocuments: jest.fn(),
-            find: jest.fn()
-        };
+        PostModel = {};
+    });
+    afterEach(() => {
+        jest.clearAllMocks();
     });
 
-    test("for should return 400 if search text missing.", async () => {
+    test("for search text missing.", async () => {
         req.query = {};
         req.params = { userId: "123" };
-        const controller = searchByTitle(PostModel);
+        const controller = searchByTitleController(PostModel);
         await controller(req, res);
         const result = sanitizeResponse(res);
         expect(result).toMatchSnapshot();
     });
 
-    test("for should return 400 if userId missing.", async () => {
+    test("for userId missing.", async () => {
         req.query = { search: "react" };
         req.params = {};
-        const controller = searchByTitle(PostModel);
+        const controller = searchByTitleController(PostModel);
         await controller(req, res);
         const result = sanitizeResponse(res);
         expect(result).toMatchSnapshot();
     });
 
-    test("for should return 400 if page exceeds total pages.", async () => {
+    test("for page exceeds total pages.", async () => {
         req.query = { search: "react", page: "5", limit: "2" };
         req.params = { userId: "123" };
-        PostModel.countDocuments.mockResolvedValue(3); // totalPages = 2
-        const controller = searchByTitle(PostModel);
+        mockPageRange.mockResolvedValue({
+            value: false,
+            totalPages: 2
+        });
+        const controller = searchByTitleController(PostModel);
         await controller(req, res);
         const result = sanitizeResponse(res);
         expect(result).toMatchSnapshot();
     });
 
-    test("for should return posts successfully.", async () => {
+    test("for find posts successfully.", async () => {
         req.query = { search: "react", page: "1", limit: "2" };
         req.params = { userId: "123" };
         const mockPosts = [
             { title: "React Guide", author: "123" },
             { title: "Learning React", author: "123" }
         ];
-        PostModel.countDocuments.mockResolvedValue(2);
-        PostModel.find.mockReturnValue({
-            skip: jest.fn().mockReturnValue({
-                limit: jest.fn().mockResolvedValue(mockPosts)
-            })
+        mockPageRange.mockResolvedValue({
+            value: true,
+            totalPages: 1,
+            totalDocument: 2,
+            currentPage: 1
         });
-        const controller = searchByTitle(PostModel);
+        mockQueryData.mockResolvedValue({
+            data: mockPosts,
+            totalDocument: 2,
+            totalPages: 1,
+            currentPage: 1
+        });
+        const controller = searchByTitleController(PostModel);
         await controller(req, res);
         const result = sanitizeResponse(res);
         expect(result).toMatchSnapshot();
     });
 
-    test("for should return no data message when empty result.", async () => {
+    test("for no result found.", async () => {
         req.query = { search: "unknown", page: "1", limit: "2" };
         req.params = { userId: "123" };
-        PostModel.countDocuments.mockResolvedValue(0);
-        PostModel.find.mockReturnValue({
-            skip: jest.fn().mockReturnValue({
-                limit: jest.fn().mockResolvedValue([])
-            })
+        mockPageRange.mockResolvedValue({
+            value: true,
+            totalPages: 1,
+            totalDocument: 0,
+            currentPage: 1
         });
-        const controller = searchByTitle(PostModel);
+        mockQueryData.mockResolvedValue({
+            data: [],
+            totalDocument: 0,
+            totalPages: 1,
+            currentPage: 1
+        });
+        const controller = searchByTitleController(PostModel);
         await controller(req, res);
         const result = sanitizeResponse(res);
         expect(result).toMatchSnapshot();
@@ -93,8 +123,8 @@ describe("Search By Title Controller Snapshot Tests", () => {
     test("for should handle server error.", async () => {
         req.query = { search: "react" };
         req.params = { userId: "123" };
-        PostModel.countDocuments.mockRejectedValue(new Error("DB Error"));
-        const controller = searchByTitle(PostModel);
+        mockPageRange.mockRejectedValue(new Error("DB Error"));
+        const controller = searchByTitleController(PostModel);
         await controller(req, res);
         const result = sanitizeResponse(res);
         expect(result).toMatchSnapshot();

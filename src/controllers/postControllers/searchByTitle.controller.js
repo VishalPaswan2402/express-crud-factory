@@ -1,4 +1,6 @@
-const searchByTitle = (PostModel) => async (req, res) => {
+import { querySearch } from "../../utils/querySearch.utils.js";
+
+const searchByTitleController = (PostModel) => async (req, res) => {
     try {
         const { search } = req.query;
         const { userId } = req.params;
@@ -21,29 +23,20 @@ const searchByTitle = (PostModel) => async (req, res) => {
             author: userId,
             title: { $regex: search, $options: "i" }
         };
-        const total = await PostModel.countDocuments(query);
-        const totalPages = Math.ceil(total / limit);
-        if (page > totalPages && totalPages > 0) {
+        // find range
+        const pageData = await querySearch.pageRange(PostModel, query, page, limit);
+        if (!pageData.value) {
             return res.status(400).json({
                 success: false,
                 message: "Page exceeds total pages",
-                totalPages
+                totalPages: pageData.totalPages
             });
         };
-        const posts = await PostModel.find(query)
-            .skip(skip)
-            .limit(limit);
-
-        const responseData = {
-            totalDocument: total,
-            totalPages: totalPages,
-            currentPage: page,
-            searchText: search,
-            data: posts
-        };
+        // find document
+        const responseData = await querySearch.queryData(PostModel, query, skip, limit, pageData.totalDocument, pageData.totalPages, pageData.currentPage);
         return res.status(200).json({
             data: responseData,
-            message: posts.length < 1 ? "No matching data found." : "Find matching data.",
+            message: responseData.data.length < 1 ? "No matching data found." : "Find matching data.",
             success: true
         });
     }
@@ -55,4 +48,4 @@ const searchByTitle = (PostModel) => async (req, res) => {
     }
 }
 
-export default searchByTitle;
+export default searchByTitleController;

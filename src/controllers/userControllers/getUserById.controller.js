@@ -1,7 +1,6 @@
 const getUserByIdController = (UserModel) => async (req, res) => {
     try {
         const { userId } = req.params;
-        // finding user from userID.
         const data = await UserModel.findById(userId);
         if (!data) {
             return res.status(404).json({
@@ -15,8 +14,17 @@ const getUserByIdController = (UserModel) => async (req, res) => {
                 success: false
             });
         }
+        const responseData = {
+            _id: data._id,
+            username: data.username,
+            fullname: data.fullname,
+            email: data.email,
+            active: data.isActive,
+            emailVerified: data.emailVerified,
+            totalArticles: data.articles.length
+        }
         return res.status(200).json({
-            data: data,
+            data: responseData,
             message: "User found successfully.",
             success: true
         });

@@ -1,64 +1,6 @@
 // Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
-exports[`Search By Title Controller Snapshot Tests for should handle server error. 1`] = `
-{
-  "body": {
-    "message": "Oops! Something went wrong while searching post.",
-    "success": false,
-  },
-  "status": 500,
-}
-`;
-
-exports[`Search By Title Controller Snapshot Tests for should return 400 if page exceeds total pages. 1`] = `
-{
-  "body": {
-    "message": "Page exceeds total pages",
-    "success": false,
-    "totalPages": 2,
-  },
-  "status": 400,
-}
-`;
-
-exports[`Search By Title Controller Snapshot Tests for should return 400 if search text missing. 1`] = `
-{
-  "body": {
-    "message": "Search text is required.",
-    "success": false,
-  },
-  "status": 400,
-}
-`;
-
-exports[`Search By Title Controller Snapshot Tests for should return 400 if userId missing. 1`] = `
-{
-  "body": {
-    "message": "UserId is required.",
-    "success": false,
-  },
-  "status": 400,
-}
-`;
-
-exports[`Search By Title Controller Snapshot Tests for should return no data message when empty result. 1`] = `
-{
-  "body": {
-    "data": {
-      "currentPage": 1,
-      "data": [],
-      "searchText": "unknown",
-      "totalDocument": 0,
-      "totalPages": 0,
-    },
-    "message": "No matching data found.",
-    "success": true,
-  },
-  "status": 200,
-}
-`;
-
-exports[`Search By Title Controller Snapshot Tests for should return posts successfully. 1`] = `
+exports[`Search By Title Controller Snapshot Tests for find posts successfully. 1`] = `
 {
   "body": {
     "data": {
@@ -73,7 +15,6 @@ exports[`Search By Title Controller Snapshot Tests for should return posts succe
           "title": "Learning React",
         },
       ],
-      "searchText": "react",
       "totalDocument": 2,
       "totalPages": 1,
     },
@@ -81,5 +22,62 @@ exports[`Search By Title Controller Snapshot Tests for should return posts succe
     "success": true,
   },
   "status": 200,
+}
+`;
+
+exports[`Search By Title Controller Snapshot Tests for no result found. 1`] = `
+{
+  "body": {
+    "data": {
+      "currentPage": 1,
+      "data": [],
+      "totalDocument": 0,
+      "totalPages": 1,
+    },
+    "message": "No matching data found.",
+    "success": true,
+  },
+  "status": 200,
+}
+`;
+
+exports[`Search By Title Controller Snapshot Tests for page exceeds total pages. 1`] = `
+{
+  "body": {
+    "message": "Page exceeds total pages",
+    "success": false,
+    "totalPages": 2,
+  },
+  "status": 400,
+}
+`;
+
+exports[`Search By Title Controller Snapshot Tests for search text missing. 1`] = `
+{
+  "body": {
+    "message": "Search text is required.",
+    "success": false,
+  },
+  "status": 400,
+}
+`;
+
+exports[`Search By Title Controller Snapshot Tests for should handle server error. 1`] = `
+{
+  "body": {
+    "message": "Oops! Something went wrong while searching post.",
+    "success": false,
+  },
+  "status": 500,
+}
+`;
+
+exports[`Search By Title Controller Snapshot Tests for userId missing. 1`] = `
+{
+  "body": {
+    "message": "UserId is required.",
+    "success": false,
+  },
+  "status": 400,
 }
 `;
