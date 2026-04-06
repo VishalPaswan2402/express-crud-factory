@@ -26,7 +26,7 @@ beforeAll(async () => {
     )).verificationMailSender;
 });
 
-describe("Verification Mail Sender Test", () => {
+describe("Verification Mail Sender Snapshot Test", () => {
     let emailSender;
     beforeEach(() => {
         emailSender = {
@@ -40,7 +40,7 @@ describe("Verification Mail Sender Test", () => {
         jest.clearAllMocks();
     });
 
-    test("should send verification LINK email (create = true)", async () => {
+    test("for send verification LINK email (signup)", async () => {
         const verifyMethod = {
             usingLink: true,
             otpLinkExpiryMinutes: 10,
@@ -51,17 +51,18 @@ describe("Verification Mail Sender Test", () => {
             emailSender,
             verifyMethod,
             "user@gmail.com",
-            true,              // create
+            1,
             "Vishal",
             "http://link"
         );
         expect(getVerificationEmailTemplate).toHaveBeenCalledWith(
             "http://link",
             10,
-            true,
+            1,
             "Vishal",
             "MyApp"
         );
+        expect(emailSender.sendMail).toHaveBeenCalledTimes(1);
         expect(emailSender.sendMail).toHaveBeenCalledWith({
             from: "MyApp <test@gmail.com>",
             to: "user@gmail.com",
@@ -71,38 +72,30 @@ describe("Verification Mail Sender Test", () => {
         });
     });
 
-    test("should send OTP email (create = true)", async () => {
+    test("for send verification LINK email (recover)", async () => {
         const verifyMethod = {
-            usingLink: false,
+            usingLink: true,
             otpLinkExpiryMinutes: 10,
             projectName: "MyApp"
         };
-        getOtpVerificationEmailTemplate.mockReturnValue("<h1>OTP Template</h1>");
+        getVerificationEmailTemplate.mockReturnValue("<h1>Recover Link</h1>");
         await verificationMailSender.sendEmail(
             emailSender,
             verifyMethod,
             "user@gmail.com",
-            true,
+            2,
             "Vishal",
-            "123456"
+            "http://link"
         );
-        expect(getOtpVerificationEmailTemplate).toHaveBeenCalledWith(
-            "123456",
-            10,
-            true,
-            "Vishal",
-            "MyApp"
+        expect(emailSender.sendMail).toHaveBeenCalledWith(
+            expect.objectContaining({
+                subject: "Account recovery mail.",
+                text: "Link to recover your account : http://link"
+            })
         );
-        expect(emailSender.sendMail).toHaveBeenCalledWith({
-            from: "MyApp <test@gmail.com>",
-            to: "user@gmail.com",
-            subject: "Account activation mail.",
-            text: "OTP to activate your account : 123456",
-            html: "<h1>OTP Template</h1>"
-        });
     });
 
-    test("should send verification LINK email (create = false)", async () => {
+    test("for send verification LINK email (deactivation)", async () => {
         const verifyMethod = {
             usingLink: true,
             otpLinkExpiryMinutes: 10,
@@ -113,20 +106,49 @@ describe("Verification Mail Sender Test", () => {
             emailSender,
             verifyMethod,
             "user@gmail.com",
-            false,         // deactivate
+            3,
             "Vishal",
             "http://link"
         );
-        expect(emailSender.sendMail).toHaveBeenCalledWith({
-            from: "MyApp <test@gmail.com>",
-            to: "user@gmail.com",
-            subject: "Account deactivation mail.",
-            text: "Link to deactivate your account : http://link",
-            html: "<h1>Deactivate Link</h1>"
-        });
+        expect(emailSender.sendMail).toHaveBeenCalledWith(
+            expect.objectContaining({
+                subject: "Account deactivation mail.",
+                text: "Link to deactivate your account : http://link"
+            })
+        );
     });
 
-    test("should throw error if sendMail fails", async () => {
+    test("for send OTP email", async () => {
+        const verifyMethod = {
+            usingLink: false,
+            otpLinkExpiryMinutes: 10,
+            projectName: "MyApp"
+        };
+        getOtpVerificationEmailTemplate.mockReturnValue("<h1>OTP Template</h1>");
+        await verificationMailSender.sendEmail(
+            emailSender,
+            verifyMethod,
+            "user@gmail.com",
+            1,
+            "Vishal",
+            "123456"
+        );
+        expect(getOtpVerificationEmailTemplate).toHaveBeenCalledWith(
+            "123456",
+            10,
+            1,
+            "Vishal",
+            "MyApp"
+        );
+        expect(emailSender.sendMail).toHaveBeenCalledWith(
+            expect.objectContaining({
+                text: "OTP to activate your account : 123456",
+                html: "<h1>OTP Template</h1>"
+            })
+        );
+    });
+
+    test("for throw error if sendMail fails", async () => {
         emailSender.sendMail.mockRejectedValue(new Error("Mail failed"));
         const verifyMethod = {
             usingLink: true,
@@ -139,10 +161,32 @@ describe("Verification Mail Sender Test", () => {
                 emailSender,
                 verifyMethod,
                 "user@gmail.com",
-                true,
+                1,
                 "Vishal",
                 "http://link"
             )
         ).rejects.toThrow("Mail failed");
+    });
+
+    test("for fallback to deactivation for invalid create value", async () => {
+        const verifyMethod = {
+            usingLink: true,
+            otpLinkExpiryMinutes: 10,
+            projectName: "MyApp"
+        };
+        getVerificationEmailTemplate.mockReturnValue("<h1>Fallback</h1>");
+        await verificationMailSender.sendEmail(
+            emailSender,
+            verifyMethod,
+            "user@gmail.com",
+            999,
+            "Vishal",
+            "http://link"
+        );
+        expect(emailSender.sendMail).toHaveBeenCalledWith(
+            expect.objectContaining({
+                subject: "Account deactivation mail."
+            })
+        );
     });
 });

@@ -1,0 +1,113 @@
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+
+exports[`Verify Destroy Email Controller Snapshot Test for database error 1`] = `
+{
+  "body": {
+    "message": "Oops! Something went wrong while deleting user data.",
+    "success": false,
+  },
+  "status": 500,
+}
+`;
+
+exports[`Verify Destroy Email Controller Snapshot Test for expired token 1`] = `
+{
+  "body": {
+    "message": "OTP expired, generate new OTP.",
+    "success": false,
+  },
+  "status": 400,
+}
+`;
+
+exports[`Verify Destroy Email Controller Snapshot Test for inactive user 1`] = `
+{
+  "body": {
+    "message": "Your account is blocked, you can't delete it.",
+    "success": false,
+  },
+  "status": 400,
+}
+`;
+
+exports[`Verify Destroy Email Controller Snapshot Test for invalid OTP 1`] = `
+{
+  "body": {
+    "message": "Invalid, please enter correct OTP.",
+    "success": false,
+  },
+  "status": 400,
+}
+`;
+
+exports[`Verify Destroy Email Controller Snapshot Test for invalid link token 1`] = `
+{
+  "body": {
+    "message": "Invalid token, generate new token.",
+    "success": false,
+  },
+  "status": 400,
+}
+`;
+
+exports[`Verify Destroy Email Controller Snapshot Test for missing OTP in OTP mode 1`] = `
+{
+  "body": {
+    "message": "Please fill OTP correctly.",
+    "success": false,
+  },
+  "status": 400,
+}
+`;
+
+exports[`Verify Destroy Email Controller Snapshot Test for missing token in link mode 1`] = `
+{
+  "body": {
+    "message": "Token is missing",
+    "success": false,
+  },
+  "status": 400,
+}
+`;
+
+exports[`Verify Destroy Email Controller Snapshot Test for successful delete using OTP 1`] = `
+{
+  "body": {
+    "data": {
+      "email": "test@gmail.com",
+      "fullname": "Test User",
+      "userId": "mocked-user-id",
+      "username": "test",
+    },
+    "message": "User data deleted successfully.",
+    "success": true,
+  },
+  "status": 200,
+}
+`;
+
+exports[`Verify Destroy Email Controller Snapshot Test for successful delete using link 1`] = `
+{
+  "body": {
+    "data": {
+      "email": "test@gmail.com",
+      "fullname": "Test User",
+      "userId": "mocked-user-id",
+      "username": "test",
+    },
+    "message": "User data deleted successfully.",
+    "success": true,
+  },
+  "status": 200,
+}
+`;
+
+exports[`Verify Destroy Email Controller Snapshot Test for user not found 1`] = `
+{
+  "body": {
+    "message": "Invalid request, account not found.",
+    "success": false,
+  },
+  "status": 404,
+}
+`;

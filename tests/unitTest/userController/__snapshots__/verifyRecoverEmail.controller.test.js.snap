@@ -1,0 +1,141 @@
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+
+exports[`Verify Recover Email Controller Snapshot Test for database error 1`] = `
+{
+  "body": {
+    "message": "Oops! Something went wrong while updating password.Try again.",
+    "success": false,
+  },
+  "status": 500,
+}
+`;
+
+exports[`Verify Recover Email Controller Snapshot Test for email not verified 1`] = `
+{
+  "body": {
+    "message": "Email not verified, you can't recover it.",
+    "success": false,
+  },
+  "status": 400,
+}
+`;
+
+exports[`Verify Recover Email Controller Snapshot Test for expired token 1`] = `
+{
+  "body": {
+    "message": "OTP expired, generate new OTP.",
+    "success": false,
+  },
+  "status": 400,
+}
+`;
+
+exports[`Verify Recover Email Controller Snapshot Test for inactive user 1`] = `
+{
+  "body": {
+    "message": "Your account is blocked, you can't recover it.",
+    "success": false,
+  },
+  "status": 400,
+}
+`;
+
+exports[`Verify Recover Email Controller Snapshot Test for invalid OTP 1`] = `
+{
+  "body": {
+    "message": "Invalid, please enter correct OTP.",
+    "success": false,
+  },
+  "status": 400,
+}
+`;
+
+exports[`Verify Recover Email Controller Snapshot Test for invalid link token 1`] = `
+{
+  "body": {
+    "message": "Invalid token, generate new token.",
+    "success": false,
+  },
+  "status": 400,
+}
+`;
+
+exports[`Verify Recover Email Controller Snapshot Test for missing OTP 1`] = `
+{
+  "body": {
+    "message": "Please fill OTP correctly.",
+    "success": false,
+  },
+  "status": 400,
+}
+`;
+
+exports[`Verify Recover Email Controller Snapshot Test for missing password fields 1`] = `
+{
+  "body": {
+    "message": "Please fill all new password correctly.",
+    "success": false,
+  },
+  "status": 400,
+}
+`;
+
+exports[`Verify Recover Email Controller Snapshot Test for missing token in link mode 1`] = `
+{
+  "body": {
+    "message": "Token is missing",
+    "success": false,
+  },
+  "status": 400,
+}
+`;
+
+exports[`Verify Recover Email Controller Snapshot Test for password mismatch 1`] = `
+{
+  "body": {
+    "message": "Oops! Your passwords don't match.",
+    "success": false,
+  },
+  "status": 400,
+}
+`;
+
+exports[`Verify Recover Email Controller Snapshot Test for successful password update using OTP 1`] = `
+{
+  "body": {
+    "data": {
+      "email": "test@gmail.com",
+      "fullname": "Test User",
+      "userId": "mocked-user-id",
+    },
+    "message": "Password updated successfully.",
+    "success": true,
+  },
+  "status": 201,
+}
+`;
+
+exports[`Verify Recover Email Controller Snapshot Test for successful password update using link 1`] = `
+{
+  "body": {
+    "data": {
+      "email": "test@gmail.com",
+      "fullname": "Test User",
+      "userId": "mocked-user-id",
+    },
+    "message": "Password updated successfully.",
+    "success": true,
+  },
+  "status": 201,
+}
+`;
+
+exports[`Verify Recover Email Controller Snapshot Test for user not found 1`] = `
+{
+  "body": {
+    "message": "Invalid request. Please signup again.",
+    "success": false,
+  },
+  "status": 404,
+}
+`;

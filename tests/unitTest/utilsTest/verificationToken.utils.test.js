@@ -1,6 +1,5 @@
 import { jest, describe, test, expect, beforeEach, beforeAll } from "@jest/globals";
 
-/* 🔥 MOCK emailTokenGenerator */
 jest.unstable_mockModule("../../../src/utils/emailTokenGenerator.utils.js", () => ({
     emailTokenGenerator: {
         emailToken: jest.fn(),
@@ -22,7 +21,7 @@ beforeAll(async () => {
     )).verificationToken;
 });
 
-describe("verificationToken.saveSendToken (without snapshot)", () => {
+describe("Verification Token Snapshot Test", () => {
     beforeEach(() => {
         jest.clearAllMocks();
     });
@@ -36,17 +35,17 @@ describe("verificationToken.saveSendToken (without snapshot)", () => {
         const result = await verificationToken.saveSendToken(
             verifyMethod,
             {},
-            true,  // create
-            null
+            1,
+            "1234"
         );
-        expect(emailTokenGenerator.emailToken).toHaveBeenCalled();
-        expect(result.saveToken).toBe("mockedToken");
-        expect(result.sendToken).toBe(
-            "http://localhost:3000/user/signup/verify-email?token=mockedToken"
-        );
+        expect(emailTokenGenerator.emailToken).toHaveBeenCalledTimes(1);
+        expect(result).toEqual({
+            saveToken: "mockedToken",
+            sendToken: "http://localhost:3000/user/signup/1234/verify-email?token=mockedToken"
+        });
     });
 
-    test("should generate destroy verification link with userId", async () => {
+    test("should generate recover verification link", async () => {
         const verifyMethod = {
             usingLink: true,
             frontendBaseUrl: "http://localhost:3000"
@@ -55,13 +54,28 @@ describe("verificationToken.saveSendToken (without snapshot)", () => {
         const result = await verificationToken.saveSendToken(
             verifyMethod,
             {},
-            false,   // destroy flow
-            "123"
+            2,
+            "5678"
         );
-        expect(emailTokenGenerator.emailToken).toHaveBeenCalled();
-        expect(result.saveToken).toBe("mockedToken");
         expect(result.sendToken).toBe(
-            "http://localhost:3000/user/destroy/123/verify-email?token=mockedToken"
+            "http://localhost:3000/user/recover/5678/verify-email?token=mockedToken"
+        );
+    });
+
+    test("should generate destroy verification link", async () => {
+        const verifyMethod = {
+            usingLink: true,
+            frontendBaseUrl: "http://localhost:3000"
+        };
+        emailTokenGenerator.emailToken.mockReturnValue("mockedToken");
+        const result = await verificationToken.saveSendToken(
+            verifyMethod,
+            {},
+            3,
+            "9999"
+        );
+        expect(result.sendToken).toBe(
+            "http://localhost:3000/user/destroy/9999/verify-email?token=mockedToken"
         );
     });
 
@@ -77,13 +91,30 @@ describe("verificationToken.saveSendToken (without snapshot)", () => {
         const result = await verificationToken.saveSendToken(
             verifyMethod,
             userSecretConfig,
-            true,
-            null
+            1,
+            "1234"
         );
-        expect(emailTokenGenerator.generateOtp).toHaveBeenCalled();
-        expect(emailTokenGenerator.hashOtp)
-            .toHaveBeenCalledWith("123456", "secret");
-        expect(result.saveToken).toBe("hashedOtp");
-        expect(result.sendToken).toBe("123456");
+        expect(emailTokenGenerator.generateOtp).toHaveBeenCalledTimes(1);
+        expect(emailTokenGenerator.hashOtp).toHaveBeenCalledWith("123456", "secret");
+        expect(result).toEqual({
+            saveToken: "hashedOtp",
+            sendToken: "123456"
+        });
     });
+
+    test("should fallback to destroy if create value is invalid", async () => {
+        const verifyMethod = {
+            usingLink: true,
+            frontendBaseUrl: "http://localhost:3000"
+        };
+        emailTokenGenerator.emailToken.mockReturnValue("mockedToken");
+        const result = await verificationToken.saveSendToken(
+            verifyMethod,
+            {},
+            999,
+            "1111"
+        );
+        expect(result.sendToken).toContain("/destroy/1111/");
+    });
+
 });

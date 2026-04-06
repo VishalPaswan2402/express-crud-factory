@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
-exports[`Create User Controller Snapshot Test database error → 500 1`] = `
+exports[`Create User Controller Snapshot Test for database error. 1`] = `
 {
   "body": {
     "message": "Oops! Something went wrong while saving new user.Try again later.",
@@ -10,17 +10,22 @@ exports[`Create User Controller Snapshot Test database error → 500 1`] = `
 }
 `;
 
-exports[`Create User Controller Snapshot Test delete expired unverified user and create new 1`] = `
+exports[`Create User Controller Snapshot Test for delete expired unverified user and create new. 1`] = `
 {
   "body": {
-    "message": "Oops! Something went wrong while saving new user.Try again later.",
-    "success": false,
+    "data": {
+      "email": "test@gmail.com",
+      "fullName": "UserTest",
+      "userId": "mocked-user-id",
+    },
+    "message": "Verification link sended to your email successfully.",
+    "success": true,
   },
-  "status": 500,
+  "status": 200,
 }
 `;
 
-exports[`Create User Controller Snapshot Test for missing fields 1`] = `
+exports[`Create User Controller Snapshot Test for missing fields. 1`] = `
 {
   "body": {
     "message": "Please fill all data correctly.",
@@ -30,7 +35,7 @@ exports[`Create User Controller Snapshot Test for missing fields 1`] = `
 }
 `;
 
-exports[`Create User Controller Snapshot Test for password mismatch 1`] = `
+exports[`Create User Controller Snapshot Test for password mismatch. 1`] = `
 {
   "body": {
     "message": "Oops! Your passwords don't match.",
@@ -40,17 +45,22 @@ exports[`Create User Controller Snapshot Test for password mismatch 1`] = `
 }
 `;
 
-exports[`Create User Controller Snapshot Test successful user creation 1`] = `
+exports[`Create User Controller Snapshot Test for successful user creation. 1`] = `
 {
   "body": {
-    "message": "Oops! Something went wrong while saving new user.Try again later.",
-    "success": false,
+    "data": {
+      "email": "test@gmail.com",
+      "fullName": "UserTest",
+      "userId": "mocked-user-id",
+    },
+    "message": "Verification link sended to your email successfully.",
+    "success": true,
   },
-  "status": 500,
+  "status": 200,
 }
 `;
 
-exports[`Create User Controller Snapshot Test user already exists 1`] = `
+exports[`Create User Controller Snapshot Test for user already exists. 1`] = `
 {
   "body": {
     "message": "Looks like someone already registered with that username or email.",

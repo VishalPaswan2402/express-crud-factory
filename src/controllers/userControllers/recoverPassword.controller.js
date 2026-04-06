@@ -3,44 +3,49 @@ import { validEmailRequest } from "../../utils/validEmailRequest.utils.js";
 import { verificationMailSender } from "../../utils/verificationMailSender.utils.js";
 import { verificationToken } from "../../utils/verificationToken.utils.js";
 
-const sendVerificationEmailController = (UserModel, userSecretConfig, emailSender, verifyMethod, create) => async (req, res) => {
+const recoverPasswordController = (UserModel, userSecretConfig, emailSender, verifyMethod) => async (req, res) => {
     try {
-        const { userId } = req.params;
-        const user = await UserModel.findById(userId).select("+destroyDataAfter +verifyToken +verifyTokenExpires +otpRequestCount +otpLastRequest");
+        const { usernameOrEmail } = req.body;
+        if (!usernameOrEmail) {
+            return res.status(400).json({
+                message: "Username or email is required.",
+                success: false
+            });
+        }
+        // find user data
+        const user = await UserModel.findOne({
+            $or: [
+                { username: usernameOrEmail },
+                { email: usernameOrEmail }
+            ]
+        }).select("+verifyToken +verifyTokenExpires +otpRequestCount +otpLastRequest +destroyDataAfter");
+        // check data
         if (!user) {
             return res.status(404).json({
                 message: "Looks like that user doesn't exist in our system.",
                 success: false
             });
         }
-        if (create === 1) {
-            if (user.emailVerified) {
-                return res.status(200).json({
-                    message: "Email already verified.",
-                    success: true
+        if (!user.emailVerified) {
+            if (user.destroyDataAfter > Date.now()) {
+                return res.status(400).json({
+                    message: "Email not verified, please verify it.",
+                    success: false
                 });
             }
-            if (!user.destroyDataAfter || user.destroyDataAfter < Date.now()) {
+            else {
                 await UserModel.findByIdAndDelete(user._id);
-                return res.status(400).json({
-                    message: "Verification time ended, signup again.",
+                return res.status(404).json({
+                    message: "Looks like that user doesn't exist in our system.",
                     success: false
                 });
             }
         }
-        else {
-            if (!user.isActive) {
-                return res.status(400).json({
-                    message: `Your account is blocked, you can't ${create === 2 ? "recover" : "delete"} it.`,
-                    success: false
-                });
-            }
-            if (!user.emailVerified) {
-                return res.status(400).json({
-                    message: `Email not verified, you can't ${create === 2 ? "recover" : "delete"} it.`,
-                    success: false
-                });
-            }
+        if (!user.isActive) {
+            return res.status(400).json({
+                message: "Your account is blocked, you can't recover it.",
+                success: false
+            });
         }
         if (!validEmailRequest(user)) {
             return res.status(429).json({
@@ -48,11 +53,9 @@ const sendVerificationEmailController = (UserModel, userSecretConfig, emailSende
                 success: false
             });
         }
-        // generate link or otp
-        const generatedToken = await verificationToken.saveSendToken(verifyMethod, userSecretConfig, create, user._id);
+        const generatedToken = await verificationToken.saveSendToken(verifyMethod, userSecretConfig, 2, user._id);
         let verificationSave = generatedToken.saveToken;
         let verificationSend = generatedToken.sendToken;
-        // update user token 
         const otpCount = user.otpRequestCount + 1;
         if (otpCount == 3) {
             user.otpLastRequest = new Date();
@@ -61,9 +64,7 @@ const sendVerificationEmailController = (UserModel, userSecretConfig, emailSende
         user.verifyToken = verificationSave;
         user.verifyTokenExpires = dataExpiryTime.otpLinkExpire(verifyMethod.otpLinkExpiryMinutes);
         await user.save();
-        // send mail
-        await verificationMailSender.sendEmail(emailSender, verifyMethod, user.email, create, user.fullname, verificationSend);
-        // send userId for otp verify
+        await verificationMailSender.sendEmail(emailSender, verifyMethod, user.email, 2, user.fullname, verificationSend);
         const userData = {
             userId: user._id,
             fullName: user.fullname,
@@ -77,10 +78,10 @@ const sendVerificationEmailController = (UserModel, userSecretConfig, emailSende
     }
     catch (error) {
         return res.status(500).json({
-            message: "Oops! Something went wrong while sending link.Try again later.",
+            message: "Oops! Something went wrong while saving new user.Try again later.",
             success: false
         });
     }
-};
+}
 
-export default sendVerificationEmailController;
+export default recoverPasswordController;

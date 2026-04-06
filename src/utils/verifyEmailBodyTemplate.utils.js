@@ -77,7 +77,7 @@ export const getVerificationEmailTemplate = (verificationLink, expiryTime, creat
     <body>
         <div class="container">
             <div class="header">
-                Verify Your Email to ${create ? "Activate" : "Deactivate"} Your Account
+                Verify Your Email to ${create === 1 ? "Activate" : create === 2 ? "Recover" : "Deactivate"} Your Account
             </div>
 
             <div class="content">
@@ -87,7 +87,7 @@ export const getVerificationEmailTemplate = (verificationLink, expiryTime, creat
                 </p>
 
                 <a href="${verificationLink}" class="btn">
-                    Click to ${create ? 'Activate' : 'Deactivate'} Account
+                    Click to ${create === 1 ? 'Activate' : create === 2 ? "Recover" : 'Deactivate'} Account
                 </a>
 
                 <p>If the button doesn’t work, use this link:</p>

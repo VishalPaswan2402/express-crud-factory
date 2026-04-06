@@ -30,24 +30,32 @@ beforeAll(async () => {
     validEmailRequest = (await import("../../../src/utils/validEmailRequest.utils.js")).validEmailRequest;
     verificationMailSender = (await import("../../../src/utils/verificationMailSender.utils.js")).verificationMailSender;
     verificationToken = (await import("../../../src/utils/verificationToken.utils.js")).verificationToken;
-
     const controllerModule = await import(
         "../../../src/controllers/userControllers/sendVerificationEmail.controller.js"
     );
-
     sendVerificationEmailController = controllerModule.default;
 });
 
 describe("Send Verification Email Controller Snapshot Test", () => {
-    let req, res, UserModel, controller;
-    const sanitizeResponse = (res) => ({
-        status: res.status.mock.calls[0][0],
-        body: res.json.mock.calls[0][0]
-    });
-    beforeEach(() => {
-        req = {
-            params: { userId: "123" }
+    let req, res, UserModel;
+    const setupController = (create = 1, verifyMethodOverride = {}) => {
+        const userSecretConfig = {};
+        const emailSender = {};
+        const verifyMethod = {
+            usingLink: false,
+            otpLinkExpiryMinutes: 10,
+            ...verifyMethodOverride
         };
+        return sendVerificationEmailController(
+            UserModel,
+            userSecretConfig,
+            emailSender,
+            verifyMethod,
+            create
+        );
+    };
+    beforeEach(() => {
+        req = { params: { userId: "123" } };
         res = {
             status: jest.fn().mockReturnThis(),
             json: jest.fn()
@@ -56,40 +64,38 @@ describe("Send Verification Email Controller Snapshot Test", () => {
             findById: jest.fn(),
             findByIdAndDelete: jest.fn()
         };
-        const userSecretConfig = {};
-        const emailSender = {};
-        const verifyMethod = {
-            usingLink: false,
-            otpLinkExpiryMinutes: 10
-        };
-        controller = sendVerificationEmailController(
-            UserModel,
-            userSecretConfig,
-            emailSender,
-            verifyMethod
-        );
         jest.clearAllMocks();
     });
 
-    test("for user not found.", async () => {
+    test("for user not found", async () => {
         UserModel.findById.mockReturnValue({
             select: jest.fn().mockResolvedValue(null)
         });
+        const controller = setupController(1);
         await controller(req, res);
-        expect(sanitizeResponse(res)).toMatchSnapshot();
+        expect(res.status).toHaveBeenCalledWith(404);
+        expect(res.json).toHaveBeenCalledWith({
+            message: "Looks like that user doesn't exist in our system.",
+            success: false
+        });
     });
 
-    test("for email already verified.", async () => {
+    test("for email already verified", async () => {
         UserModel.findById.mockReturnValue({
             select: jest.fn().mockResolvedValue({
                 emailVerified: true
             })
         });
+        const controller = setupController(1);
         await controller(req, res);
-        expect(sanitizeResponse(res)).toMatchSnapshot();
+        expect(res.status).toHaveBeenCalledWith(200);
+        expect(res.json).toHaveBeenCalledWith({
+            message: "Email already verified.",
+            success: true
+        });
     });
 
-    test("for destroyDataAfter expired and delete user.", async () => {
+    test("for destroyDataAfter expired", async () => {
         const mockUser = {
             _id: "123",
             emailVerified: false,
@@ -98,12 +104,51 @@ describe("Send Verification Email Controller Snapshot Test", () => {
         UserModel.findById.mockReturnValue({
             select: jest.fn().mockResolvedValue(mockUser)
         });
+        const controller = setupController(1);
         await controller(req, res);
         expect(UserModel.findByIdAndDelete).toHaveBeenCalledWith("123");
-        expect(sanitizeResponse(res)).toMatchSnapshot();
+        expect(res.status).toHaveBeenCalledWith(400);
+        expect(res.json).toHaveBeenCalledWith({
+            message: "Verification time ended, signup again.",
+            success: false
+        });
     });
 
-    test("for otp request limit.", async () => {
+    test("for user is inactive", async () => {
+        const mockUser = {
+            isActive: false,
+            emailVerified: true
+        };
+        UserModel.findById.mockReturnValue({
+            select: jest.fn().mockResolvedValue(mockUser)
+        });
+        const controller = setupController(2); // recover
+        await controller(req, res);
+        expect(res.status).toHaveBeenCalledWith(400);
+        expect(res.json).toHaveBeenCalledWith({
+            message: "Your account is blocked, you can't recover it.",
+            success: false
+        });
+    });
+
+    test("for email not verified", async () => {
+        const mockUser = {
+            isActive: true,
+            emailVerified: false
+        };
+        UserModel.findById.mockReturnValue({
+            select: jest.fn().mockResolvedValue(mockUser)
+        });
+        const controller = setupController(3); // delete
+        await controller(req, res);
+        expect(res.status).toHaveBeenCalledWith(400);
+        expect(res.json).toHaveBeenCalledWith({
+            message: "Email not verified, you can't delete it.",
+            success: false
+        });
+    });
+
+    test("for otp limit exceeded", async () => {
         validEmailRequest.mockReturnValue(false);
         UserModel.findById.mockReturnValue({
             select: jest.fn().mockResolvedValue({
@@ -111,12 +156,17 @@ describe("Send Verification Email Controller Snapshot Test", () => {
                 destroyDataAfter: Date.now() + 10000
             })
         });
+        const controller = setupController(1);
         await controller(req, res);
         expect(validEmailRequest).toHaveBeenCalled();
-        expect(sanitizeResponse(res)).toMatchSnapshot();
+        expect(res.status).toHaveBeenCalledWith(429);
+        expect(res.json).toHaveBeenCalledWith({
+            message: "OTP request exceed, try again later.",
+            success: false
+        });
     });
 
-    test("for success.", async () => {
+    test("for verification successfully", async () => {
         validEmailRequest.mockReturnValue(true);
         const mockUser = {
             _id: "123",
@@ -135,18 +185,33 @@ describe("Send Verification Email Controller Snapshot Test", () => {
             sendToken: "123456"
         });
         dataExpiryTime.otpLinkExpire.mockReturnValue("futureTime");
+        const controller = setupController(1);
         await controller(req, res);
         expect(verificationToken.saveSendToken).toHaveBeenCalled();
         expect(verificationMailSender.sendEmail).toHaveBeenCalled();
         expect(mockUser.save).toHaveBeenCalled();
-        expect(sanitizeResponse(res)).toMatchSnapshot();
+        expect(res.status).toHaveBeenCalledWith(200);
+        expect(res.json).toHaveBeenCalledWith({
+            data: {
+                userId: "123",
+                fullName: "Test User",
+                email: "test@gmail.com"
+            },
+            message: "Verification OTP sended to your email successfully.",
+            success: true
+        });
     });
 
-    test("for server error.", async () => {
+    test("for server error", async () => {
         UserModel.findById.mockReturnValue({
             select: jest.fn().mockRejectedValue(new Error("DB error"))
         });
+        const controller = setupController(1);
         await controller(req, res);
-        expect(sanitizeResponse(res)).toMatchSnapshot();
+        expect(res.status).toHaveBeenCalledWith(500);
+        expect(res.json).toHaveBeenCalledWith({
+            message: "Oops! Something went wrong while sending link.Try again later.",
+            success: false
+        });
     });
 });

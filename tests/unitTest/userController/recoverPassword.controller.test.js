@@ -1,10 +1,10 @@
-import { jest, describe, test, expect, beforeEach, afterEach, beforeAll } from "@jest/globals";
+import { jest, describe, test, expect, beforeEach, beforeAll } from "@jest/globals";
 
 jest.unstable_mockModule("../../../src/utils/verificationToken.utils.js", () => ({
     verificationToken: {
         saveSendToken: jest.fn(async () => ({
-            saveToken: "mocked-save-token",
-            sendToken: "mocked-send-token"
+            saveToken: "mock-save-token",
+            sendToken: "mock-send-token"
         }))
     }
 }));
@@ -17,16 +17,24 @@ jest.unstable_mockModule("../../../src/utils/verificationMailSender.utils.js", (
 
 jest.unstable_mockModule("../../../src/utils/dataExpiryTime.utils.js", () => ({
     dataExpiryTime: {
-        otpLinkExpire: jest.fn(() => Date.now() + 10000),
-        userDataExpire: jest.fn(() => Date.now() + 20000)
+        otpLinkExpire: jest.fn(() => Date.now() + 10000)
     }
 }));
 
+jest.unstable_mockModule("../../../src/utils/validEmailRequest.utils.js", () => ({
+    validEmailRequest: jest.fn(() => true)
+}));
+
+let recoverPasswordController;
 let verificationToken;
 let verificationMailSender;
-let createUserController;
+let validEmailRequest;
 
 beforeAll(async () => {
+    recoverPasswordController = (await import(
+        "../../../src/controllers/userControllers/recoverPassword.controller.js"
+    )).default;
+
     verificationToken = (await import(
         "../../../src/utils/verificationToken.utils.js"
     )).verificationToken;
@@ -35,45 +43,34 @@ beforeAll(async () => {
         "../../../src/utils/verificationMailSender.utils.js"
     )).verificationMailSender;
 
-    createUserController = (await import(
-        "../../../src/controllers/userControllers/createUser.controller.js"
-    )).default;
+    validEmailRequest = (await import(
+        "../../../src/utils/validEmailRequest.utils.js"
+    )).validEmailRequest;
 });
 
-import { passwordHashing } from "../../../src/utils/passwordHashing.utils.js";
-
-describe("Create User Controller Snapshot Test", () => {
+describe("Recover Password Controller Snapshot Test", () => {
     let req, res, Model;
     const verifyMethod = {
         usingLink: true,
-        frontendBaseUrl: "http://localhost:3000",
-        otpLinkExpiryMinutes: 10,
-        unverifiedUserExpiryDays: 1
+        otpLinkExpiryMinutes: 10
     };
-    const userSecretConfig = {
-        bcryptSecret: "secret"
-    };
+    const userSecretConfig = {};
     const emailSender = {};
-    const mockFindOne = (data) => ({
-        select: jest.fn().mockResolvedValue(data)
-    });
     const sanitizeResponse = (res) => {
         const body = { ...res.json.mock.calls[0][0] };
-        if (body?.data?._id) body.data._id = "mocked-id";
         if (body?.data?.userId) body.data.userId = "mocked-user-id";
         return {
             status: res.status.mock.calls[0][0],
             body
         };
     };
+    const mockFindOne = (data) => ({
+        select: jest.fn().mockResolvedValue(data)
+    });
     beforeEach(() => {
         req = {
             body: {
-                email: "test@gmail.com",
-                username: "test",
-                fullname: "UserTest",
-                password: "testPassword",
-                confirmPassword: "testPassword"
+                usernameOrEmail: "test@gmail.com"
             }
         };
         res = {
@@ -84,17 +81,12 @@ describe("Create User Controller Snapshot Test", () => {
             findOne: jest.fn(),
             findByIdAndDelete: jest.fn()
         };
-        jest.spyOn(passwordHashing, "hashPassword")
-            .mockResolvedValue("hashedPassword");
-        jest.clearAllMocks();
-    });
-    afterEach(() => {
         jest.clearAllMocks();
     });
 
-    test("for missing fields.", async () => {
-        req.body.email = "";
-        const controller = createUserController(
+    test("for missing usernameOrEmail", async () => {
+        req.body.usernameOrEmail = "";
+        const controller = recoverPasswordController(
             Model,
             userSecretConfig,
             emailSender,
@@ -104,9 +96,9 @@ describe("Create User Controller Snapshot Test", () => {
         expect(sanitizeResponse(res)).toMatchSnapshot();
     });
 
-    test("for password mismatch.", async () => {
-        req.body.confirmPassword = "wrong";
-        const controller = createUserController(
+    test("for user not found", async () => {
+        Model.findOne.mockReturnValue(mockFindOne(null));
+        const controller = recoverPasswordController(
             Model,
             userSecretConfig,
             emailSender,
@@ -116,11 +108,14 @@ describe("Create User Controller Snapshot Test", () => {
         expect(sanitizeResponse(res)).toMatchSnapshot();
     });
 
-    test("for user already exists.", async () => {
+    test("for email not verified (not expired)", async () => {
         Model.findOne.mockReturnValue(
-            mockFindOne({ emailVerified: true })
+            mockFindOne({
+                emailVerified: false,
+                destroyDataAfter: Date.now() + 10000
+            })
         );
-        const controller = createUserController(
+        const controller = recoverPasswordController(
             Model,
             userSecretConfig,
             emailSender,
@@ -130,7 +125,7 @@ describe("Create User Controller Snapshot Test", () => {
         expect(sanitizeResponse(res)).toMatchSnapshot();
     });
 
-    test("for delete expired unverified user and create new.", async () => {
+    test("for email not verified and expired", async () => {
         Model.findOne.mockReturnValue(
             mockFindOne({
                 _id: "123",
@@ -139,21 +134,8 @@ describe("Create User Controller Snapshot Test", () => {
             })
         );
         Model.findByIdAndDelete.mockResolvedValue(true);
-        const mockSave = jest.fn();
-        const mockDoc = {
-            _id: "userId",
-            email: req.body.email,
-            fullname: req.body.fullname,
-            save: mockSave
-        };
-        mockSave
-            .mockResolvedValueOnce(mockDoc) // first save
-            .mockResolvedValueOnce(mockDoc); // second save
-        const MockModel = jest.fn(() => mockDoc);
-        MockModel.findOne = Model.findOne;
-        MockModel.findByIdAndDelete = Model.findByIdAndDelete;
-        const controller = createUserController(
-            MockModel,
+        const controller = recoverPasswordController(
+            Model,
             userSecretConfig,
             emailSender,
             verifyMethod
@@ -163,22 +145,57 @@ describe("Create User Controller Snapshot Test", () => {
         expect(sanitizeResponse(res)).toMatchSnapshot();
     });
 
-    test("for successful user creation.", async () => {
-        Model.findOne.mockReturnValue(mockFindOne(null));
+    test("for inactive user", async () => {
+        Model.findOne.mockReturnValue(
+            mockFindOne({
+                emailVerified: true,
+                isActive: false
+            })
+        );
+        const controller = recoverPasswordController(
+            Model,
+            userSecretConfig,
+            emailSender,
+            verifyMethod
+        );
+        await controller(req, res);
+        expect(sanitizeResponse(res)).toMatchSnapshot();
+    });
+
+    test("for OTP request exceeded", async () => {
+        validEmailRequest.mockReturnValue(false);
+        Model.findOne.mockReturnValue(
+            mockFindOne({
+                emailVerified: true,
+                isActive: true
+            })
+        );
+        const controller = recoverPasswordController(
+            Model,
+            userSecretConfig,
+            emailSender,
+            verifyMethod
+        );
+        await controller(req, res);
+        expect(sanitizeResponse(res)).toMatchSnapshot();
+    });
+
+    test("for successful recover password request", async () => {
+        validEmailRequest.mockReturnValue(true);
         const mockSave = jest.fn();
-        const mockDoc = {
+        const mockUser = {
             _id: "userId",
-            email: req.body.email,
-            fullname: req.body.fullname,
+            email: "test@gmail.com",
+            fullname: "Test User",
+            emailVerified: true,
+            isActive: true,
+            otpRequestCount: 1,
             save: mockSave
         };
-        mockSave
-            .mockResolvedValueOnce(mockDoc)
-            .mockResolvedValueOnce(mockDoc);
-        const MockModel = jest.fn(() => mockDoc);
-        MockModel.findOne = Model.findOne;
-        const controller = createUserController(
-            MockModel,
+        mockSave.mockResolvedValue(mockUser);
+        Model.findOne.mockReturnValue(mockFindOne(mockUser));
+        const controller = recoverPasswordController(
+            Model,
             userSecretConfig,
             emailSender,
             verifyMethod
@@ -189,11 +206,11 @@ describe("Create User Controller Snapshot Test", () => {
         expect(sanitizeResponse(res)).toMatchSnapshot();
     });
 
-    test("for database error.", async () => {
+    test("for database error", async () => {
         Model.findOne.mockReturnValue({
             select: jest.fn().mockRejectedValue(new Error("DB error"))
         });
-        const controller = createUserController(
+        const controller = recoverPasswordController(
             Model,
             userSecretConfig,
             emailSender,

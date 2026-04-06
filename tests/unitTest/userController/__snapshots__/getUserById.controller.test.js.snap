@@ -25,10 +25,11 @@ exports[`Create Get-User-By-Id Controller Snapshot Test for user found successfu
   "body": {
     "data": {
       "_id": "507f1f77bcf86cd799439011",
-      "articles": [],
+      "active": true,
       "email": "test@gmail.com",
+      "emailVerified": undefined,
       "fullname": "UserTest",
-      "isActive": true,
+      "totalArticles": 0,
       "username": "test",
     },
     "message": "User found successfully.",

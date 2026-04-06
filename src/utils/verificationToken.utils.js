@@ -4,7 +4,7 @@ export const verificationToken = {
     saveSendToken: async (verifyMethod, userSecretConfig, create, userId) => {
         if (verifyMethod.usingLink) {
             const saveToken = emailTokenGenerator.emailToken();
-            const sendToken = `${verifyMethod.frontendBaseUrl}/user/${create ? 'signup' : 'destroy/'}${create ? '' : userId}/verify-email?token=${saveToken}`;
+            const sendToken = `${verifyMethod.frontendBaseUrl}/user/${create === 1 ? 'signup' : create === 2 ? 'recover' : 'destroy'}/${userId}/verify-email?token=${saveToken}`;
             return { saveToken, sendToken };
         }
         else {

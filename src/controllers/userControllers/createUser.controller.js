@@ -40,22 +40,24 @@ const createUserController = (UserModel, userSecretConfig, emailSender, verifyMe
         }
         // hash plain password.
         const hashedPassword = await passwordHashing.hashPassword(password, userSecretConfig.bcryptSecret);
-        // generate link or otp
-        const generatedToken = await verificationToken.saveSendToken(verifyMethod, userSecretConfig, true, null);
-        let verificationSave = generatedToken.saveToken;
-        let verificationSend = generatedToken.sendToken;
         // saving data.
         const modelData = new UserModel({
             ...req.body,
             password: hashedPassword,
-            verifyToken: verificationSave,
-            otpRequestCount: 1,
-            verifyTokenExpires: dataExpiryTime.otpLinkExpire(verifyMethod.otpLinkExpiryMinutes),
             destroyDataAfter: dataExpiryTime.userDataExpire(verifyMethod.unverifiedUserExpiryDays)
         });
         const data = await modelData.save();
+        // generate link or otp
+        const generatedToken = await verificationToken.saveSendToken(verifyMethod, userSecretConfig, 1, data._id);
+        let verificationSave = generatedToken.saveToken;
+        let verificationSend = generatedToken.sendToken;
+        // save token
+        data.verifyToken = verificationSave;
+        data.otpRequestCount = 1;
+        data.verifyTokenExpires = dataExpiryTime.otpLinkExpire(verifyMethod.otpLinkExpiryMinutes);
+        await data.save();
         // send mail
-        await verificationMailSender.sendEmail(emailSender, verifyMethod, data.email, true, data.fullname, verificationSend);
+        await verificationMailSender.sendEmail(emailSender, verifyMethod, data.email, 1, data.fullname, verificationSend);
         // send userId for otp verify
         const userData = {
             userId: data._id,

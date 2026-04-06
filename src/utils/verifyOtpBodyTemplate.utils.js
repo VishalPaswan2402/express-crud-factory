@@ -67,7 +67,7 @@ export const getOtpVerificationEmailTemplate = (otp, expiryTime, create, usernam
     <body>
         <div class="container">
             <div class="header">
-                Verify Your Email to ${create ? "Activate" : "Deactivate"} Your Account
+                Verify Your Email to ${create === 1 ? "Activate" : create === 2 ? "Recover" : "Deactivate"} Your Account
             </div>
 
             <div class="content">

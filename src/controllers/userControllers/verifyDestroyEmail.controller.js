@@ -1,12 +1,28 @@
-const destroyUserEmailController = (UserModel) => async (req, res) => {
+import { emailTokenGenerator } from "../../utils/emailTokenGenerator.utils.js";
+
+const verifyDestroyEmailController = (UserModel, isLink) => async (req, res) => {
     try {
-        const { token } = req.query;
         const { userId } = req.params;
-        if (!token) {
-            return res.status(400).json({
-                message: "Token is missing",
-                success: false
-            });
+        let myToken = null;
+        if (isLink) {
+            const { token } = req.query;
+            if (!token) {
+                return res.status(400).json({
+                    message: "Token is missing",
+                    success: false
+                });
+            }
+            myToken = token;
+        }
+        else {
+            const { otp } = req.body;
+            if (!otp || otp == "") {
+                return res.status(400).json({
+                    message: "Please fill OTP correctly.",
+                    success: false
+                });
+            }
+            myToken = otp;
         }
         // find user
         const user = await UserModel.findById(userId).select("+verifyToken +verifyTokenExpires");
@@ -22,7 +38,6 @@ const destroyUserEmailController = (UserModel) => async (req, res) => {
                 success: false
             });
         }
-
         // check token validity
         if (!user.verifyToken || !user.verifyTokenExpires || user.verifyTokenExpires < Date.now()) {
             return res.status(400).json({
@@ -30,11 +45,22 @@ const destroyUserEmailController = (UserModel) => async (req, res) => {
                 success: false
             });
         }
-        if (user.verifyToken !== token) {
-            return res.status(400).json({
-                message: "Invalid token, generate new OTP.",
-                success: false
-            });
+        if (isLink) {
+            if (user.verifyToken !== myToken) {
+                return res.status(400).json({
+                    message: "Invalid token, generate new token.",
+                    success: false
+                });
+            }
+        }
+        else {
+            const isValidOtp = await emailTokenGenerator.compareOtp(myToken, user.verifyToken);
+            if (!isValidOtp) {
+                return res.status(400).json({
+                    message: "Invalid, please enter correct OTP.",
+                    success: false
+                });
+            }
         }
         // finding user from userID and deleting.
         const deleteData = await UserModel.findByIdAndDelete(userId);
@@ -58,4 +84,4 @@ const destroyUserEmailController = (UserModel) => async (req, res) => {
     }
 }
 
-export default destroyUserEmailController;
+export default verifyDestroyEmailController;
