@@ -1,31 +1,20 @@
 import { generateJwtToken } from "../../utils/generateJwtToken.utils.js";
 import { passwordHashing } from "../../utils/passwordHashing.utils.js";
+import { errorResponse, loginResponse, successResponse } from "../../utils/response.utils.js";
 
 const loginUserController = (UserModel, userSecretConfig) => async (req, res) => {
     try {
         const { username, password } = req.body;
-        // validate username and password
         if (!username || !password) {
-            return res.status(400).json({
-                message: "Both username and password is required.",
-                success: false
-            });
+            return errorResponse(res, 400, "Both username and password are required.");
         }
-        // find user by username
         const dataByUsername = await UserModel.findOne({ username: username }).select("+password +destroyDataAfter");
         if (!dataByUsername) {
-            return res.status(404).json({
-                message: "Looks like that user doesn't exist in our system.",
-                success: false
-            });
+            return errorResponse(res, 404, "User not found.");
         }
-        // verify password
         let isValid = await passwordHashing.comparePassword(password, dataByUsername.password);
         if (!isValid) {
-            return res.status(401).json({
-                message: "Oops! you have entered incorrect password.",
-                success: false
-            })
+            return errorResponse(res, 401, "The password you entered is incorrect.");
         }
         if (!dataByUsername.emailVerified) {
             if (dataByUsername.destroyDataAfter > Date.now()) {
@@ -34,43 +23,24 @@ const loginUserController = (UserModel, userSecretConfig) => async (req, res) =>
                     fullName: dataByUsername.fullName,
                     email: dataByUsername.email
                 };
-                return res.status(404).json({
-                    data: userData,
-                    message: "Oops! you have not verified your email yet.",
-                    success: false
-                })
+                return successResponse(res, 200, userData, "Please verify your email.");
             }
             else {
                 await UserModel.findByIdAndDelete(dataByUsername._id);
-                return res.status(404).json({
-                    message: "Looks like that user doesn't exist in our system.",
-                    success: false
-                });
+                return errorResponse(res, 404, "User not found.");
             }
         }
         if (!dataByUsername.isActive) {
-            return res.status(404).json({
-                message: "Looks like your account is blocked.",
-                success: false
-            });
+            return errorResponse(res, 403, "Your account is blocked. Please contact support.");
         }
         const findData = dataByUsername.toObject();
         delete findData.password;
         delete findData.destroyDataAfter;
-        // generate jwt token 
         const token = generateJwtToken(findData, userSecretConfig.jwtSecret);
-        return res.status(200).json({
-            data: findData,
-            token: token,
-            message: "User logged-in successfully.",
-            success: true
-        });
+        return loginResponse(res, 200, findData, token, "User logged in successfully.");
     }
     catch (error) {
-        return res.status(500).json({
-            message: "Oops! Something went wrong while logging.",
-            success: false
-        });
+        return errorResponse(res, 500, "Something went wrong. Please try again later.");
     }
 }
 

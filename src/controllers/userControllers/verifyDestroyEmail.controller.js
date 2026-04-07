@@ -1,4 +1,5 @@
 import { emailTokenGenerator } from "../../utils/emailTokenGenerator.utils.js";
+import { errorResponse, successResponse } from "../../utils/response.utils.js";
 
 const verifyDestroyEmailController = (UserModel, isLink) => async (req, res) => {
     try {
@@ -7,62 +8,38 @@ const verifyDestroyEmailController = (UserModel, isLink) => async (req, res) => 
         if (isLink) {
             const { token } = req.query;
             if (!token) {
-                return res.status(400).json({
-                    message: "Token is missing",
-                    success: false
-                });
+                return errorResponse(res, 400, "Verification token is missing. Please check your email link.");
             }
             myToken = token;
         }
         else {
             const { otp } = req.body;
-            if (!otp || otp == "") {
-                return res.status(400).json({
-                    message: "Please fill OTP correctly.",
-                    success: false
-                });
+            if (!otp) {
+                return errorResponse(res, 400, "OTP is required.");
             }
             myToken = otp;
         }
-        // find user
         const user = await UserModel.findById(userId).select("+verifyToken +verifyTokenExpires");
         if (!user) {
-            return res.status(404).json({
-                message: "Invalid request, account not found.",
-                success: false
-            });
+            return errorResponse(res, 404, "User not found.");
         }
         if (!user.isActive) {
-            return res.status(400).json({
-                message: "Your account is blocked, you can't delete it.",
-                success: false
-            });
+            return errorResponse(res, 403, `Your account is blocked. Deletion is not allowed.`);
         }
-        // check token validity
         if (!user.verifyToken || !user.verifyTokenExpires || user.verifyTokenExpires < Date.now()) {
-            return res.status(400).json({
-                message: "OTP expired, generate new OTP.",
-                success: false
-            });
+            return errorResponse(res, 410, `Your ${isLink ? "verification link" : "OTP"} has expired. Please request a new one.`);
         }
         if (isLink) {
             if (user.verifyToken !== myToken) {
-                return res.status(400).json({
-                    message: "Invalid token, generate new token.",
-                    success: false
-                });
+                return errorResponse(res, 400, "This verification link is invalid. Please request a new one.");
             }
         }
         else {
             const isValidOtp = await emailTokenGenerator.compareOtp(myToken, user.verifyToken);
             if (!isValidOtp) {
-                return res.status(400).json({
-                    message: "Invalid, please enter correct OTP.",
-                    success: false
-                });
+                return errorResponse(res, 422, "Incorrect OTP. Please try again.");
             }
         }
-        // finding user from userID and deleting.
         const deleteData = await UserModel.findByIdAndDelete(userId);
         const deletedData = {
             userId: userId,
@@ -70,17 +47,10 @@ const verifyDestroyEmailController = (UserModel, isLink) => async (req, res) => 
             fullname: deleteData.fullname,
             email: deleteData.email
         }
-        return res.status(200).json({
-            data: deletedData,
-            message: "User data deleted successfully.",
-            success: true
-        });
+        return successResponse(res, 200, deletedData, "User deleted successfully.");
     }
     catch (error) {
-        return res.status(500).json({
-            message: "Oops! Something went wrong while deleting user data.",
-            success: false
-        });
+        return errorResponse(res, 500, "Something went wrong. Please try again later.");
     }
 }
 

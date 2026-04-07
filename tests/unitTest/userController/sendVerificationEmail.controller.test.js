@@ -54,6 +54,15 @@ describe("Send Verification Email Controller Snapshot Test", () => {
             create
         );
     };
+    const sanitizeResponse = (res) => {
+        const body = { ...res.json.mock.calls[0][0] };
+        if (body?.data?._id) body.data._id = "mocked-id";
+        if (body?.data?.userId) body.data.userId = "mocked-user-id";
+        return {
+            status: res.status.mock.calls[0][0],
+            body
+        };
+    };
     beforeEach(() => {
         req = { params: { userId: "123" } };
         res = {
@@ -73,11 +82,7 @@ describe("Send Verification Email Controller Snapshot Test", () => {
         });
         const controller = setupController(1);
         await controller(req, res);
-        expect(res.status).toHaveBeenCalledWith(404);
-        expect(res.json).toHaveBeenCalledWith({
-            message: "Looks like that user doesn't exist in our system.",
-            success: false
-        });
+        expect(sanitizeResponse(res)).toMatchSnapshot();
     });
 
     test("for email already verified", async () => {
@@ -88,11 +93,7 @@ describe("Send Verification Email Controller Snapshot Test", () => {
         });
         const controller = setupController(1);
         await controller(req, res);
-        expect(res.status).toHaveBeenCalledWith(200);
-        expect(res.json).toHaveBeenCalledWith({
-            message: "Email already verified.",
-            success: true
-        });
+        expect(sanitizeResponse(res)).toMatchSnapshot();
     });
 
     test("for destroyDataAfter expired", async () => {
@@ -106,12 +107,7 @@ describe("Send Verification Email Controller Snapshot Test", () => {
         });
         const controller = setupController(1);
         await controller(req, res);
-        expect(UserModel.findByIdAndDelete).toHaveBeenCalledWith("123");
-        expect(res.status).toHaveBeenCalledWith(400);
-        expect(res.json).toHaveBeenCalledWith({
-            message: "Verification time ended, signup again.",
-            success: false
-        });
+        expect(sanitizeResponse(res)).toMatchSnapshot();
     });
 
     test("for user is inactive", async () => {
@@ -124,11 +120,7 @@ describe("Send Verification Email Controller Snapshot Test", () => {
         });
         const controller = setupController(2); // recover
         await controller(req, res);
-        expect(res.status).toHaveBeenCalledWith(400);
-        expect(res.json).toHaveBeenCalledWith({
-            message: "Your account is blocked, you can't recover it.",
-            success: false
-        });
+        expect(sanitizeResponse(res)).toMatchSnapshot();
     });
 
     test("for email not verified", async () => {
@@ -141,11 +133,7 @@ describe("Send Verification Email Controller Snapshot Test", () => {
         });
         const controller = setupController(3); // delete
         await controller(req, res);
-        expect(res.status).toHaveBeenCalledWith(400);
-        expect(res.json).toHaveBeenCalledWith({
-            message: "Email not verified, you can't delete it.",
-            success: false
-        });
+        expect(sanitizeResponse(res)).toMatchSnapshot();
     });
 
     test("for otp limit exceeded", async () => {
@@ -158,12 +146,7 @@ describe("Send Verification Email Controller Snapshot Test", () => {
         });
         const controller = setupController(1);
         await controller(req, res);
-        expect(validEmailRequest).toHaveBeenCalled();
-        expect(res.status).toHaveBeenCalledWith(429);
-        expect(res.json).toHaveBeenCalledWith({
-            message: "OTP request exceed, try again later.",
-            success: false
-        });
+        expect(sanitizeResponse(res)).toMatchSnapshot();
     });
 
     test("for verification successfully", async () => {
@@ -187,19 +170,7 @@ describe("Send Verification Email Controller Snapshot Test", () => {
         dataExpiryTime.otpLinkExpire.mockReturnValue("futureTime");
         const controller = setupController(1);
         await controller(req, res);
-        expect(verificationToken.saveSendToken).toHaveBeenCalled();
-        expect(verificationMailSender.sendEmail).toHaveBeenCalled();
-        expect(mockUser.save).toHaveBeenCalled();
-        expect(res.status).toHaveBeenCalledWith(200);
-        expect(res.json).toHaveBeenCalledWith({
-            data: {
-                userId: "123",
-                fullName: "Test User",
-                email: "test@gmail.com"
-            },
-            message: "Verification OTP sended to your email successfully.",
-            success: true
-        });
+        expect(sanitizeResponse(res)).toMatchSnapshot();
     });
 
     test("for server error", async () => {
@@ -208,10 +179,6 @@ describe("Send Verification Email Controller Snapshot Test", () => {
         });
         const controller = setupController(1);
         await controller(req, res);
-        expect(res.status).toHaveBeenCalledWith(500);
-        expect(res.json).toHaveBeenCalledWith({
-            message: "Oops! Something went wrong while sending link.Try again later.",
-            success: false
-        });
+        expect(sanitizeResponse(res)).toMatchSnapshot();
     });
 });

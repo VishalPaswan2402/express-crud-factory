@@ -3,7 +3,7 @@
 exports[`Verify Recover Email Controller Snapshot Test for database error 1`] = `
 {
   "body": {
-    "message": "Oops! Something went wrong while updating password.Try again.",
+    "message": "Something went wrong. Please try again later.",
     "success": false,
   },
   "status": 500,
@@ -13,47 +13,47 @@ exports[`Verify Recover Email Controller Snapshot Test for database error 1`] = 
 exports[`Verify Recover Email Controller Snapshot Test for email not verified 1`] = `
 {
   "body": {
-    "message": "Email not verified, you can't recover it.",
+    "message": "Email not verified. You can't recover the account.",
     "success": false,
   },
-  "status": 400,
+  "status": 403,
 }
 `;
 
 exports[`Verify Recover Email Controller Snapshot Test for expired token 1`] = `
 {
   "body": {
-    "message": "OTP expired, generate new OTP.",
+    "message": "Your OTP has expired. Please request a new one.",
     "success": false,
   },
-  "status": 400,
+  "status": 410,
 }
 `;
 
 exports[`Verify Recover Email Controller Snapshot Test for inactive user 1`] = `
 {
   "body": {
-    "message": "Your account is blocked, you can't recover it.",
+    "message": "Your account is blocked. Recovery is not allowed.",
     "success": false,
   },
-  "status": 400,
+  "status": 403,
 }
 `;
 
 exports[`Verify Recover Email Controller Snapshot Test for invalid OTP 1`] = `
 {
   "body": {
-    "message": "Invalid, please enter correct OTP.",
+    "message": "Incorrect OTP. Please try again.",
     "success": false,
   },
-  "status": 400,
+  "status": 422,
 }
 `;
 
 exports[`Verify Recover Email Controller Snapshot Test for invalid link token 1`] = `
 {
   "body": {
-    "message": "Invalid token, generate new token.",
+    "message": "This verification link is invalid. Please request a new one.",
     "success": false,
   },
   "status": 400,
@@ -63,7 +63,7 @@ exports[`Verify Recover Email Controller Snapshot Test for invalid link token 1`
 exports[`Verify Recover Email Controller Snapshot Test for missing OTP 1`] = `
 {
   "body": {
-    "message": "Please fill OTP correctly.",
+    "message": "OTP is required.",
     "success": false,
   },
   "status": 400,
@@ -73,7 +73,7 @@ exports[`Verify Recover Email Controller Snapshot Test for missing OTP 1`] = `
 exports[`Verify Recover Email Controller Snapshot Test for missing password fields 1`] = `
 {
   "body": {
-    "message": "Please fill all new password correctly.",
+    "message": "Password and confirm password are required.",
     "success": false,
   },
   "status": 400,
@@ -83,7 +83,7 @@ exports[`Verify Recover Email Controller Snapshot Test for missing password fiel
 exports[`Verify Recover Email Controller Snapshot Test for missing token in link mode 1`] = `
 {
   "body": {
-    "message": "Token is missing",
+    "message": "Verification token is missing. Please check your email link.",
     "success": false,
   },
   "status": 400,
@@ -93,10 +93,10 @@ exports[`Verify Recover Email Controller Snapshot Test for missing token in link
 exports[`Verify Recover Email Controller Snapshot Test for password mismatch 1`] = `
 {
   "body": {
-    "message": "Oops! Your passwords don't match.",
+    "message": "Password and confirm password must match.",
     "success": false,
   },
-  "status": 400,
+  "status": 422,
 }
 `;
 
@@ -111,7 +111,7 @@ exports[`Verify Recover Email Controller Snapshot Test for successful password u
     "message": "Password updated successfully.",
     "success": true,
   },
-  "status": 201,
+  "status": 200,
 }
 `;
 
@@ -126,14 +126,14 @@ exports[`Verify Recover Email Controller Snapshot Test for successful password u
     "message": "Password updated successfully.",
     "success": true,
   },
-  "status": 201,
+  "status": 200,
 }
 `;
 
 exports[`Verify Recover Email Controller Snapshot Test for user not found 1`] = `
 {
   "body": {
-    "message": "Invalid request. Please signup again.",
+    "message": "User not found.",
     "success": false,
   },
   "status": 404,

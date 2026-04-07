@@ -1,5 +1,6 @@
 import { emailTokenGenerator } from "../../utils/emailTokenGenerator.utils.js";
 import { generateJwtToken } from "../../utils/generateJwtToken.utils.js";
+import { errorResponse, loginResponse, successResponse } from "../../utils/response.utils.js";
 import { userAfterVerification } from "../../utils/userAfterVerification.utils.js";
 
 const verifySignupEmailController = (UserModel, userSecretConfig, isLink) => async (req, res) => {
@@ -9,85 +10,48 @@ const verifySignupEmailController = (UserModel, userSecretConfig, isLink) => asy
         if (isLink) {
             const { token } = req.query;
             if (!token) {
-                return res.status(400).json({
-                    message: "Token is missing",
-                    success: false
-                });
+                return errorResponse(res, 400, "Verification token is missing. Please check your email link.");
             }
             myToken = token;
         }
         else {
             const { otp } = req.body;
-            if (!otp || otp == "") {
-                return res.status(400).json({
-                    message: "Please fill OTP correctly.",
-                    success: false
-                });
+            if (!otp) {
+                return errorResponse(res, 400, "OTP is required.");
             }
             myToken = otp;
         }
-        // find user by token
         const user = await UserModel.findById(userId).select("+verifyToken +verifyTokenExpires +destroyDataAfter +otpRequestCount +otpLastRequest");
         if (!user) {
-            return res.status(400).json({
-                message: "User not found.",
-                success: false
-            });
+            return errorResponse(res, 404, "User not found.");
         }
         if (user.emailVerified) {
-            return res.status(200).json({
-                message: "Email already verified.",
-                success: true
-            });
+            return successResponse(res, 200, null, "Email is already verified.");
         }
-        // check data expiry
         if (!user.destroyDataAfter || user.destroyDataAfter < Date.now()) {
             await UserModel.findByIdAndDelete(user._id);
-            return res.status(400).json({
-                message: "User is not registered, signup again.",
-                success: false
-            });
+            return errorResponse(res, 410, "Registration expired. Please sign up again.");
         }
-        // compare token 
         if (!user.verifyToken || !user.verifyTokenExpires || user.verifyTokenExpires < Date.now()) {
-            return res.status(400).json({
-                message: `${isLink ? "Token" : "OTP"} expired, generate new one.`,
-                success: false
-            });
+            return errorResponse(res, 410, `Your ${isLink ? "verification link" : "OTP"} has expired. Please request a new one.`);
         }
         if (isLink) {
             if (user.verifyToken != myToken) {
-                return res.status(400).json({
-                    message: "Invalid token.",
-                    success: false
-                });
+                return errorResponse(res, 400, "This verification link is invalid. Please request a new one.");
             }
         }
         else {
             const isValidOtp = await emailTokenGenerator.compareOtp(myToken, user.verifyToken);
             if (!isValidOtp) {
-                return res.status(400).json({
-                    message: "Invalid, please enter correct OTP.",
-                    success: false
-                });
+                return errorResponse(res, 422, "Incorrect OTP. Please try again.");
             }
         }
-        // // update user
         const savedData = await userAfterVerification(user);
-        // generate jwt token
         const jwtToken = generateJwtToken(savedData, userSecretConfig.jwtSecret);
-        return res.status(201).json({
-            data: savedData,
-            token: jwtToken,
-            message: "Email verified and account created successfully.",
-            success: true
-        });
+        return loginResponse(res, 201, savedData, jwtToken, "Account created and email verified successfully.");
     }
     catch (error) {
-        return res.status(500).json({
-            message: "Oops! Something went wrong while verifying email.Try again.",
-            success: false
-        });
+        return errorResponse(res, 500, "Something went wrong. Please try again later.");
     }
 };
 

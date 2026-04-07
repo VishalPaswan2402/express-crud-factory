@@ -3,7 +3,7 @@
 exports[`Verify Destroy Email Controller Snapshot Test for database error 1`] = `
 {
   "body": {
-    "message": "Oops! Something went wrong while deleting user data.",
+    "message": "Something went wrong. Please try again later.",
     "success": false,
   },
   "status": 500,
@@ -13,37 +13,37 @@ exports[`Verify Destroy Email Controller Snapshot Test for database error 1`] = 
 exports[`Verify Destroy Email Controller Snapshot Test for expired token 1`] = `
 {
   "body": {
-    "message": "OTP expired, generate new OTP.",
+    "message": "Your verification link has expired. Please request a new one.",
     "success": false,
   },
-  "status": 400,
+  "status": 410,
 }
 `;
 
 exports[`Verify Destroy Email Controller Snapshot Test for inactive user 1`] = `
 {
   "body": {
-    "message": "Your account is blocked, you can't delete it.",
+    "message": "Your account is blocked. Deletion is not allowed.",
     "success": false,
   },
-  "status": 400,
+  "status": 403,
 }
 `;
 
 exports[`Verify Destroy Email Controller Snapshot Test for invalid OTP 1`] = `
 {
   "body": {
-    "message": "Invalid, please enter correct OTP.",
+    "message": "Incorrect OTP. Please try again.",
     "success": false,
   },
-  "status": 400,
+  "status": 422,
 }
 `;
 
 exports[`Verify Destroy Email Controller Snapshot Test for invalid link token 1`] = `
 {
   "body": {
-    "message": "Invalid token, generate new token.",
+    "message": "This verification link is invalid. Please request a new one.",
     "success": false,
   },
   "status": 400,
@@ -53,7 +53,7 @@ exports[`Verify Destroy Email Controller Snapshot Test for invalid link token 1`
 exports[`Verify Destroy Email Controller Snapshot Test for missing OTP in OTP mode 1`] = `
 {
   "body": {
-    "message": "Please fill OTP correctly.",
+    "message": "OTP is required.",
     "success": false,
   },
   "status": 400,
@@ -63,7 +63,7 @@ exports[`Verify Destroy Email Controller Snapshot Test for missing OTP in OTP mo
 exports[`Verify Destroy Email Controller Snapshot Test for missing token in link mode 1`] = `
 {
   "body": {
-    "message": "Token is missing",
+    "message": "Verification token is missing. Please check your email link.",
     "success": false,
   },
   "status": 400,
@@ -79,7 +79,7 @@ exports[`Verify Destroy Email Controller Snapshot Test for successful delete usi
       "userId": "mocked-user-id",
       "username": "test",
     },
-    "message": "User data deleted successfully.",
+    "message": "User deleted successfully.",
     "success": true,
   },
   "status": 200,
@@ -95,7 +95,7 @@ exports[`Verify Destroy Email Controller Snapshot Test for successful delete usi
       "userId": "mocked-user-id",
       "username": "test",
     },
-    "message": "User data deleted successfully.",
+    "message": "User deleted successfully.",
     "success": true,
   },
   "status": 200,
@@ -105,7 +105,7 @@ exports[`Verify Destroy Email Controller Snapshot Test for successful delete usi
 exports[`Verify Destroy Email Controller Snapshot Test for user not found 1`] = `
 {
   "body": {
-    "message": "Invalid request, account not found.",
+    "message": "User not found.",
     "success": false,
   },
   "status": 404,

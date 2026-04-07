@@ -1,24 +1,16 @@
+import { errorResponse, successResponse } from "../../utils/response.utils.js";
+
 const sharePostController = (PostModel) => async (req, res) => {
     try {
         const { postId } = req.params;
-        // finding post.
         const postData = await PostModel.findById(postId);
         if (!postData) {
-            return res.status(404).json({
-                message: "Posted article not found.",
-                success: false
-            });
+            return errorResponse(res, 404, "Article not found.");
         };
-        return res.status(200).json({
-            data: postData,
-            message: "Post article found successfully.",
-            success: true
-        });
-    } catch (error) {
-        return res.status(500).json({
-            message: "Oops! Something went wrong while finding post.",
-            success: false
-        });
+        return successResponse(res, 200, postData, "Shared article retrieved successfully.");
+    }
+    catch (error) {
+        return errorResponse(res, 500, "Something went wrong. Please try again later.");
     }
 };
 

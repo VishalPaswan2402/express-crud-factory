@@ -1,53 +1,31 @@
+import { errorResponse, successResponse } from "../../utils/response.utils.js";
+
 const editPostController = (UserModel, PostModel) => async (req, res) => {
     try {
         const { userId, postId } = req.params;
         const { title, description } = req.body;
-        // verifying req body.
         if (!title || !description) {
-            return res.status(400).json({
-                message: "Please provide title and description correctly.",
-                success: false
-            });
+            return errorResponse(res, 400, "Title and description are required.");
         }
-        // finding user.
         const userData = await UserModel.findById(userId);
         if (!userData) {
-            return res.status(404).json({
-                message: "User doesn't exist. Please create your account.",
-                success: false
-            });
+            return errorResponse(res, 404, "User not found.");
         }
-        // finding post.
         const postData = await PostModel.findById(postId);
         if (!postData) {
-            return res.status(404).json({
-                message: "Posted article not found.",
-                success: false
-            });
+            return errorResponse(res, 404, "Article not found.");
         }
-        // check author
         if (postData.author != userId) {
-            return res.status(403).json({
-                message: "No permission to edit this post article.",
-                success: false
-            });
+            return errorResponse(res, 403, "You do not have permission to edit this article.");
         }
-        // updating value
         postData.title = title;
         postData.description = description;
         await postData.save();
         const updatedData = await PostModel.findById(postId).lean();
-        return res.status(200).json({
-            data: updatedData,
-            message: "Post article edited successfully.",
-            success: true
-        });
+        return successResponse(res, 200, updatedData, "Article updated successfully.");
     }
     catch (error) {
-        return res.status(500).json({
-            message: "Oops! Something went wrong while editing post.",
-            success: false
-        });
+        return errorResponse(res, 500, "Something went wrong. Please try again later.");
     }
 }
 

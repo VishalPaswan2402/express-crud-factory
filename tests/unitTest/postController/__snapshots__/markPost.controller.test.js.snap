@@ -3,7 +3,7 @@
 exports[`Mark Post Controller Snapshot Test for author not found. 1`] = `
 {
   "body": {
-    "message": "User doesn't exist. Please create your account.",
+    "message": "User not found.",
     "success": false,
   },
   "status": 404,
@@ -13,7 +13,7 @@ exports[`Mark Post Controller Snapshot Test for author not found. 1`] = `
 exports[`Mark Post Controller Snapshot Test for internal server error. 1`] = `
 {
   "body": {
-    "message": "Oops! Something went wrong while marking post.",
+    "message": "Something went wrong. Please try again later.",
     "success": false,
   },
   "status": 500,
@@ -23,7 +23,7 @@ exports[`Mark Post Controller Snapshot Test for internal server error. 1`] = `
 exports[`Mark Post Controller Snapshot Test for no permission to edit post. 1`] = `
 {
   "body": {
-    "message": "You do not have permission to mark this post.",
+    "message": "You do not have permission to mark this article.",
     "success": false,
   },
   "status": 403,
@@ -33,7 +33,7 @@ exports[`Mark Post Controller Snapshot Test for no permission to edit post. 1`] 
 exports[`Mark Post Controller Snapshot Test for post article not found. 1`] = `
 {
   "body": {
-    "message": "Posted article not found.",
+    "message": "Article not found.",
     "success": false,
   },
   "status": 404,
@@ -56,7 +56,7 @@ exports[`Mark Post Controller Snapshot Test for post pinned and unpinned success
       "title": "postTitle",
       "updatedAt": "2026-03-04T17:00:19.599Z",
     },
-    "message": "Post article marked as important.",
+    "message": "Article pinned successfully.",
     "success": true,
   },
   "status": 200,
@@ -79,7 +79,7 @@ exports[`Mark Post Controller Snapshot Test for post trashed and untrashed succe
       "title": "postTitle",
       "updatedAt": "2026-03-04T17:00:19.599Z",
     },
-    "message": "Post article moved to trash file.",
+    "message": "Article moved to trash.",
     "success": true,
   },
   "status": 200,

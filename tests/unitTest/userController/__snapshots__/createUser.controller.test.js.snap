@@ -3,7 +3,7 @@
 exports[`Create User Controller Snapshot Test for database error. 1`] = `
 {
   "body": {
-    "message": "Oops! Something went wrong while saving new user.Try again later.",
+    "message": "Something went wrong. Please try again later.",
     "success": false,
   },
   "status": 500,
@@ -18,7 +18,7 @@ exports[`Create User Controller Snapshot Test for delete expired unverified user
       "fullName": "UserTest",
       "userId": "mocked-user-id",
     },
-    "message": "Verification link sended to your email successfully.",
+    "message": "Verification link sent to your email successfully.",
     "success": true,
   },
   "status": 200,
@@ -28,20 +28,20 @@ exports[`Create User Controller Snapshot Test for delete expired unverified user
 exports[`Create User Controller Snapshot Test for missing fields. 1`] = `
 {
   "body": {
-    "message": "Please fill all data correctly.",
+    "message": "Please provide email, username, fullname, password, and confirm password.",
     "success": false,
   },
-  "status": 400,
+  "status": 422,
 }
 `;
 
 exports[`Create User Controller Snapshot Test for password mismatch. 1`] = `
 {
   "body": {
-    "message": "Oops! Your passwords don't match.",
+    "message": "Password and confirm password must match.",
     "success": false,
   },
-  "status": 400,
+  "status": 422,
 }
 `;
 
@@ -53,7 +53,7 @@ exports[`Create User Controller Snapshot Test for successful user creation. 1`] 
       "fullName": "UserTest",
       "userId": "mocked-user-id",
     },
-    "message": "Verification link sended to your email successfully.",
+    "message": "Verification link sent to your email successfully.",
     "success": true,
   },
   "status": 200,
@@ -63,9 +63,9 @@ exports[`Create User Controller Snapshot Test for successful user creation. 1`] 
 exports[`Create User Controller Snapshot Test for user already exists. 1`] = `
 {
   "body": {
-    "message": "Looks like someone already registered with that username or email.",
+    "message": "This email or username is already taken. Please try another one.",
     "success": false,
   },
-  "status": 400,
+  "status": 409,
 }
 `;

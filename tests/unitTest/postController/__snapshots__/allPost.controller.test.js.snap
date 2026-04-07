@@ -3,7 +3,7 @@
 exports[`Get All Post Controller Snapshot Test for author not found. 1`] = `
 {
   "body": {
-    "message": "User doesn't exist. Please create your account.",
+    "message": "User not found.",
     "success": false,
   },
   "status": 404,
@@ -13,7 +13,7 @@ exports[`Get All Post Controller Snapshot Test for author not found. 1`] = `
 exports[`Get All Post Controller Snapshot Test for internal server error. 1`] = `
 {
   "body": {
-    "message": "Oops! Something went wrong while finding all post.",
+    "message": "Something went wrong. Please try again later.",
     "success": false,
   },
   "status": 500,
@@ -33,11 +33,10 @@ exports[`Get All Post Controller Snapshot Test for not valid user Id. 1`] = `
 exports[`Get All Post Controller Snapshot Test for page exceeds total pages. 1`] = `
 {
   "body": {
-    "message": "Page exceeds total pages",
+    "message": "Requested page not found. Page number exceeds total pages.",
     "success": false,
-    "totalPages": 2,
   },
-  "status": 400,
+  "status": 404,
 }
 `;
 
@@ -64,7 +63,7 @@ exports[`Get All Post Controller Snapshot Test for post article found successful
       "totalDocument": 1,
       "totalPages": 1,
     },
-    "message": "All post article found successfully.",
+    "message": "Articles fetched successfully.",
     "success": true,
   },
   "status": 200,
@@ -80,7 +79,7 @@ exports[`Get All Post Controller Snapshot Test for post article not found. 1`] =
       "totalDocument": 0,
       "totalPages": 1,
     },
-    "message": "No post article added yet.",
+    "message": "Articles fetched successfully.",
     "success": true,
   },
   "status": 200,

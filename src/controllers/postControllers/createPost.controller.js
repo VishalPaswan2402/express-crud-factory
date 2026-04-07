@@ -1,43 +1,28 @@
+import { errorResponse, successResponse } from "../../utils/response.utils.js";
+
 const createPostController = (UserModel, PostModel) => async (req, res) => {
     try {
         const { userId } = req.params;
         const { title, description } = req.body;
-        // verifying req body.
         if (!title || !description) {
-            return res.status(400).json({
-                message: "Please provide title and description correctly.",
-                success: false
-            });
+            return errorResponse(res, 400, "Title and description are required.");
         }
-        // finding user.
         const author = await UserModel.findById(userId);
         if (!author) {
-            return res.status(404).json({
-                message: "User doesn't exist. Please create your account.",
-                success: false
-            });
+            return errorResponse(res, 404, "User not found.");
         }
-        // creating object and saving it.
         const newArticle = new PostModel({
             title: title,
             description: description,
             author: userId
         });
         const savedArticle = await newArticle.save();
-        // saving post ID in user schema.
         author.articles.push(savedArticle._id);
         await author.save();
-        return res.status(200).json({
-            data: savedArticle,
-            message: "New article created successfully.",
-            success: true
-        });
+        return successResponse(res, 201, savedArticle, "Article created successfully.");
     }
     catch (error) {
-        return res.status(500).json({
-            message: "Oops! Something went wrong while saving post.",
-            success: false
-        });
+        return errorResponse(res, 500, "Something went wrong. Please try again later.");
     }
 }
 

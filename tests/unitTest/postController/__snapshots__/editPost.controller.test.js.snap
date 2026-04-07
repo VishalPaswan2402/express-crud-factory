@@ -3,7 +3,7 @@
 exports[`Edit Post Controller Snapshot Test for author not found. 1`] = `
 {
   "body": {
-    "message": "User doesn't exist. Please create your account.",
+    "message": "User not found.",
     "success": false,
   },
   "status": 404,
@@ -23,7 +23,7 @@ exports[`Edit Post Controller Snapshot Test for empty request body, 1`] = `
 exports[`Edit Post Controller Snapshot Test for internal server error. 1`] = `
 {
   "body": {
-    "message": "Oops! Something went wrong while editing post.",
+    "message": "Something went wrong. Please try again later.",
     "success": false,
   },
   "status": 500,
@@ -33,7 +33,7 @@ exports[`Edit Post Controller Snapshot Test for internal server error. 1`] = `
 exports[`Edit Post Controller Snapshot Test for missing description. 1`] = `
 {
   "body": {
-    "message": "Please provide title and description correctly.",
+    "message": "Title and description are required.",
     "success": false,
   },
   "status": 400,
@@ -43,7 +43,7 @@ exports[`Edit Post Controller Snapshot Test for missing description. 1`] = `
 exports[`Edit Post Controller Snapshot Test for missing title. 1`] = `
 {
   "body": {
-    "message": "Please provide title and description correctly.",
+    "message": "Title and description are required.",
     "success": false,
   },
   "status": 400,
@@ -53,7 +53,7 @@ exports[`Edit Post Controller Snapshot Test for missing title. 1`] = `
 exports[`Edit Post Controller Snapshot Test for no permission to edit post. 1`] = `
 {
   "body": {
-    "message": "No permission to edit this post article.",
+    "message": "You do not have permission to edit this article.",
     "success": false,
   },
   "status": 403,
@@ -63,7 +63,7 @@ exports[`Edit Post Controller Snapshot Test for no permission to edit post. 1`] 
 exports[`Edit Post Controller Snapshot Test for post article not found. 1`] = `
 {
   "body": {
-    "message": "Posted article not found.",
+    "message": "Article not found.",
     "success": false,
   },
   "status": 404,
@@ -86,7 +86,7 @@ exports[`Edit Post Controller Snapshot Test for update post successfully. 1`] = 
       "title": "newUpdatedTitle",
       "updatedAt": "2026-03-04T17:40:19.599Z",
     },
-    "message": "Post article edited successfully.",
+    "message": "Article updated successfully.",
     "success": true,
   },
   "status": 200,

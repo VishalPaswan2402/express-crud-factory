@@ -3,7 +3,7 @@
 exports[`Delete Post Controller Snapshot Test for author not found. 1`] = `
 {
   "body": {
-    "message": "User doesn't exist. Please create your account.",
+    "message": "User not found.",
     "success": false,
   },
   "status": 404,
@@ -13,7 +13,7 @@ exports[`Delete Post Controller Snapshot Test for author not found. 1`] = `
 exports[`Delete Post Controller Snapshot Test for internal server error. 1`] = `
 {
   "body": {
-    "message": "Oops! Something went wrong while deleting post.",
+    "message": "Something went wrong. Please try again later.",
     "success": false,
   },
   "status": 500,
@@ -23,7 +23,7 @@ exports[`Delete Post Controller Snapshot Test for internal server error. 1`] = `
 exports[`Delete Post Controller Snapshot Test for no permission to delete post. 1`] = `
 {
   "body": {
-    "message": "No permission to delete this post article.",
+    "message": "You do not have permission to delete this article.",
     "success": false,
   },
   "status": 403,
@@ -53,30 +53,18 @@ exports[`Delete Post Controller Snapshot Test for not valid user Id. 1`] = `
 exports[`Delete Post Controller Snapshot Test for post deleted successfully. 1`] = `
 {
   "body": {
-    "data": {
-      "_id": "69a8652b69726b384c21b27d",
-      "author": "507f1f77bcf86cd799439011",
-      "comments": 12,
-      "createdAt": "2026-03-04T17:00:19.599Z",
-      "deletedAt": "2026-03-04T17:40:19.599Z",
-      "description": "postDescription",
-      "isPinned": false,
-      "isTrashed": false,
-      "like": 924,
-      "title": "postTitle",
-      "updatedAt": "2026-03-04T17:40:19.599Z",
-    },
+    "data": null,
     "message": "Article deleted successfully.",
     "success": true,
   },
-  "status": 200,
+  "status": 204,
 }
 `;
 
 exports[`Delete Post Controller Snapshot Test for post not found. 1`] = `
 {
   "body": {
-    "message": "Posted article not found.",
+    "message": "Article not found.",
     "success": false,
   },
   "status": 404,

@@ -1,18 +1,17 @@
+import { errorResponse, successResponse } from "../../utils/response.utils.js";
+
 const getUserByIdController = (UserModel) => async (req, res) => {
     try {
         const { userId } = req.params;
         const data = await UserModel.findById(userId);
         if (!data) {
-            return res.status(404).json({
-                message: "Looks like that user doesn't exist in our system.",
-                success: false
-            });
+            return errorResponse(res, 404, "User not found.");
+        }
+        if (!data.emailVerified) {
+            return errorResponse(res, 403, `Email not verified.`);
         }
         if (!data.isActive) {
-            return res.status(400).json({
-                message: "Your account is blocked, you can't access it.",
-                success: false
-            });
+            return errorResponse(res, 403, "Your account is blocked. Please contact support.");
         }
         const responseData = {
             _id: data._id,
@@ -23,17 +22,10 @@ const getUserByIdController = (UserModel) => async (req, res) => {
             emailVerified: data.emailVerified,
             totalArticles: data.articles.length
         }
-        return res.status(200).json({
-            data: responseData,
-            message: "User found successfully.",
-            success: true
-        });
+        return successResponse(res, 200, responseData, "User retrieved successfully.");
     }
     catch (error) {
-        return res.status(500).json({
-            message: "Oops! Something went wrong while finding user.",
-            success: false
-        });
+        return errorResponse(res, 500, "Something went wrong. Please try again later.");
     }
 }
 

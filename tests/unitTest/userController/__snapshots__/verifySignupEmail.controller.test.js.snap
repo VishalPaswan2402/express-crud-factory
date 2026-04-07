@@ -1,0 +1,110 @@
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+
+exports[`Verify Signup Email Controller Snapshot Test for OTP invalid 1`] = `
+{
+  "body": {
+    "message": "Incorrect OTP. Please try again.",
+    "success": false,
+  },
+  "status": 422,
+}
+`;
+
+exports[`Verify Signup Email Controller Snapshot Test for delete expired user 1`] = `
+{
+  "body": {
+    "message": "Registration expired. Please sign up again.",
+    "success": false,
+  },
+  "status": 410,
+}
+`;
+
+exports[`Verify Signup Email Controller Snapshot Test for email already verified 1`] = `
+{
+  "body": {
+    "data": null,
+    "message": "Email is already verified.",
+    "success": true,
+  },
+  "status": 200,
+}
+`;
+
+exports[`Verify Signup Email Controller Snapshot Test for server error 1`] = `
+{
+  "body": {
+    "message": "Something went wrong. Please try again later.",
+    "success": false,
+  },
+  "status": 500,
+}
+`;
+
+exports[`Verify Signup Email Controller Snapshot Test for token expired 1`] = `
+{
+  "body": {
+    "message": "Your verification link has expired. Please request a new one.",
+    "success": false,
+  },
+  "status": 410,
+}
+`;
+
+exports[`Verify Signup Email Controller Snapshot Test for token invalid 1`] = `
+{
+  "body": {
+    "message": "This verification link is invalid. Please request a new one.",
+    "success": false,
+  },
+  "status": 400,
+}
+`;
+
+exports[`Verify Signup Email Controller Snapshot Test for token missing (link) 1`] = `
+{
+  "body": {
+    "message": "Verification token is missing. Please check your email link.",
+    "success": false,
+  },
+  "status": 400,
+}
+`;
+
+exports[`Verify Signup Email Controller Snapshot Test for user not found 1`] = `
+{
+  "body": {
+    "message": "User not found.",
+    "success": false,
+  },
+  "status": 404,
+}
+`;
+
+exports[`Verify Signup Email Controller Snapshot Test for verify email successfully (OTP) 1`] = `
+{
+  "body": {
+    "data": {
+      "id": "123",
+    },
+    "message": "Account created and email verified successfully.",
+    "success": true,
+    "token": "jwt",
+  },
+  "status": 201,
+}
+`;
+
+exports[`Verify Signup Email Controller Snapshot Test for verify email successfully (link) 1`] = `
+{
+  "body": {
+    "data": {
+      "id": "123",
+    },
+    "message": "Account created and email verified successfully.",
+    "success": true,
+    "token": "jwt",
+  },
+  "status": 201,
+}
+`;

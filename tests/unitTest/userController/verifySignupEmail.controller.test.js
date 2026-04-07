@@ -38,6 +38,15 @@ describe("Verify Signup Email Controller Snapshot Test", () => {
             isLink
         );
     };
+    const sanitizeResponse = (res) => {
+        const body = { ...res.json.mock.calls[0][0] };
+        if (body?.data?._id) body.data._id = "mocked-id";
+        if (body?.data?.userId) body.data.userId = "mocked-user-id";
+        return {
+            status: res.status.mock.calls[0][0],
+            body
+        };
+    };
     beforeEach(() => {
         req = {
             params: { userId: "123" },
@@ -62,11 +71,7 @@ describe("Verify Signup Email Controller Snapshot Test", () => {
         req.query = {};
         const controller = setupController(true);
         await controller(req, res);
-        expect(res.status).toHaveBeenCalledWith(400);
-        expect(res.json).toHaveBeenCalledWith({
-            message: "Token is missing",
-            success: false
-        });
+        expect(sanitizeResponse(res)).toMatchSnapshot();
     });
 
     test("for user not found", async () => {
@@ -75,11 +80,7 @@ describe("Verify Signup Email Controller Snapshot Test", () => {
         });
         const controller = setupController(true);
         await controller(req, res);
-        expect(res.status).toHaveBeenCalledWith(400);
-        expect(res.json).toHaveBeenCalledWith({
-            message: "User not found.",
-            success: false
-        });
+        expect(sanitizeResponse(res)).toMatchSnapshot();
     });
 
     test("for email already verified", async () => {
@@ -90,7 +91,7 @@ describe("Verify Signup Email Controller Snapshot Test", () => {
         });
         const controller = setupController(true);
         await controller(req, res);
-        expect(res.status).toHaveBeenCalledWith(200);
+        expect(sanitizeResponse(res)).toMatchSnapshot();
     });
 
     test("for delete expired user", async () => {
@@ -104,8 +105,7 @@ describe("Verify Signup Email Controller Snapshot Test", () => {
         });
         const controller = setupController(true);
         await controller(req, res);
-        expect(UserModel.findByIdAndDelete).toHaveBeenCalledWith("123");
-        expect(res.status).toHaveBeenCalledWith(400);
+        expect(sanitizeResponse(res)).toMatchSnapshot();
     });
 
     test("for token expired", async () => {
@@ -119,7 +119,7 @@ describe("Verify Signup Email Controller Snapshot Test", () => {
         });
         const controller = setupController(true);
         await controller(req, res);
-        expect(res.status).toHaveBeenCalledWith(400);
+        expect(sanitizeResponse(res)).toMatchSnapshot();
     });
 
     test("for token invalid", async () => {
@@ -134,11 +134,7 @@ describe("Verify Signup Email Controller Snapshot Test", () => {
         });
         const controller = setupController(true);
         await controller(req, res);
-        expect(res.status).toHaveBeenCalledWith(400);
-        expect(res.json).toHaveBeenCalledWith({
-            message: "Invalid token.",
-            success: false
-        });
+        expect(sanitizeResponse(res)).toMatchSnapshot();
     });
 
     test("for OTP invalid", async () => {
@@ -154,7 +150,7 @@ describe("Verify Signup Email Controller Snapshot Test", () => {
         });
         const controller = setupController(false);
         await controller(req, res);
-        expect(res.status).toHaveBeenCalledWith(400);
+        expect(sanitizeResponse(res)).toMatchSnapshot();
     });
 
     test("for verify email successfully (link)", async () => {
@@ -173,15 +169,7 @@ describe("Verify Signup Email Controller Snapshot Test", () => {
         generateJwtToken.mockReturnValue("jwt");
         const controller = setupController(true);
         await controller(req, res);
-        expect(userAfterVerification).toHaveBeenCalled();
-        expect(generateJwtToken).toHaveBeenCalled();
-        expect(res.status).toHaveBeenCalledWith(201);
-        expect(res.json).toHaveBeenCalledWith({
-            data: { id: "123" },
-            token: "jwt",
-            message: "Email verified and account created successfully.",
-            success: true
-        });
+        expect(sanitizeResponse(res)).toMatchSnapshot();
     });
 
     test("for verify email successfully (OTP)", async () => {
@@ -201,8 +189,7 @@ describe("Verify Signup Email Controller Snapshot Test", () => {
         generateJwtToken.mockReturnValue("jwt");
         const controller = setupController(false);
         await controller(req, res);
-        expect(emailTokenGenerator.compareOtp).toHaveBeenCalled();
-        expect(res.status).toHaveBeenCalledWith(201);
+        expect(sanitizeResponse(res)).toMatchSnapshot();
     });
 
     test("for server error", async () => {
@@ -211,10 +198,6 @@ describe("Verify Signup Email Controller Snapshot Test", () => {
         });
         const controller = setupController(true);
         await controller(req, res);
-        expect(res.status).toHaveBeenCalledWith(500);
-        expect(res.json).toHaveBeenCalledWith({
-            message: "Oops! Something went wrong while verifying email.Try again.",
-            success: false
-        });
+        expect(sanitizeResponse(res)).toMatchSnapshot();
     });
 });

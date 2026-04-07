@@ -1,19 +1,14 @@
 import mongoose from "mongoose"
+import { errorResponse } from "../utils/response.utils.js";
 
 const isValidUserId = (req, res, next) => {
     const { userId } = req.params;
     if (!userId) {
-        return res.status(400).json({
-            message: "Oops! user ID is not found.",
-            success: false
-        });
+        return errorResponse(res, 404, "User ID not found.");
     }
     const isValidId = mongoose.Types.ObjectId.isValid(userId);
     if (!isValidId) {
-        return res.status(400).json({
-            message: "Invalid userID.",
-            success: false
-        });
+        return errorResponse(res, 400, "Invalid user ID.");
     }
     next();
 }

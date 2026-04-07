@@ -1,5 +1,15 @@
 // Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
+exports[`Create Get-User-By-Id Controller Snapshot Test for email not verified. 1`] = `
+{
+  "body": {
+    "message": "Email not verified.",
+    "success": false,
+  },
+  "status": 403,
+}
+`;
+
 exports[`Create Get-User-By-Id Controller Snapshot Test for empty user-id. 1`] = `
 {
   "body": {
@@ -20,19 +30,29 @@ exports[`Create Get-User-By-Id Controller Snapshot Test for invalid user-id. 1`]
 }
 `;
 
+exports[`Create Get-User-By-Id Controller Snapshot Test for user blocked. 1`] = `
+{
+  "body": {
+    "message": "Your account is blocked. Please contact support.",
+    "success": false,
+  },
+  "status": 403,
+}
+`;
+
 exports[`Create Get-User-By-Id Controller Snapshot Test for user found successfully. 1`] = `
 {
   "body": {
     "data": {
-      "_id": "507f1f77bcf86cd799439011",
+      "_id": "mocked-id",
       "active": true,
       "email": "test@gmail.com",
-      "emailVerified": undefined,
+      "emailVerified": true,
       "fullname": "UserTest",
       "totalArticles": 0,
       "username": "test",
     },
-    "message": "User found successfully.",
+    "message": "User retrieved successfully.",
     "success": true,
   },
   "status": 200,
@@ -42,7 +62,7 @@ exports[`Create Get-User-By-Id Controller Snapshot Test for user found successfu
 exports[`Create Get-User-By-Id Controller Snapshot Test for user not exist. 1`] = `
 {
   "body": {
-    "message": "Looks like that user doesn't exist in our system.",
+    "message": "User not found.",
     "success": false,
   },
   "status": 404,
@@ -52,7 +72,7 @@ exports[`Create Get-User-By-Id Controller Snapshot Test for user not exist. 1`] 
 exports[`Create Get-User-By-Id Controller Snapshot Test internal server error. 1`] = `
 {
   "body": {
-    "message": "Oops! Something went wrong while finding user.",
+    "message": "Something went wrong. Please try again later.",
     "success": false,
   },
   "status": 500,

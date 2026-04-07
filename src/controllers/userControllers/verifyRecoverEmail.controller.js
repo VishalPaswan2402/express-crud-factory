@@ -1,5 +1,6 @@
 import { emailTokenGenerator } from "../../utils/emailTokenGenerator.utils.js";
 import { passwordHashing } from "../../utils/passwordHashing.utils.js";
+import { errorResponse, successResponse } from "../../utils/response.utils.js";
 import { userAfterVerification } from "../../utils/userAfterVerification.utils.js";
 
 const verifyRecoverEmailController = (UserModel, isLink, userSecretConfig) => async (req, res) => {
@@ -8,95 +9,57 @@ const verifyRecoverEmailController = (UserModel, isLink, userSecretConfig) => as
         let myToken = null;
         const { password, confirmPassword } = req.body;
         if (!password || !confirmPassword) {
-            return res.status(400).json({
-                message: "Please fill all new password correctly.",
-                success: false
-            });
+            return errorResponse(res, 400, "Password and confirm password are required.");
         }
         if (password !== confirmPassword) {
-            return res.status(400).json({
-                message: "Oops! Your passwords don't match.",
-                success: false
-            });
+            return errorResponse(res, 422, "Password and confirm password must match.");
         }
         if (isLink) {
             const { token } = req.query;
             if (!token) {
-                return res.status(400).json({
-                    message: "Token is missing",
-                    success: false
-                });
+                return errorResponse(res, 400, "Verification token is missing. Please check your email link.");
             }
             myToken = token;
         }
         else {
             const { otp } = req.body;
-            if (!otp || otp == "") {
-                return res.status(400).json({
-                    message: "Please fill OTP correctly.",
-                    success: false
-                });
+            if (!otp) {
+                return errorResponse(res, 400, "OTP is required.");
             }
             myToken = otp;
         }
-        // find user
         const user = await UserModel.findById(userId).select("+verifyToken +verifyTokenExpires +destroyDataAfter +otpRequestCount +otpLastRequest");
         if (!user) {
-            return res.status(404).json({
-                message: "Invalid request. Please signup again.",
-                success: false
-            });
+            return errorResponse(res, 404, "User not found.");
         }
         if (!user.emailVerified) {
-            return res.status(400).json({
-                message: `Email not verified, you can't recover it.`,
-                success: false
-            });
+            return errorResponse(res, 403, `Email not verified. You can't recover the account.`);
         }
         if (!user.isActive) {
-            return res.status(400).json({
-                message: "Your account is blocked, you can't recover it.",
-                success: false
-            });
+            return errorResponse(res, 403, `Your account is blocked. Recovery is not allowed.`);
         }
         if (!user.verifyToken || !user.verifyTokenExpires || user.verifyTokenExpires < Date.now()) {
-            return res.status(400).json({
-                message: "OTP expired, generate new OTP.",
-                success: false
-            });
+            return errorResponse(res, 410, "Your OTP has expired. Please request a new one.");
         }
         if (isLink) {
             if (myToken !== user.verifyToken) {
-                return res.status(400).json({
-                    message: "Invalid token, generate new token.",
-                    success: false
-                });
+                return errorResponse(res, 400, "This verification link is invalid. Please request a new one.");
             }
         }
         else {
             const isValidOtp = await emailTokenGenerator.compareOtp(myToken, user.verifyToken);
             if (!isValidOtp) {
-                return res.status(400).json({
-                    message: "Invalid, please enter correct OTP.",
-                    success: false
-                });
+                return errorResponse(res, 422, "Incorrect OTP. Please try again.");
             }
         }
         const hashPassword = await passwordHashing.hashPassword(password, userSecretConfig.bcryptSecret);
         user.password = hashPassword;
         const savedUser = await user.save();
         const savedData = await userAfterVerification(savedUser);
-        return res.status(201).json({
-            data: savedData,
-            message: "Password updated successfully.",
-            success: true
-        });
+        return successResponse(res, 200, savedData, "Password updated successfully.");
     }
     catch (error) {
-        return res.status(500).json({
-            message: "Oops! Something went wrong while updating password.Try again.",
-            success: false
-        });
+        return errorResponse(res, 500, "Something went wrong. Please try again later.");
     }
 }
 

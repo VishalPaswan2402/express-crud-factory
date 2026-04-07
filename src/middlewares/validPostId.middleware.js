@@ -1,19 +1,14 @@
 import mongoose from "mongoose"
+import { errorResponse } from "../utils/response.utils.js";
 
 const isValidPostId = (req, res, next) => {
     const { postId } = req.params;
     if (!postId) {
-        return res.status(400).json({
-            message: "Oops! post ID is not found.",
-            success: false
-        });
+        return errorResponse(res, 404, "Post ID not found.");
     }
     const isValidId = mongoose.Types.ObjectId.isValid(postId);
     if (!isValidId) {
-        return res.status(400).json({
-            message: "Invalid postID.",
-            success: false
-        });
+        return errorResponse(res, 400, "Invalid post ID.");
     }
     next();
 }

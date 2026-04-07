@@ -18,7 +18,7 @@ exports[`Search By Title Controller Snapshot Tests for find posts successfully. 
       "totalDocument": 2,
       "totalPages": 1,
     },
-    "message": "Find matching data.",
+    "message": "Data retrieved successfully.",
     "success": true,
   },
   "status": 200,
@@ -34,7 +34,7 @@ exports[`Search By Title Controller Snapshot Tests for no result found. 1`] = `
       "totalDocument": 0,
       "totalPages": 1,
     },
-    "message": "No matching data found.",
+    "message": "Data retrieved successfully.",
     "success": true,
   },
   "status": 200,
@@ -44,18 +44,17 @@ exports[`Search By Title Controller Snapshot Tests for no result found. 1`] = `
 exports[`Search By Title Controller Snapshot Tests for page exceeds total pages. 1`] = `
 {
   "body": {
-    "message": "Page exceeds total pages",
+    "message": "Requested page not found. Page number exceeds total pages.",
     "success": false,
-    "totalPages": 2,
   },
-  "status": 400,
+  "status": 404,
 }
 `;
 
 exports[`Search By Title Controller Snapshot Tests for search text missing. 1`] = `
 {
   "body": {
-    "message": "Search text is required.",
+    "message": "Search query is required.",
     "success": false,
   },
   "status": 400,
@@ -65,7 +64,7 @@ exports[`Search By Title Controller Snapshot Tests for search text missing. 1`] 
 exports[`Search By Title Controller Snapshot Tests for should handle server error. 1`] = `
 {
   "body": {
-    "message": "Oops! Something went wrong while searching post.",
+    "message": "Something went wrong. Please try again later.",
     "success": false,
   },
   "status": 500,
@@ -75,7 +74,7 @@ exports[`Search By Title Controller Snapshot Tests for should handle server erro
 exports[`Search By Title Controller Snapshot Tests for userId missing. 1`] = `
 {
   "body": {
-    "message": "UserId is required.",
+    "message": "User ID is required.",
     "success": false,
   },
   "status": 400,

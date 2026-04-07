@@ -3,7 +3,7 @@
 exports[`Login User Controller Snapshot Test delete expired unverified user 1`] = `
 {
   "body": {
-    "message": "Looks like that user doesn't exist in our system.",
+    "message": "User not found.",
     "success": false,
   },
   "status": 404,
@@ -13,10 +13,10 @@ exports[`Login User Controller Snapshot Test delete expired unverified user 1`] 
 exports[`Login User Controller Snapshot Test for blocked user. 1`] = `
 {
   "body": {
-    "message": "Looks like your account is blocked.",
+    "message": "Your account is blocked. Please contact support.",
     "success": false,
   },
-  "status": 404,
+  "status": 403,
 }
 `;
 
@@ -33,7 +33,7 @@ exports[`Login User Controller Snapshot Test for empty request body. 1`] = `
 exports[`Login User Controller Snapshot Test for incorrect password. 1`] = `
 {
   "body": {
-    "message": "Oops! you have entered incorrect password.",
+    "message": "The password you entered is incorrect.",
     "success": false,
   },
   "status": 401,
@@ -43,7 +43,7 @@ exports[`Login User Controller Snapshot Test for incorrect password. 1`] = `
 exports[`Login User Controller Snapshot Test for internal server error. 1`] = `
 {
   "body": {
-    "message": "Oops! Something went wrong while logging.",
+    "message": "Something went wrong. Please try again later.",
     "success": false,
   },
   "status": 500,
@@ -53,7 +53,7 @@ exports[`Login User Controller Snapshot Test for internal server error. 1`] = `
 exports[`Login User Controller Snapshot Test for missing password. 1`] = `
 {
   "body": {
-    "message": "Both username and password is required.",
+    "message": "Both username and password are required.",
     "success": false,
   },
   "status": 400,
@@ -63,7 +63,7 @@ exports[`Login User Controller Snapshot Test for missing password. 1`] = `
 exports[`Login User Controller Snapshot Test for missing username. 1`] = `
 {
   "body": {
-    "message": "Both username and password is required.",
+    "message": "Both username and password are required.",
     "success": false,
   },
   "status": 400,
@@ -81,7 +81,7 @@ exports[`Login User Controller Snapshot Test for successful login. 1`] = `
       "isActive": true,
       "username": "test",
     },
-    "message": "User logged-in successfully.",
+    "message": "User logged in successfully.",
     "success": true,
     "token": "mocked-jwt-token",
   },
@@ -97,17 +97,17 @@ exports[`Login User Controller Snapshot Test for unverified email but not expire
       "fullName": "User Test",
       "userId": "507f1f77bcf86cd799439011",
     },
-    "message": "Oops! you have not verified your email yet.",
-    "success": false,
+    "message": "Please verify your email.",
+    "success": true,
   },
-  "status": 404,
+  "status": 200,
 }
 `;
 
 exports[`Login User Controller Snapshot Test for user not exist. 1`] = `
 {
   "body": {
-    "message": "Looks like that user doesn't exist in our system.",
+    "message": "User not found.",
     "success": false,
   },
   "status": 404,

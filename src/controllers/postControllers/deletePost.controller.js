@@ -1,46 +1,27 @@
+import { errorResponse, successResponse } from "../../utils/response.utils.js";
+
 const deletePostController = (UserModel, PostModel) => async (req, res) => {
     try {
         const { userId, postId } = req.params;
-        // finding user.
         const userData = await UserModel.findById(userId);
         if (!userData) {
-            return res.status(404).json({
-                message: "User doesn't exist. Please create your account.",
-                success: false
-            });
+            return errorResponse(res, 404, "User not found.");
         }
-        // finding post.
         const postData = await PostModel.findById(postId);
         if (!postData) {
-            return res.status(404).json({
-                message: "Posted article not found.",
-                success: false
-            });
+            return errorResponse(res, 404, "Article not found.");
         }
-        // check author
         if (postData.author != userId) {
-            return res.status(403).json({
-                message: "No permission to delete this post article.",
-                success: false
-            });
+            return errorResponse(res, 403, "You do not have permission to delete this article.");
         }
-        // delete post.
         const deletedPost = await PostModel.findByIdAndDelete(postId);
-        // remove reference from user.
         const removeReference = await UserModel.findByIdAndUpdate(userId, {
             $pull: { articles: postId }
         });
-        return res.status(200).json({
-            data: deletedPost,
-            message: "Article deleted successfully.",
-            success: true
-        });
+        return successResponse(res, 204, null, "Article deleted successfully.");
     }
     catch (error) {
-        return res.status(500).json({
-            message: "Oops! Something went wrong while deleting post.",
-            success: false
-        });
+        return errorResponse(res, 500, "Something went wrong. Please try again later.");
     }
 }
 

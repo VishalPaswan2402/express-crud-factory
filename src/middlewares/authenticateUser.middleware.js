@@ -1,14 +1,12 @@
 import jwt from 'jsonwebtoken';
+import { errorResponse } from '../utils/response.utils.js';
 
 export const authenticateUser = (jwtSecret) => {
     return (req, res, next) => {
         try {
             const authHeader = req.headers.authorization;
             if (!authHeader) {
-                return res.status(401).json({
-                    message: "Token is missing.",
-                    success: false
-                });
+                return errorResponse(res, 401, "Authentication token is missing.");
             }
             const token = authHeader.split(" ")[1];
             const decodedJwt = jwt.verify(token, jwtSecret.secret);
@@ -16,10 +14,7 @@ export const authenticateUser = (jwtSecret) => {
             next();
         }
         catch (error) {
-            return res.status(401).json({
-                message: "Token is invalid. Please login again.",
-                success: false
-            });
+            return errorResponse(res, 401, "Invalid authentication token. Please log in again.");
         }
     };
 };

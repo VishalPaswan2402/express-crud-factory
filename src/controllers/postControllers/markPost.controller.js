@@ -1,52 +1,35 @@
+import { errorResponse, successResponse } from "../../utils/response.utils.js";
+
 const markPostController = (UserModel, PostModel, isTrash) => async (req, res) => {
     try {
         const { userId, postId } = req.params;
-        // finding user.
         const userData = await UserModel.findById(userId);
         if (!userData) {
-            return res.status(404).json({
-                message: "User doesn't exist. Please create your account.",
-                success: false
-            });
+            return errorResponse(res, 404, "User not found.");
         };
-        // finding post.
         const postData = await PostModel.findById(postId);
         if (!postData) {
-            return res.status(404).json({
-                message: "Posted article not found.",
-                success: false
-            });
+            return errorResponse(res, 404, "Article not found.");
         };
-        // check author
         if (postData.author != userId) {
-            return res.status(403).json({
-                message: "You do not have permission to mark this post.",
-                success: false
-            });
+            return errorResponse(res, 403, "You do not have permission to mark this article.");
         };
-        let msg = "move to trash file";
+        let msg = "Article moved to trash.";
         if (isTrash) {
             postData.isTrashed ? postData.deletedAt = null : postData.deletedAt = new Date();
             postData.isTrashed = !postData.isTrashed;
-            msg = postData.isTrashed ? "moved to trash file" : "recovered from trash file";
+            msg = postData.isTrashed ? "Article moved to trash." : "Article restored from trash.";
         }
         else {
             postData.isPinned = !postData.isPinned;
-            msg = postData.isPinned ? "marked as important" : "marked as default";
+            msg = postData.isPinned ? "Article pinned successfully." : "Article unpinned successfully.";
         }
         await postData.save();
         const pinnedPost = await PostModel.findById(postId).lean();
-        return res.status(200).json({
-            data: pinnedPost,
-            message: `Post article ${msg}.`,
-            success: true
-        });
+        return successResponse(res, 200, pinnedPost, msg);
     }
     catch (error) {
-        return res.status(500).json({
-            message: "Oops! Something went wrong while marking post.",
-            success: false
-        });
+        return errorResponse(res, 500, "Something went wrong. Please try again later.");
     }
 };
 
