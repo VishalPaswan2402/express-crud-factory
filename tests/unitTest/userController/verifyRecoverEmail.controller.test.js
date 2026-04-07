@@ -8,7 +8,8 @@ jest.unstable_mockModule("../../../src/utils/emailTokenGenerator.utils.js", () =
 
 jest.unstable_mockModule("../../../src/utils/passwordHashing.utils.js", () => ({
     passwordHashing: {
-        hashPassword: jest.fn(async () => "hashedPassword")
+        hashPassword: jest.fn(async () => "hashedPassword"),
+        securePassword: jest.fn((pwd) => true)
     }
 }));
 
@@ -72,10 +73,20 @@ describe("Verify Recover Email Controller Snapshot Test", () => {
             findById: jest.fn()
         };
         jest.clearAllMocks();
+        passwordHashing.securePassword.mockReturnValue(true);
     });
 
     test("for missing password fields", async () => {
         req.body.password = "";
+        const controller = verifyRecoverEmailController(Model, true, userSecretConfig);
+        await controller(req, res);
+        expect(sanitizeResponse(res)).toMatchSnapshot();
+    });
+
+    test("for weak password", async () => {
+        req.body.password = "weak";
+        req.body.confirmPassword = "weak";
+        passwordHashing.securePassword.mockReturnValue(false);
         const controller = verifyRecoverEmailController(Model, true, userSecretConfig);
         await controller(req, res);
         expect(sanitizeResponse(res)).toMatchSnapshot();

@@ -23,7 +23,7 @@ exports[`Get All Post Controller Snapshot Test for internal server error. 1`] = 
 exports[`Get All Post Controller Snapshot Test for not valid user Id. 1`] = `
 {
   "body": {
-    "message": "Invalid userID.",
+    "message": "Invalid user ID.",
     "success": false,
   },
   "status": 400,
@@ -89,9 +89,9 @@ exports[`Get All Post Controller Snapshot Test for post article not found. 1`] =
 exports[`Get All Post Controller Snapshot Test for user Id not found. 1`] = `
 {
   "body": {
-    "message": "Oops! user ID is not found.",
+    "message": "User ID not found.",
     "success": false,
   },
-  "status": 400,
+  "status": 404,
 }
 `;

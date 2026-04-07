@@ -3,7 +3,7 @@
 exports[`Create Post Controller Snapshot Test for empty request body. 1`] = `
 {
   "body": {
-    "message": "Request body is required",
+    "message": "Request body cannot be empty.",
     "success": false,
   },
   "status": 400,
@@ -23,7 +23,7 @@ exports[`Create Post Controller Snapshot Test for error while saving post. 1`] =
 exports[`Create Post Controller Snapshot Test for invalid user-id. 1`] = `
 {
   "body": {
-    "message": "Invalid userID.",
+    "message": "Invalid user ID.",
     "success": false,
   },
   "status": 400,

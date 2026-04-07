@@ -1,4 +1,5 @@
 import { dataExpiryTime } from "../../utils/dataExpiryTime.utils.js";
+import { emailTokenGenerator } from "../../utils/emailTokenGenerator.utils.js";
 import { passwordHashing } from "../../utils/passwordHashing.utils.js";
 import { errorResponse, successResponse } from "../../utils/response.utils.js";
 import { verificationMailSender } from "../../utils/verificationMailSender.utils.js";
@@ -9,6 +10,12 @@ const createUserController = (UserModel, userSecretConfig, emailSender, verifyMe
         const { email, username, fullname, password, confirmPassword } = req.body;
         if (!email || !username || !fullname || !password || !confirmPassword) {
             return errorResponse(res, 422, "Please provide email, username, fullname, password, and confirm password.");
+        }
+        if (!emailTokenGenerator.validEmail(email)) {
+            return errorResponse(res, 400, "Invalid email format.");
+        }
+        if (!passwordHashing.securePassword(password)) {
+            return errorResponse(res, 400, "Password must be at least 8 characters long and include uppercase, lowercase, a digit, and a special character.");
         }
         if (password != confirmPassword) {
             return errorResponse(res, 422, "Password and confirm password must match.");

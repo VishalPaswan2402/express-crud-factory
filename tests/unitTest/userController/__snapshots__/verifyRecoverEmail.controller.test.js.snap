@@ -139,3 +139,13 @@ exports[`Verify Recover Email Controller Snapshot Test for user not found 1`] = 
   "status": 404,
 }
 `;
+
+exports[`Verify Recover Email Controller Snapshot Test for weak password 1`] = `
+{
+  "body": {
+    "message": "Password must be at least 8 characters long and include uppercase, lowercase, a digit, and a special character.",
+    "success": false,
+  },
+  "status": 400,
+}
+`;

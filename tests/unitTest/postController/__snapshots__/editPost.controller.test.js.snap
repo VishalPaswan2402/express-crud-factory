@@ -13,7 +13,7 @@ exports[`Edit Post Controller Snapshot Test for author not found. 1`] = `
 exports[`Edit Post Controller Snapshot Test for empty request body, 1`] = `
 {
   "body": {
-    "message": "Request body is required",
+    "message": "Request body cannot be empty.",
     "success": false,
   },
   "status": 400,

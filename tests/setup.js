@@ -27,8 +27,8 @@ const emailConfig = {
     mailProvider: {
         host: "smtp.ethereal.email",
         secure: false,
-        username: "herta.muller@ethereal.email", //"patrick.rice9@ethereal.email",
-        password: "khFdgXewnAKvYSzSma" //"XXyT7k2dW1b1WyKxPB"
+        username: "herta.muller@ethereal.email",
+        password: "khFdgXewnAKvYSzSma"
     },
     verifyMethod: {
         projectName: "Express-Crud-Factory",

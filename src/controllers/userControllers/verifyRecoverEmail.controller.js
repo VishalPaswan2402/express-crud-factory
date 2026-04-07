@@ -11,6 +11,9 @@ const verifyRecoverEmailController = (UserModel, isLink, userSecretConfig) => as
         if (!password || !confirmPassword) {
             return errorResponse(res, 400, "Password and confirm password are required.");
         }
+        if (!passwordHashing.securePassword(password)) {
+            return errorResponse(res, 400, "Password must be at least 8 characters long and include uppercase, lowercase, a digit, and a special character.");
+        }
         if (password !== confirmPassword) {
             return errorResponse(res, 422, "Password and confirm password must match.");
         }

@@ -22,9 +22,24 @@ jest.unstable_mockModule("../../../src/utils/dataExpiryTime.utils.js", () => ({
     }
 }));
 
+jest.unstable_mockModule("../../../src/utils/passwordHashing.utils.js", () => ({
+    passwordHashing: {
+        hashPassword: jest.fn(async () => "hashedPassword"),
+        securePassword: jest.fn((pwd) => true)
+    }
+}));
+
+jest.unstable_mockModule("../../../src/utils/emailTokenGenerator.utils.js",()=>({
+    emailTokenGenerator:{
+        validEmail: jest.fn((eml) => true)
+    }
+}))
+
 let verificationToken;
 let verificationMailSender;
 let createUserController;
+let passwordHashing;
+let emailTokenGenerator;
 
 beforeAll(async () => {
     verificationToken = (await import(
@@ -38,9 +53,15 @@ beforeAll(async () => {
     createUserController = (await import(
         "../../../src/controllers/userControllers/createUser.controller.js"
     )).default;
-});
 
-import { passwordHashing } from "../../../src/utils/passwordHashing.utils.js";
+    passwordHashing = (await import(
+        "../../../src/utils/passwordHashing.utils.js"
+    )).passwordHashing;
+
+    emailTokenGenerator = (await import(
+        "../../../src/utils/emailTokenGenerator.utils.js"
+    )).emailTokenGenerator;
+});
 
 describe("Create User Controller Snapshot Test", () => {
     let req, res, Model;
@@ -84,16 +105,43 @@ describe("Create User Controller Snapshot Test", () => {
             findOne: jest.fn(),
             findByIdAndDelete: jest.fn()
         };
-        jest.spyOn(passwordHashing, "hashPassword")
-            .mockResolvedValue("hashedPassword");
         jest.clearAllMocks();
+        passwordHashing.securePassword.mockReturnValue(true);
+        emailTokenGenerator.validEmail.mockReturnValue(true);
     });
     afterEach(() => {
         jest.clearAllMocks();
     });
 
     test("for missing fields.", async () => {
-        req.body.email = "";
+        req.body.username = "";
+        const controller = createUserController(
+            Model,
+            userSecretConfig,
+            emailSender,
+            verifyMethod
+        );
+        await controller(req, res);
+        expect(sanitizeResponse(res)).toMatchSnapshot();
+    });
+
+    test("for invalid email", async () => {
+        req.body.email = "validgmail.com";
+        emailTokenGenerator.validEmail.mockReturnValue(false);
+        const controller = createUserController(
+            Model,
+            userSecretConfig,
+            emailSender,
+            verifyMethod
+        );
+        await controller(req, res);
+        expect(sanitizeResponse(res)).toMatchSnapshot();
+    });
+
+    test("for weak password", async () => {
+        req.body.password = "weak";
+        req.body.confirmPassword = "weak";
+        passwordHashing.securePassword.mockReturnValue(false);
         const controller = createUserController(
             Model,
             userSecretConfig,

@@ -23,7 +23,7 @@ exports[`Login User Controller Snapshot Test for blocked user. 1`] = `
 exports[`Login User Controller Snapshot Test for empty request body. 1`] = `
 {
   "body": {
-    "message": "Request body is required",
+    "message": "Request body cannot be empty.",
     "success": false,
   },
   "status": 400,
@@ -75,6 +75,7 @@ exports[`Login User Controller Snapshot Test for successful login. 1`] = `
   "body": {
     "data": {
       "_id": "507f1f77bcf86cd799439011",
+      "articles": 0,
       "email": "test@gmail.com",
       "emailVerified": true,
       "fullName": "User Test",

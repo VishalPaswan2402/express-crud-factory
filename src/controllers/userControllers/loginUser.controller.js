@@ -36,6 +36,7 @@ const loginUserController = (UserModel, userSecretConfig) => async (req, res) =>
         const findData = dataByUsername.toObject();
         delete findData.password;
         delete findData.destroyDataAfter;
+        findData.articles = findData.articles.length;
         const token = generateJwtToken(findData, userSecretConfig.jwtSecret);
         return loginResponse(res, 200, findData, token, "User logged in successfully.");
     }

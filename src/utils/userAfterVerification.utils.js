@@ -16,5 +16,6 @@ export const userAfterVerification = async (user) => {
     delete savedData.destroyDataAfter;
     delete savedData.otpRequestCount;
     delete savedData.otpLastRequest;
+    savedData.articles = savedData.articles.length;
     return savedData;
 }

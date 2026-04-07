@@ -25,6 +25,16 @@ exports[`Create User Controller Snapshot Test for delete expired unverified user
 }
 `;
 
+exports[`Create User Controller Snapshot Test for invalid email 1`] = `
+{
+  "body": {
+    "message": "Invalid email format.",
+    "success": false,
+  },
+  "status": 400,
+}
+`;
+
 exports[`Create User Controller Snapshot Test for missing fields. 1`] = `
 {
   "body": {
@@ -67,5 +77,15 @@ exports[`Create User Controller Snapshot Test for user already exists. 1`] = `
     "success": false,
   },
   "status": 409,
+}
+`;
+
+exports[`Create User Controller Snapshot Test for weak password 1`] = `
+{
+  "body": {
+    "message": "Password must be at least 8 characters long and include uppercase, lowercase, a digit, and a special character.",
+    "success": false,
+  },
+  "status": 400,
 }
 `;

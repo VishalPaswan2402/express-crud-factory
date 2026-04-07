@@ -13,7 +13,7 @@ exports[`Share Post Controller Snapshot Test for internal server error. 1`] = `
 exports[`Share Post Controller Snapshot Test for not valid post Id. 1`] = `
 {
   "body": {
-    "message": "Invalid postID.",
+    "message": "Invalid post ID.",
     "success": false,
   },
   "status": 400,
@@ -23,10 +23,10 @@ exports[`Share Post Controller Snapshot Test for not valid post Id. 1`] = `
 exports[`Share Post Controller Snapshot Test for post Id not found. 1`] = `
 {
   "body": {
-    "message": "Oops! post ID is not found.",
+    "message": "Post ID not found.",
     "success": false,
   },
-  "status": 400,
+  "status": 404,
 }
 `;
 

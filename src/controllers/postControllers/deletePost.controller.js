@@ -18,7 +18,7 @@ const deletePostController = (UserModel, PostModel) => async (req, res) => {
         const removeReference = await UserModel.findByIdAndUpdate(userId, {
             $pull: { articles: postId }
         });
-        return successResponse(res, 204, null, "Article deleted successfully.");
+        return successResponse(res, 200, null, "Article deleted successfully.");
     }
     catch (error) {
         return errorResponse(res, 500, "Something went wrong. Please try again later.");

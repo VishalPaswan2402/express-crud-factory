@@ -20,7 +20,7 @@ describe("connectDatabase Utility Test", () => {
         jest.spyOn(mongoose, "connect").mockResolvedValue(true);
         await connectDatabase("mongodb://localhost:27017/testdb");
         expect(mongoose.connect).toHaveBeenCalledWith("mongodb://localhost:27017/testdb");
-        expect(console.log).toHaveBeenCalledWith("MongoDB connected successfully");
+        expect(console.log).toHaveBeenCalledWith("MongoDB database connected successfully");
     });
 
     test("for handle connection error", async () => {
@@ -30,7 +30,7 @@ describe("connectDatabase Utility Test", () => {
             connectDatabase("mongodb://localhost:27017/testdb")
         ).rejects.toThrow("Connection failed");
         expect(console.error).toHaveBeenCalledWith(
-            "MongoDB connection error:",
+            "MongoDB database connection failed:",
             mockError
         );
     });

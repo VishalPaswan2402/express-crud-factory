@@ -33,7 +33,7 @@ exports[`Get Post Controller Snapshot Test for no permission to view post. 1`] =
 exports[`Get Post Controller Snapshot Test for not valid post Id. 1`] = `
 {
   "body": {
-    "message": "Invalid userID or postID.",
+    "message": "Invalid user ID or post ID.",
     "success": false,
   },
   "status": 400,
@@ -43,7 +43,7 @@ exports[`Get Post Controller Snapshot Test for not valid post Id. 1`] = `
 exports[`Get Post Controller Snapshot Test for not valid user Id. 1`] = `
 {
   "body": {
-    "message": "Invalid userID or postID.",
+    "message": "Invalid user ID or post ID.",
     "success": false,
   },
   "status": 400,
@@ -86,9 +86,9 @@ exports[`Get Post Controller Snapshot Test for post article not found. 1`] = `
 exports[`Get Post Controller Snapshot Test for user Id or post Id not found. 1`] = `
 {
   "body": {
-    "message": "Oops! user ID or post ID is not found.",
+    "message": "User ID or post ID not found.",
     "success": false,
   },
-  "status": 400,
+  "status": 404,
 }
 `;

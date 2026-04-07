@@ -1,6 +1,10 @@
 import bcrypt from 'bcrypt';
 
 export const passwordHashing = {
+    securePassword: (password) => {
+        const regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]).{8,}$/;
+        return regex.test(password);
+    },
     hashPassword: async (password, bcryptSecret) => {
         const saltRounds = bcryptSecret.salts;
         const hashedPassword = await bcrypt.hash(password, saltRounds);

@@ -13,17 +13,17 @@ exports[`Create Get-User-By-Id Controller Snapshot Test for email not verified. 
 exports[`Create Get-User-By-Id Controller Snapshot Test for empty user-id. 1`] = `
 {
   "body": {
-    "message": "Oops! user ID is not found.",
+    "message": "User ID not found.",
     "success": false,
   },
-  "status": 400,
+  "status": 404,
 }
 `;
 
 exports[`Create Get-User-By-Id Controller Snapshot Test for invalid user-id. 1`] = `
 {
   "body": {
-    "message": "Invalid userID.",
+    "message": "Invalid user ID.",
     "success": false,
   },
   "status": 400,
