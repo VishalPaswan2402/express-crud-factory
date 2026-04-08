@@ -6,7 +6,7 @@
 
 A **practice-ready backend API kit** designed for developers who want to **learn secure API integration using real-world authentication and CRUD operations**.
 
-This package provides a **ready-to-use backend with User Authentication and Post/Article APIs**, making it easy for frontend developers to practice working with APIs.
+This package provides a **ready-to-use backend with User Authentication and Post/Article APIs along with email verification using link or OTP**, making it easy for frontend developers to practice working with APIs.
 
 **It is ideal for developers learning:**
 
@@ -22,9 +22,9 @@ This package provides a **ready-to-use backend with User Authentication and Post
 ## Why this package ?
 Many frontend developers struggle to practice API integration because they don't have a backend.
 
-**Secure API Practice Kit solves this problem.**
+**Express-Crud-Factory solves this problem.**
 
-It provides a **simple backend API system** that you can connect with:
+It provides a **simple and secure backend API system** that you can connect with:
 
 -   React
     
@@ -38,13 +38,57 @@ This allows you to **practice real production-like API workflows**.
 
 ## Features
 
--   Rapidly create CRUD endpoints for any Mongoose model
-    
--   Modular and easy-to-integrate with existing Express apps
-    
--   Fully customizable for middleware, validation, and custom logic
-    
--   Reduces boilerplate code, saving development time
+- #### Plug & Play Backend
+    - Ready-to-use Express CRUD APIs
+    - Minimal setup required
+    - Perfect for frontend developers
+
+- #### Authentication Made Simple
+    - Signup & Login APIs
+    - JWT-based authentication
+    - Easy integration with frontend apps
+
+- #### Email Verification (2 Methods)
+  - OTP-based verification
+  - Email link verification
+  - Choose what fits your project
+
+- #### Resend Verification Support
+  - Resend OTP or email verification link
+  - Smooth user onboarding experience
+
+- #### Forgot Password Flow
+  - Reset password using OTP or email link
+  - Secure and beginner-friendly implementation
+
+- #### User CRUD APIs
+  - Create, read, update, delete users
+  - Ready for direct frontend consumption
+
+- #### Post / Article CRUD APIs
+  - Full CRUD support for posts/articles
+  - Great for blogs or content apps
+
+- #### Pagination Support
+  - Fetch data with page & limit
+  - Optimized for large datasets
+
+- #### Built-in Validations
+  - Email format validation
+  - Strong password rules
+  - Clean error responses for frontend handling
+
+- #### Factory Pattern Architecture
+  - Reusable controllers
+  - Easily extend to new models
+
+- #### Frontend-Friendly Responses
+  - Consistent API response structure
+  - Easy to handle in React, Vue, etc.
+
+- #### Built for Learning
+  - Understand real-world backend flows
+  - Great for practice projects & portfolio
 
 ## Installation
 
@@ -215,15 +259,19 @@ Server is running on port 3000
 ```
 # User API Endpoints
 
-POST Request     :   /user/signup
 POST Request     :   /user/login
-GET Request      :   /user/signup/verify-email
-POST Request     :   /user/signup/:userId/send-email
-POST Request     :   /user/destroy/:userId/send-email
-POST Request     :   /user/signup/:userId/verify-email
 GET Request      :   /user/:userId
+POST Request     :   /user/signup
+GET Request      :   /user/signup/:userId/verify-email
+POST Request     :   /user/signup/:userId/send-email
+POST Request     :   /user/signup/:userId/verify-email
+POST Request     :   /user/destroy/:userId/send-email
 POST Request     :   /user/destroy/:userId/verify-email
 DELETE Request   :   /user/destroy/:userId/verify-email
+POST Request     :   /user/recover-password
+POST Request     :   /user/recover/:userId/send-email
+POST Request     :   /user/recover/:userId/verify-email
+POST Request     :   /user/recover/:userId/otp/verify-email
 
 
 # Post Articles API Endpoints
@@ -236,6 +284,7 @@ PATCH Request    :   /user/post/:userId/:postId/edit-post
 PATCH Request    :   /user/post/:userId/:postId/pin-post
 PATCH Request    :   /user/post/:userId/:postId/trash-post
 DELETE Request   :   /user/post/:userId/:postId/delete-post
+GET Request      :   /user/post/:userId/search
 ```
 
 Visit [https://github.com/VishalPaswan2402/express-crud-factory-starter/tree/main/docs](https://github.com/VishalPaswan2402/express-crud-factory-starter/tree/main/docs) for detailed API request / response samples and use-cases.
