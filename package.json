@@ -12,7 +12,7 @@
     "nodemon": "^3.1.14"
   },
   "name": "express-crud-factory",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "description": "An Express router generator that creates reusable CRUD endpoints for Mongoose models with minimal setup.",
   "main": "index.js",
   "type": "module",
