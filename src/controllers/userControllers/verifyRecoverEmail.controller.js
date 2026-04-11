@@ -3,9 +3,9 @@ import { passwordHashing } from "../../utils/passwordHashing.utils.js";
 import { errorResponse, successResponse } from "../../utils/response.utils.js";
 import { userAfterVerification } from "../../utils/userAfterVerification.utils.js";
 
-const verifyRecoverEmailController = (UserModel, isLink, userSecretConfig) => async (req, res) => {
+const verifyRecoverEmailController = (UserModel, isLink, userSecretConfig, emailTokenConfig) => async (req, res) => {
     try {
-        const { userId } = req.params;
+        let myEmail = null;
         let myToken = null;
         const { password, confirmPassword } = req.body;
         if (!password || !confirmPassword) {
@@ -22,16 +22,22 @@ const verifyRecoverEmailController = (UserModel, isLink, userSecretConfig) => as
             if (!token) {
                 return errorResponse(res, 400, "Verification token is missing. Please check your email link.");
             }
+            const tokenData = emailTokenGenerator.emailDecryptToken(token, emailTokenConfig);
+            if (!tokenData || tokenData.verifyType !== 2) {
+                return errorResponse(res, 410, "Your verification link has expired or invalid. Please request a new one.");
+            }
             myToken = token;
+            myEmail = tokenData.email;
         }
         else {
-            const { otp } = req.body;
-            if (!otp) {
-                return errorResponse(res, 400, "OTP is required.");
+            const { otp, email } = req.body;
+            if (!otp || !email) {
+                return errorResponse(res, 400, "OTP and email is required.");
             }
             myToken = otp;
+            myEmail = email;
         }
-        const user = await UserModel.findById(userId).select("+verifyToken +verifyTokenExpires +destroyDataAfter +otpRequestCount +otpLastRequest");
+        const user = await UserModel.findOne({ email: myEmail }).select("+verifyToken +verifyTokenExpires +destroyDataAfter +otpRequestCount +otpLastRequest");
         if (!user) {
             return errorResponse(res, 404, "User not found.");
         }

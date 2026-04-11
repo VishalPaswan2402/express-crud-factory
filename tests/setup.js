@@ -14,8 +14,8 @@ await connectDatabase(db_url);
 // secret configuration
 const secretsConfig = {
     jwtSecret: {
-        secretKey: "i3nbhkgw8i3nbhkgw8",
-        expireIn: "1d"
+        secretKey: "093hfor02yc7hdh46a9c0b2d5e093rbchw322je4v62c5d7e8f184hdyqb3kf6i2z",
+        expireInDays: 1
     },
     bcryptSecret: {
         saltRounds: 10
@@ -35,7 +35,8 @@ const emailConfig = {
         otpLinkExpiryMinutes: 2,
         unverifiedUserExpiryDays: 1,
         usingLink: true, // true -> link and false -> OTP
-        frontendBaseUrl: `http://localhost:${port}` // if usinglink = true
+        verifySecretKey: "093hfjsbc451e4f6a9c0b2d5e7f8a1ckr912je4v62c5d7e8f1a3c6lelq0f6i2z", // if link = true
+        frontendBaseUrl: `http://localhost:${port}` // if usinglink = true (use your frontend base url)
     }
 }
 

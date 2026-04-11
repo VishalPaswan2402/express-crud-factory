@@ -77,7 +77,6 @@ exports[`Send Verification Email Controller Snapshot Test for verification succe
     "data": {
       "email": "test@gmail.com",
       "fullName": "Test User",
-      "userId": "mocked-user-id",
     },
     "message": "Verification OTP sent to your email successfully.",
     "success": true,

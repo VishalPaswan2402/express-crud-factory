@@ -1,25 +1,31 @@
 import { emailTokenGenerator } from "../../utils/emailTokenGenerator.utils.js";
 import { errorResponse, successResponse } from "../../utils/response.utils.js";
 
-const verifyDestroyEmailController = (UserModel, isLink) => async (req, res) => {
+const verifyDestroyEmailController = (UserModel, isLink, emailTokenConfig) => async (req, res) => {
     try {
-        const { userId } = req.params;
+        let myEmail = null;
         let myToken = null;
         if (isLink) {
             const { token } = req.query;
             if (!token) {
                 return errorResponse(res, 400, "Verification token is missing. Please check your email link.");
             }
+            const tokenData = emailTokenGenerator.emailDecryptToken(token, emailTokenConfig);
+            if (!tokenData || tokenData.verifyType !== 3) {
+                return errorResponse(res, 410, "Your verification link has expired or invalid. Please request a new one.");
+            }
             myToken = token;
+            myEmail = tokenData.email;
         }
         else {
-            const { otp } = req.body;
-            if (!otp) {
-                return errorResponse(res, 400, "OTP is required.");
+            const { otp, email } = req.body;
+            if (!otp || !email) {
+                return errorResponse(res, 400, "OTP and email is required.");
             }
             myToken = otp;
+            myEmail = email;
         }
-        const user = await UserModel.findById(userId).select("+verifyToken +verifyTokenExpires");
+        const user = await UserModel.findOne({ email: myEmail }).select("+verifyToken +verifyTokenExpires");
         if (!user) {
             return errorResponse(res, 404, "User not found.");
         }
@@ -35,14 +41,17 @@ const verifyDestroyEmailController = (UserModel, isLink) => async (req, res) => 
             }
         }
         else {
+            const loggedUser = req.loggedUser;
+            if (!loggedUser || !user._id.equals(loggedUser.id)) {
+                return errorResponse(res, 400, "Invalid request. Try again later.")
+            }
             const isValidOtp = await emailTokenGenerator.compareOtp(myToken, user.verifyToken);
             if (!isValidOtp) {
                 return errorResponse(res, 422, "Incorrect OTP. Please try again.");
             }
         }
-        const deleteData = await UserModel.findByIdAndDelete(userId);
+        const deleteData = await UserModel.findByIdAndDelete(user._id);
         const deletedData = {
-            userId: userId,
             username: deleteData.username,
             fullname: deleteData.fullname,
             email: deleteData.email

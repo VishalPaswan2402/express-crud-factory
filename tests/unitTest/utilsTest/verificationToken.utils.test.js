@@ -4,7 +4,8 @@ jest.unstable_mockModule("../../../src/utils/emailTokenGenerator.utils.js", () =
     emailTokenGenerator: {
         emailToken: jest.fn(),
         generateOtp: jest.fn(),
-        hashOtp: jest.fn()
+        hashOtp: jest.fn(),
+        emailEncryptToken: jest.fn()
     }
 }));
 
@@ -21,61 +22,63 @@ beforeAll(async () => {
     )).verificationToken;
 });
 
-describe("Verification Token Snapshot Test", () => {
+describe("Verification Token Test", () => {
+    let emailTokenConfig, verifyMethod;
     beforeEach(() => {
+        verifyMethod = {
+            usingLink: true,
+            frontendBaseUrl: "http://localhost:3000"
+        };
+        emailTokenConfig = {
+            emailTokenSecret: {
+                secret: "123",
+                expireIn: "2m"
+            }
+        };
         jest.clearAllMocks();
     });
 
     test("should generate signup verification link", async () => {
-        const verifyMethod = {
-            usingLink: true,
-            frontendBaseUrl: "http://localhost:3000"
-        };
-        emailTokenGenerator.emailToken.mockReturnValue("mockedToken");
+        emailTokenGenerator.emailEncryptToken.mockReturnValue("mockedToken");
         const result = await verificationToken.saveSendToken(
             verifyMethod,
             {},
+            emailTokenConfig,
             1,
-            "1234"
+            "abc@gmail.com"
         );
-        expect(emailTokenGenerator.emailToken).toHaveBeenCalledTimes(1);
+        expect(emailTokenGenerator.emailEncryptToken).toHaveBeenCalledTimes(1);
         expect(result).toEqual({
             saveToken: "mockedToken",
-            sendToken: "http://localhost:3000/user/signup/1234/verify-email?token=mockedToken"
+            sendToken: "http://localhost:3000/user/signup/link/verify-email?token=mockedToken"
         });
     });
 
     test("should generate recover verification link", async () => {
-        const verifyMethod = {
-            usingLink: true,
-            frontendBaseUrl: "http://localhost:3000"
-        };
-        emailTokenGenerator.emailToken.mockReturnValue("mockedToken");
+        emailTokenGenerator.emailEncryptToken.mockReturnValue("mockedToken");
         const result = await verificationToken.saveSendToken(
             verifyMethod,
             {},
+            emailTokenConfig,
             2,
-            "5678"
+            "abc@gmail.com"
         );
         expect(result.sendToken).toBe(
-            "http://localhost:3000/user/recover/5678/verify-email?token=mockedToken"
+            "http://localhost:3000/user/reset-password/link/verify-email?token=mockedToken"
         );
     });
 
     test("should generate destroy verification link", async () => {
-        const verifyMethod = {
-            usingLink: true,
-            frontendBaseUrl: "http://localhost:3000"
-        };
-        emailTokenGenerator.emailToken.mockReturnValue("mockedToken");
+        emailTokenGenerator.emailEncryptToken.mockReturnValue("mockedToken");
         const result = await verificationToken.saveSendToken(
             verifyMethod,
             {},
+            emailTokenConfig,
             3,
-            "9999"
+            "abc@gmail.com"
         );
         expect(result.sendToken).toBe(
-            "http://localhost:3000/user/destroy/9999/verify-email?token=mockedToken"
+            "http://localhost:3000/user/delete-account/link/verify-email?token=mockedToken"
         );
     });
 
@@ -91,8 +94,9 @@ describe("Verification Token Snapshot Test", () => {
         const result = await verificationToken.saveSendToken(
             verifyMethod,
             userSecretConfig,
+            {},
             1,
-            "1234"
+            "abc@gmail.com"
         );
         expect(emailTokenGenerator.generateOtp).toHaveBeenCalledTimes(1);
         expect(emailTokenGenerator.hashOtp).toHaveBeenCalledWith("123456", "secret");
@@ -103,18 +107,17 @@ describe("Verification Token Snapshot Test", () => {
     });
 
     test("should fallback to destroy if create value is invalid", async () => {
-        const verifyMethod = {
-            usingLink: true,
-            frontendBaseUrl: "http://localhost:3000"
-        };
-        emailTokenGenerator.emailToken.mockReturnValue("mockedToken");
+        emailTokenGenerator.emailEncryptToken.mockReturnValue("mockedToken");
         const result = await verificationToken.saveSendToken(
             verifyMethod,
             {},
+            emailTokenConfig,
             999,
-            "1111"
+            "abc@gmail.com"
         );
-        expect(result.sendToken).toContain("/destroy/1111/");
+        expect(result.sendToken).toBe(
+            "http://localhost:3000/user/delete-account/link/verify-email?token=mockedToken"
+        );
     });
 
 });

@@ -2,7 +2,8 @@ import { jest, describe, test, expect, beforeEach, beforeAll } from "@jest/globa
 
 jest.unstable_mockModule("../../../src/utils/emailTokenGenerator.utils.js", () => ({
     emailTokenGenerator: {
-        compareOtp: jest.fn(async () => true)
+        compareOtp: jest.fn(async () => true),
+        emailDecryptToken: jest.fn()
     }
 }));
 
@@ -40,7 +41,7 @@ beforeAll(async () => {
 });
 
 describe("Verify Recover Email Controller Snapshot Test", () => {
-    let req, res, Model;
+    let req, res, Model, emailTokenConfig;
     const userSecretConfig = {
         bcryptSecret: "secret"
     };
@@ -57,12 +58,12 @@ describe("Verify Recover Email Controller Snapshot Test", () => {
     });
     beforeEach(() => {
         req = {
-            params: { userId: "user123" },
             query: { token: "valid-token" },
             body: {
-                password: "newPass123",
-                confirmPassword: "newPass123",
-                otp: "123456"
+                password: "NewPass@123",
+                confirmPassword: "NewPass@123",
+                otp: "123456",
+                email: "test@gmail.com"
             }
         };
         res = {
@@ -70,15 +71,26 @@ describe("Verify Recover Email Controller Snapshot Test", () => {
             json: jest.fn()
         };
         Model = {
-            findById: jest.fn()
+            findById: jest.fn(),
+            findOne: jest.fn()
         };
+        emailTokenConfig = {
+            emailTokenSecret: {
+                secret: "12345",
+                expireIn: "2m"
+            }
+        };
+        emailTokenGenerator.emailDecryptToken.mockReturnValue({
+            email: "test@gmail.com",
+            verifyType: 2
+        });
         jest.clearAllMocks();
         passwordHashing.securePassword.mockReturnValue(true);
     });
 
     test("for missing password fields", async () => {
         req.body.password = "";
-        const controller = verifyRecoverEmailController(Model, true, userSecretConfig);
+        const controller = verifyRecoverEmailController(Model, true, userSecretConfig, emailTokenConfig);
         await controller(req, res);
         expect(sanitizeResponse(res)).toMatchSnapshot();
     });
@@ -87,62 +99,62 @@ describe("Verify Recover Email Controller Snapshot Test", () => {
         req.body.password = "weak";
         req.body.confirmPassword = "weak";
         passwordHashing.securePassword.mockReturnValue(false);
-        const controller = verifyRecoverEmailController(Model, true, userSecretConfig);
+        const controller = verifyRecoverEmailController(Model, true, userSecretConfig, emailTokenConfig);
         await controller(req, res);
         expect(sanitizeResponse(res)).toMatchSnapshot();
     });
 
     test("for password mismatch", async () => {
         req.body.confirmPassword = "wrong";
-        const controller = verifyRecoverEmailController(Model, true, userSecretConfig);
+        const controller = verifyRecoverEmailController(Model, true, userSecretConfig, emailTokenConfig);
         await controller(req, res);
         expect(sanitizeResponse(res)).toMatchSnapshot();
     });
 
     test("for missing token in link mode", async () => {
         req.query.token = "";
-        const controller = verifyRecoverEmailController(Model, true, userSecretConfig);
+        const controller = verifyRecoverEmailController(Model, true, userSecretConfig, emailTokenConfig);
         await controller(req, res);
         expect(sanitizeResponse(res)).toMatchSnapshot();
     });
 
     test("for missing OTP", async () => {
         req.body.otp = "";
-        const controller = verifyRecoverEmailController(Model, false, userSecretConfig);
+        const controller = verifyRecoverEmailController(Model, false, userSecretConfig, emailTokenConfig);
         await controller(req, res);
         expect(sanitizeResponse(res)).toMatchSnapshot();
     });
 
     test("for user not found", async () => {
-        Model.findById.mockReturnValue(mockFindById(null));
-        const controller = verifyRecoverEmailController(Model, true, userSecretConfig);
+        Model.findOne.mockReturnValue(mockFindById(null));
+        const controller = verifyRecoverEmailController(Model, true, userSecretConfig, emailTokenConfig);
         await controller(req, res);
         expect(sanitizeResponse(res)).toMatchSnapshot();
     });
 
     test("for email not verified", async () => {
-        Model.findById.mockReturnValue(
+        Model.findOne.mockReturnValue(
             mockFindById({ emailVerified: false })
         );
-        const controller = verifyRecoverEmailController(Model, true, userSecretConfig);
+        const controller = verifyRecoverEmailController(Model, true, userSecretConfig, emailTokenConfig);
         await controller(req, res);
         expect(sanitizeResponse(res)).toMatchSnapshot();
     });
 
     test("for inactive user", async () => {
-        Model.findById.mockReturnValue(
+        Model.findOne.mockReturnValue(
             mockFindById({
                 emailVerified: true,
                 isActive: false
             })
         );
-        const controller = verifyRecoverEmailController(Model, true, userSecretConfig);
+        const controller = verifyRecoverEmailController(Model, true, userSecretConfig, emailTokenConfig);
         await controller(req, res);
         expect(sanitizeResponse(res)).toMatchSnapshot();
     });
 
     test("for expired token", async () => {
-        Model.findById.mockReturnValue(
+        Model.findOne.mockReturnValue(
             mockFindById({
                 emailVerified: true,
                 isActive: true,
@@ -150,13 +162,13 @@ describe("Verify Recover Email Controller Snapshot Test", () => {
                 verifyTokenExpires: Date.now() - 1000
             })
         );
-        const controller = verifyRecoverEmailController(Model, true, userSecretConfig);
+        const controller = verifyRecoverEmailController(Model, true, userSecretConfig, emailTokenConfig);
         await controller(req, res);
         expect(sanitizeResponse(res)).toMatchSnapshot();
     });
 
     test("for invalid link token", async () => {
-        Model.findById.mockReturnValue(
+        Model.findOne.mockReturnValue(
             mockFindById({
                 emailVerified: true,
                 isActive: true,
@@ -165,14 +177,14 @@ describe("Verify Recover Email Controller Snapshot Test", () => {
             })
         );
         req.query.token = "wrong";
-        const controller = verifyRecoverEmailController(Model, true, userSecretConfig);
+        const controller = verifyRecoverEmailController(Model, true, userSecretConfig, emailTokenConfig);
         await controller(req, res);
         expect(sanitizeResponse(res)).toMatchSnapshot();
     });
 
     test("for invalid OTP", async () => {
         emailTokenGenerator.compareOtp.mockResolvedValue(false);
-        Model.findById.mockReturnValue(
+        Model.findOne.mockReturnValue(
             mockFindById({
                 emailVerified: true,
                 isActive: true,
@@ -180,7 +192,7 @@ describe("Verify Recover Email Controller Snapshot Test", () => {
                 verifyTokenExpires: Date.now() + 10000
             })
         );
-        const controller = verifyRecoverEmailController(Model, false, userSecretConfig);
+        const controller = verifyRecoverEmailController(Model, false, userSecretConfig, emailTokenConfig);
         await controller(req, res);
         expect(sanitizeResponse(res)).toMatchSnapshot();
     });
@@ -198,8 +210,8 @@ describe("Verify Recover Email Controller Snapshot Test", () => {
             save: mockSave
         };
         mockSave.mockResolvedValue(mockUser);
-        Model.findById.mockReturnValue(mockFindById(mockUser));
-        const controller = verifyRecoverEmailController(Model, true, userSecretConfig);
+        Model.findOne.mockReturnValue(mockFindById(mockUser));
+        const controller = verifyRecoverEmailController(Model, true, userSecretConfig, emailTokenConfig);
         await controller(req, res);
         expect(passwordHashing.hashPassword).toHaveBeenCalled();
         expect(sanitizeResponse(res)).toMatchSnapshot();
@@ -219,8 +231,8 @@ describe("Verify Recover Email Controller Snapshot Test", () => {
             save: mockSave
         };
         mockSave.mockResolvedValue(mockUser);
-        Model.findById.mockReturnValue(mockFindById(mockUser));
-        const controller = verifyRecoverEmailController(Model, false, userSecretConfig);
+        Model.findOne.mockReturnValue(mockFindById(mockUser));
+        const controller = verifyRecoverEmailController(Model, false, userSecretConfig, emailTokenConfig);
         await controller(req, res);
         expect(emailTokenGenerator.compareOtp).toHaveBeenCalled();
         expect(passwordHashing.hashPassword).toHaveBeenCalled();
@@ -228,10 +240,10 @@ describe("Verify Recover Email Controller Snapshot Test", () => {
     });
 
     test("for database error", async () => {
-        Model.findById.mockReturnValue({
+        Model.findOne.mockReturnValue({
             select: jest.fn().mockRejectedValue(new Error("DB error"))
         });
-        const controller = verifyRecoverEmailController(Model, true, userSecretConfig);
+        const controller = verifyRecoverEmailController(Model, true, userSecretConfig, emailTokenConfig);
         await controller(req, res);
         expect(sanitizeResponse(res)).toMatchSnapshot();
     });

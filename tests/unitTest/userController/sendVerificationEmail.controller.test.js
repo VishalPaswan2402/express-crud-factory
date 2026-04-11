@@ -37,7 +37,7 @@ beforeAll(async () => {
 });
 
 describe("Send Verification Email Controller Snapshot Test", () => {
-    let req, res, UserModel;
+    let req, res, UserModel, emailTokenConfig;
     const setupController = (create = 1, verifyMethodOverride = {}) => {
         const userSecretConfig = {};
         const emailSender = {};
@@ -46,12 +46,19 @@ describe("Send Verification Email Controller Snapshot Test", () => {
             otpLinkExpiryMinutes: 10,
             ...verifyMethodOverride
         };
+        emailTokenConfig = {
+            emailTokenSecret: {
+                secret: "123",
+                expireIn: "2m"
+            }
+        };
         return sendVerificationEmailController(
             UserModel,
             userSecretConfig,
             emailSender,
             verifyMethod,
-            create
+            create,
+            emailTokenConfig
         );
     };
     const sanitizeResponse = (res) => {
@@ -64,20 +71,24 @@ describe("Send Verification Email Controller Snapshot Test", () => {
         };
     };
     beforeEach(() => {
-        req = { params: { userId: "123" } };
+        req = {
+            body: { email: "test@gmail.com" },
+            loggedUser: { id: "123" }
+        };
         res = {
             status: jest.fn().mockReturnThis(),
             json: jest.fn()
         };
         UserModel = {
             findById: jest.fn(),
-            findByIdAndDelete: jest.fn()
+            findByIdAndDelete: jest.fn(),
+            findOne: jest.fn()
         };
         jest.clearAllMocks();
     });
 
     test("for user not found", async () => {
-        UserModel.findById.mockReturnValue({
+        UserModel.findOne.mockReturnValue({
             select: jest.fn().mockResolvedValue(null)
         });
         const controller = setupController(1);
@@ -86,7 +97,7 @@ describe("Send Verification Email Controller Snapshot Test", () => {
     });
 
     test("for email already verified", async () => {
-        UserModel.findById.mockReturnValue({
+        UserModel.findOne.mockReturnValue({
             select: jest.fn().mockResolvedValue({
                 emailVerified: true
             })
@@ -102,7 +113,7 @@ describe("Send Verification Email Controller Snapshot Test", () => {
             emailVerified: false,
             destroyDataAfter: Date.now() - 1000
         };
-        UserModel.findById.mockReturnValue({
+        UserModel.findOne.mockReturnValue({
             select: jest.fn().mockResolvedValue(mockUser)
         });
         const controller = setupController(1);
@@ -115,7 +126,7 @@ describe("Send Verification Email Controller Snapshot Test", () => {
             isActive: false,
             emailVerified: true
         };
-        UserModel.findById.mockReturnValue({
+        UserModel.findOne.mockReturnValue({
             select: jest.fn().mockResolvedValue(mockUser)
         });
         const controller = setupController(2); // recover
@@ -128,7 +139,7 @@ describe("Send Verification Email Controller Snapshot Test", () => {
             isActive: true,
             emailVerified: false
         };
-        UserModel.findById.mockReturnValue({
+        UserModel.findOne.mockReturnValue({
             select: jest.fn().mockResolvedValue(mockUser)
         });
         const controller = setupController(3); // delete
@@ -138,7 +149,7 @@ describe("Send Verification Email Controller Snapshot Test", () => {
 
     test("for otp limit exceeded", async () => {
         validEmailRequest.mockReturnValue(false);
-        UserModel.findById.mockReturnValue({
+        UserModel.findOne.mockReturnValue({
             select: jest.fn().mockResolvedValue({
                 emailVerified: false,
                 destroyDataAfter: Date.now() + 10000
@@ -160,7 +171,7 @@ describe("Send Verification Email Controller Snapshot Test", () => {
             otpRequestCount: 1,
             save: jest.fn()
         };
-        UserModel.findById.mockReturnValue({
+        UserModel.findOne.mockReturnValue({
             select: jest.fn().mockResolvedValue(mockUser)
         });
         verificationToken.saveSendToken.mockResolvedValue({
@@ -174,7 +185,7 @@ describe("Send Verification Email Controller Snapshot Test", () => {
     });
 
     test("for server error", async () => {
-        UserModel.findById.mockReturnValue({
+        UserModel.findOne.mockReturnValue({
             select: jest.fn().mockRejectedValue(new Error("DB error"))
         });
         const controller = setupController(1);

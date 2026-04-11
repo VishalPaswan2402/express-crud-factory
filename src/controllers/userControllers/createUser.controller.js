@@ -5,7 +5,7 @@ import { errorResponse, successResponse } from "../../utils/response.utils.js";
 import { verificationMailSender } from "../../utils/verificationMailSender.utils.js";
 import { verificationToken } from "../../utils/verificationToken.utils.js";
 
-const createUserController = (UserModel, userSecretConfig, emailSender, verifyMethod) => async (req, res) => {
+const createUserController = (UserModel, userSecretConfig, emailSender, verifyMethod, emailTokenConfig) => async (req, res) => {
     try {
         const { email, username, fullname, password, confirmPassword } = req.body;
         if (!email || !username || !fullname || !password || !confirmPassword) {
@@ -41,16 +41,21 @@ const createUserController = (UserModel, userSecretConfig, emailSender, verifyMe
             destroyDataAfter: dataExpiryTime.userDataExpire(verifyMethod.unverifiedUserExpiryDays)
         });
         const data = await modelData.save();
-        const generatedToken = await verificationToken.saveSendToken(verifyMethod, userSecretConfig, 1, data._id);
-        let verificationSave = generatedToken.saveToken;
-        let verificationSend = generatedToken.sendToken;
-        data.verifyToken = verificationSave;
-        data.otpRequestCount = 1;
-        data.verifyTokenExpires = dataExpiryTime.otpLinkExpire(verifyMethod.otpLinkExpiryMinutes);
-        await data.save();
-        await verificationMailSender.sendEmail(emailSender, verifyMethod, data.email, 1, data.fullname, verificationSend);
+        try {
+            const generatedToken = await verificationToken.saveSendToken(verifyMethod, userSecretConfig, emailTokenConfig, 1, data.email);
+            let verificationSave = generatedToken.saveToken;
+            let verificationSend = generatedToken.sendToken;
+            data.verifyToken = verificationSave;
+            data.otpRequestCount = 1;
+            data.verifyTokenExpires = dataExpiryTime.otpLinkExpire(verifyMethod.otpLinkExpiryMinutes);
+            await data.save();
+            await verificationMailSender.sendEmail(emailSender, verifyMethod, data.email, 1, data.fullname, verificationSend);
+        }
+        catch (error) {
+            await UserModel.findByIdAndDelete(data._id);
+            return errorResponse(res, 500, "Something went wrong. Please try again later.");
+        }
         const userData = {
-            userId: data._id,
             fullName: fullname,
             email: email
         };

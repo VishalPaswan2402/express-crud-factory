@@ -53,7 +53,7 @@ exports[`Verify Destroy Email Controller Snapshot Test for invalid link token 1`
 exports[`Verify Destroy Email Controller Snapshot Test for missing OTP in OTP mode 1`] = `
 {
   "body": {
-    "message": "OTP is required.",
+    "message": "OTP and email is required.",
     "success": false,
   },
   "status": 400,
@@ -76,7 +76,6 @@ exports[`Verify Destroy Email Controller Snapshot Test for successful delete usi
     "data": {
       "email": "test@gmail.com",
       "fullname": "Test User",
-      "userId": "mocked-user-id",
       "username": "test",
     },
     "message": "User deleted successfully.",
@@ -92,7 +91,6 @@ exports[`Verify Destroy Email Controller Snapshot Test for successful delete usi
     "data": {
       "email": "test@gmail.com",
       "fullname": "Test User",
-      "userId": "mocked-user-id",
       "username": "test",
     },
     "message": "User deleted successfully.",

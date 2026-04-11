@@ -6,7 +6,8 @@ jest.unstable_mockModule("../../../src/utils/generateJwtToken.utils.js", () => (
 
 jest.unstable_mockModule("../../../src/utils/emailTokenGenerator.utils.js", () => ({
     emailTokenGenerator: {
-        compareOtp: jest.fn()
+        compareOtp: jest.fn(),
+        emailDecryptToken: jest.fn()
     }
 }));
 
@@ -30,12 +31,13 @@ beforeAll(async () => {
 });
 
 describe("Verify Signup Email Controller Snapshot Test", () => {
-    let req, res, UserModel, userSecretConfig;
+    let req, res, UserModel, userSecretConfig, emailTokenConfig;
     const setupController = (isLink = true) => {
         return verifySignupEmailController(
             UserModel,
             userSecretConfig,
-            isLink
+            isLink,
+            emailTokenConfig
         );
     };
     const sanitizeResponse = (res) => {
@@ -49,9 +51,8 @@ describe("Verify Signup Email Controller Snapshot Test", () => {
     };
     beforeEach(() => {
         req = {
-            params: { userId: "123" },
             query: { token: "test-token" },
-            body: { otp: "123456" }
+            body: { otp: "123456", email: "test@gmail.com" }
         };
         res = {
             status: jest.fn().mockReturnThis(),
@@ -59,11 +60,22 @@ describe("Verify Signup Email Controller Snapshot Test", () => {
         };
         UserModel = {
             findById: jest.fn(),
-            findByIdAndDelete: jest.fn()
+            findByIdAndDelete: jest.fn(),
+            findOne: jest.fn()
         };
+        emailTokenConfig = {
+            emailTokenSecret: {
+                secret: "123456",
+                expireIn: "2m"
+            }
+        }
         userSecretConfig = {
             jwtSecret: "secret"
         };
+        emailTokenGenerator.emailDecryptToken.mockReturnValue({
+            email: "test@gmail.com",
+            verifyType: 1
+        });
         jest.clearAllMocks();
     });
 
@@ -74,8 +86,15 @@ describe("Verify Signup Email Controller Snapshot Test", () => {
         expect(sanitizeResponse(res)).toMatchSnapshot();
     });
 
+    test("for invalid/expired token (link)", async () => {
+        emailTokenGenerator.emailDecryptToken.mockReturnValue(null);
+        const controller = setupController(true);
+        await controller(req, res);
+        expect(sanitizeResponse(res)).toMatchSnapshot();
+    });
+
     test("for user not found", async () => {
-        UserModel.findById.mockReturnValue({
+        UserModel.findOne.mockReturnValue({
             select: jest.fn().mockResolvedValue(null)
         });
         const controller = setupController(true);
@@ -84,7 +103,7 @@ describe("Verify Signup Email Controller Snapshot Test", () => {
     });
 
     test("for email already verified", async () => {
-        UserModel.findById.mockReturnValue({
+        UserModel.findOne.mockReturnValue({
             select: jest.fn().mockResolvedValue({
                 emailVerified: true
             })
@@ -100,7 +119,7 @@ describe("Verify Signup Email Controller Snapshot Test", () => {
             emailVerified: false,
             destroyDataAfter: Date.now() - 1000
         };
-        UserModel.findById.mockReturnValue({
+        UserModel.findOne.mockReturnValue({
             select: jest.fn().mockResolvedValue(user)
         });
         const controller = setupController(true);
@@ -114,7 +133,7 @@ describe("Verify Signup Email Controller Snapshot Test", () => {
             destroyDataAfter: Date.now() + 10000,
             verifyTokenExpires: Date.now() - 1000
         };
-        UserModel.findById.mockReturnValue({
+        UserModel.findOne.mockReturnValue({
             select: jest.fn().mockResolvedValue(user)
         });
         const controller = setupController(true);
@@ -129,7 +148,7 @@ describe("Verify Signup Email Controller Snapshot Test", () => {
             verifyTokenExpires: Date.now() + 10000,
             destroyDataAfter: Date.now() + 10000
         };
-        UserModel.findById.mockReturnValue({
+        UserModel.findOne.mockReturnValue({
             select: jest.fn().mockResolvedValue(user)
         });
         const controller = setupController(true);
@@ -145,7 +164,7 @@ describe("Verify Signup Email Controller Snapshot Test", () => {
             verifyTokenExpires: Date.now() + 10000,
             destroyDataAfter: Date.now() + 10000
         };
-        UserModel.findById.mockReturnValue({
+        UserModel.findOne.mockReturnValue({
             select: jest.fn().mockResolvedValue(user)
         });
         const controller = setupController(false);
@@ -162,11 +181,10 @@ describe("Verify Signup Email Controller Snapshot Test", () => {
             verifyTokenExpires: Date.now() + 10000,
             destroyDataAfter: Date.now() + 10000
         };
-        UserModel.findById.mockReturnValue({
+        UserModel.findOne.mockReturnValue({
             select: jest.fn().mockResolvedValue(user)
         });
         userAfterVerification.mockResolvedValue({ id: "123" });
-        generateJwtToken.mockReturnValue("jwt");
         const controller = setupController(true);
         await controller(req, res);
         expect(sanitizeResponse(res)).toMatchSnapshot();
@@ -182,7 +200,7 @@ describe("Verify Signup Email Controller Snapshot Test", () => {
             verifyTokenExpires: Date.now() + 10000,
             destroyDataAfter: Date.now() + 10000
         };
-        UserModel.findById.mockReturnValue({
+        UserModel.findOne.mockReturnValue({
             select: jest.fn().mockResolvedValue(user)
         });
         userAfterVerification.mockResolvedValue({ id: "123" });
@@ -193,7 +211,7 @@ describe("Verify Signup Email Controller Snapshot Test", () => {
     });
 
     test("for server error", async () => {
-        UserModel.findById.mockReturnValue({
+        UserModel.findOne.mockReturnValue({
             select: jest.fn().mockRejectedValue(new Error("DB error"))
         });
         const controller = setupController(true);

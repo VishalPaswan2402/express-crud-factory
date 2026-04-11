@@ -3,25 +3,31 @@ import { generateJwtToken } from "../../utils/generateJwtToken.utils.js";
 import { errorResponse, loginResponse, successResponse } from "../../utils/response.utils.js";
 import { userAfterVerification } from "../../utils/userAfterVerification.utils.js";
 
-const verifySignupEmailController = (UserModel, userSecretConfig, isLink) => async (req, res) => {
+const verifySignupEmailController = (UserModel, userSecretConfig, isLink, emailTokenConfig) => async (req, res) => {
     try {
-        const { userId } = req.params;
         let myToken = null;
+        let myEmail = null;
         if (isLink) {
             const { token } = req.query;
             if (!token) {
                 return errorResponse(res, 400, "Verification token is missing. Please check your email link.");
             }
+            const tokenData = emailTokenGenerator.emailDecryptToken(token, emailTokenConfig);
+            if (!tokenData || tokenData.verifyType !== 1) {
+                return errorResponse(res, 410, "Your verification link has expired or invalid. Please request a new one.");
+            }
             myToken = token;
+            myEmail = tokenData.email;
         }
         else {
-            const { otp } = req.body;
-            if (!otp) {
-                return errorResponse(res, 400, "OTP is required.");
+            const { otp, email } = req.body;
+            if (!otp || !email) {
+                return errorResponse(res, 400, "OTP and email is required.");
             }
             myToken = otp;
+            myEmail = email;
         }
-        const user = await UserModel.findById(userId).select("+verifyToken +verifyTokenExpires +destroyDataAfter +otpRequestCount +otpLastRequest");
+        const user = await UserModel.findOne({ email: myEmail }).select("+verifyToken +verifyTokenExpires +destroyDataAfter +otpRequestCount +otpLastRequest");
         if (!user) {
             return errorResponse(res, 404, "User not found.");
         }
@@ -36,7 +42,7 @@ const verifySignupEmailController = (UserModel, userSecretConfig, isLink) => asy
             return errorResponse(res, 410, `Your ${isLink ? "verification link" : "OTP"} has expired. Please request a new one.`);
         }
         if (isLink) {
-            if (user.verifyToken != myToken) {
+            if (user.verifyToken !== myToken) {
                 return errorResponse(res, 400, "This verification link is invalid. Please request a new one.");
             }
         }
@@ -47,6 +53,9 @@ const verifySignupEmailController = (UserModel, userSecretConfig, isLink) => asy
             }
         }
         const savedData = await userAfterVerification(user);
+        if (isLink) {
+            return successResponse(res, 201, savedData, "Account created and email verified successfully.");
+        }
         const jwtToken = generateJwtToken(savedData, userSecretConfig.jwtSecret);
         return loginResponse(res, 201, savedData, jwtToken, "Account created and email verified successfully.");
     }

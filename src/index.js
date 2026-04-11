@@ -1,4 +1,5 @@
 import { authSecretConfig } from './config/authSecret.config.js';
+import { emailVerificationConfig } from './config/emailVerification.config.js';
 import { nodemailerConfig } from './config/nodemailer.config.js';
 import { jsonErrorHandler } from './middlewares/jsonErrorHandler.middleware.js';
 import { loginSignupApi, postArticleAPI } from './routes/crud.routes.js';
@@ -45,6 +46,11 @@ function loginSignupFactory(UserModel, configOptions = {}, emailConfig = {}) {
         ) {
             throw new Error("Email configuration frontendBaseUrl are missing.");
         }
+        if (!emailConfig.verifyMethod.verifySecretKey
+            || emailConfig.verifyMethod.verifySecretKey == ""
+        ) {
+            throw new Error("Email configuration verifySecretKey are missing.");
+        }
     }
     if (emailConfig.verifyMethod.otpLinkExpiryMinutes <= 0) {
         throw new Error("OTP/link expiry minutes must be greater than or equal to 1.");
@@ -54,7 +60,11 @@ function loginSignupFactory(UserModel, configOptions = {}, emailConfig = {}) {
     }
     const emailSender = nodemailerConfig(emailConfig.mailProvider);
     const userSecretConfig = authSecretConfig(jwtSecret, bcryptSecret);
-    return loginSignupApi(UserModel, userSecretConfig, emailSender, emailConfig.verifyMethod);
+    let emailTokenConfig = null
+    if (emailConfig.verifyMethod.usingLink) {
+        emailTokenConfig = emailVerificationConfig(emailConfig.verifyMethod.verifySecretKey, emailConfig.verifyMethod.otpLinkExpiryMinutes);
+    }
+    return loginSignupApi(UserModel, userSecretConfig, emailSender, emailConfig.verifyMethod, emailTokenConfig);
 };
 
 // for posting article.

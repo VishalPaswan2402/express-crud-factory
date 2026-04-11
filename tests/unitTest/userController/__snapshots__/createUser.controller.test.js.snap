@@ -16,7 +16,6 @@ exports[`Create User Controller Snapshot Test for delete expired unverified user
     "data": {
       "email": "test@gmail.com",
       "fullName": "UserTest",
-      "userId": "mocked-user-id",
     },
     "message": "Verification link sent to your email successfully.",
     "success": true,
@@ -61,7 +60,6 @@ exports[`Create User Controller Snapshot Test for successful user creation. 1`] 
     "data": {
       "email": "test@gmail.com",
       "fullName": "UserTest",
-      "userId": "mocked-user-id",
     },
     "message": "Verification link sent to your email successfully.",
     "success": true,

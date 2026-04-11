@@ -22,21 +22,21 @@ import recoverPasswordController from '../controllers/userControllers/recoverPas
 import verifyDestroyEmailController from '../controllers/userControllers/verifyDestroyEmail.controller.js';
 import verifyRecoverEmailController from '../controllers/userControllers/verifyRecoverEmail.controller.js';
 
-function loginSignupApi(UserModel, userSecretConfig, emailSender, verifyMethod) {
+function loginSignupApi(UserModel, userSecretConfig, emailSender, verifyMethod, emailTokenConfig) {
     const router = express.Router({ mergeParams: true });
+    router.post("/signup", jsonValidate, createUserController(UserModel, userSecretConfig, emailSender, verifyMethod, emailTokenConfig));
+    router.post("/signup/send-verification", jsonValidate, sendVerificationEmailController(UserModel, userSecretConfig, emailSender, verifyMethod, 1, emailTokenConfig));
+    router.get("/signup/link/verify-email", verifySignupEmailController(UserModel, userSecretConfig, true, emailTokenConfig));
+    router.post("/signup/otp/verify-email", jsonValidate, verifySignupEmailController(UserModel, userSecretConfig, false));
     router.post("/login", jsonValidate, loginUserController(UserModel, userSecretConfig));
-    router.get("/:userId", isValidUserId, authenticateUser(userSecretConfig.jwtSecret), authorizeUser, getUserByIdController(UserModel));
-    router.post("/signup", jsonValidate, createUserController(UserModel, userSecretConfig, emailSender, verifyMethod));
-    router.get("/signup/:userId/verify-email", isValidUserId, verifySignupEmailController(UserModel, userSecretConfig, true));
-    router.post("/signup/:userId/send-email", isValidUserId, sendVerificationEmailController(UserModel, userSecretConfig, emailSender, verifyMethod, 1));
-    router.post("/signup/:userId/verify-email", jsonValidate, isValidUserId, verifySignupEmailController(UserModel, userSecretConfig, false));
-    router.post("/destroy/:userId/send-email", isValidUserId, authenticateUser(userSecretConfig.jwtSecret), authorizeUser, sendVerificationEmailController(UserModel, userSecretConfig, emailSender, verifyMethod, 3));
-    router.post("/destroy/:userId/verify-email", jsonValidate, isValidUserId, authenticateUser(userSecretConfig.jwtSecret), authorizeUser, verifyDestroyEmailController(UserModel, false));
-    router.delete("/destroy/:userId/verify-email", isValidUserId, verifyDestroyEmailController(UserModel, true));
-    router.post("/recover-password", jsonValidate, recoverPasswordController(UserModel, userSecretConfig, emailSender, verifyMethod));
-    router.post("/recover/:userId/send-email", isValidUserId, sendVerificationEmailController(UserModel, userSecretConfig, emailSender, verifyMethod, 2));
-    router.post("/recover/:userId/verify-email", jsonValidate, isValidUserId, verifyRecoverEmailController(UserModel, true, userSecretConfig));
-    router.post("/recover/:userId/otp/verify-email", jsonValidate, isValidUserId, verifyRecoverEmailController(UserModel, false, userSecretConfig));
+    router.get("/:userId/profile", isValidUserId, authenticateUser(userSecretConfig.jwtSecret), authorizeUser, getUserByIdController(UserModel));
+    router.post("/:userId/delete-account/send-verification", jsonValidate, isValidUserId, authenticateUser(userSecretConfig.jwtSecret), authorizeUser, sendVerificationEmailController(UserModel, userSecretConfig, emailSender, verifyMethod, 3, emailTokenConfig));
+    router.delete("/delete-account/link/verify-email", verifyDestroyEmailController(UserModel, true, emailTokenConfig));
+    router.post("/:userId/delete-account/otp/verify-email", jsonValidate, isValidUserId, authenticateUser(userSecretConfig.jwtSecret), authorizeUser, verifyDestroyEmailController(UserModel, false, emailTokenConfig));
+    router.post("/forgot-password", jsonValidate, recoverPasswordController(UserModel, userSecretConfig, emailSender, verifyMethod, emailTokenConfig));
+    router.post("/forgot-password/send-verification", jsonValidate, sendVerificationEmailController(UserModel, userSecretConfig, emailSender, verifyMethod, 2, emailTokenConfig));
+    router.post("/reset-password/link/verify-email", jsonValidate, verifyRecoverEmailController(UserModel, true, userSecretConfig, emailTokenConfig));
+    router.post("/reset-password/otp/verify-email", jsonValidate, verifyRecoverEmailController(UserModel, false, userSecretConfig, emailTokenConfig));
     return router;
 }
 

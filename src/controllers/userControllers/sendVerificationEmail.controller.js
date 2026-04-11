@@ -4,10 +4,13 @@ import { validEmailRequest } from "../../utils/validEmailRequest.utils.js";
 import { verificationMailSender } from "../../utils/verificationMailSender.utils.js";
 import { verificationToken } from "../../utils/verificationToken.utils.js";
 
-const sendVerificationEmailController = (UserModel, userSecretConfig, emailSender, verifyMethod, create) => async (req, res) => {
+const sendVerificationEmailController = (UserModel, userSecretConfig, emailSender, verifyMethod, create, emailTokenConfig) => async (req, res) => {
     try {
-        const { userId } = req.params;
-        const user = await UserModel.findById(userId).select("+destroyDataAfter +verifyToken +verifyTokenExpires +otpRequestCount +otpLastRequest");
+        const { email } = req.body;
+        if (!email) {
+            return errorResponse(res, 400, "Email is required.");
+        }
+        const user = await UserModel.findOne({ email: email }).select("+destroyDataAfter +verifyToken +verifyTokenExpires +otpRequestCount +otpLastRequest");
         if (!user) {
             return errorResponse(res, 404, "User not found.");
         }
@@ -28,10 +31,16 @@ const sendVerificationEmailController = (UserModel, userSecretConfig, emailSende
                 return errorResponse(res, 403, `Email not verified. You can't ${create === 2 ? "recover" : "delete"} the account.`);
             }
         }
+        if (create === 3) {
+            const loggedUser = req.loggedUser;
+            if (!loggedUser || !user._id.equals(loggedUser.id)) {
+                return errorResponse(res, 400, "Invalid request. Try again later.")
+            }
+        }
         if (!validEmailRequest(user)) {
             return errorResponse(res, 429, "OTP request limit exceeded. Please try again later.");
         }
-        const generatedToken = await verificationToken.saveSendToken(verifyMethod, userSecretConfig, create, user._id);
+        const generatedToken = await verificationToken.saveSendToken(verifyMethod, userSecretConfig, emailTokenConfig, create, user.email);
         let verificationSave = generatedToken.saveToken;
         let verificationSend = generatedToken.sendToken;
         const otpCount = user.otpRequestCount + 1;
@@ -44,7 +53,6 @@ const sendVerificationEmailController = (UserModel, userSecretConfig, emailSende
         await user.save();
         await verificationMailSender.sendEmail(emailSender, verifyMethod, user.email, create, user.fullname, verificationSend);
         const userData = {
-            userId: user._id,
             fullName: user.fullname,
             email: user.email
         };

@@ -31,6 +31,16 @@ exports[`Verify Signup Email Controller Snapshot Test for email already verified
 }
 `;
 
+exports[`Verify Signup Email Controller Snapshot Test for invalid/expired token (link) 1`] = `
+{
+  "body": {
+    "message": "Your verification link has expired or invalid. Please request a new one.",
+    "success": false,
+  },
+  "status": 410,
+}
+`;
+
 exports[`Verify Signup Email Controller Snapshot Test for server error 1`] = `
 {
   "body": {
@@ -103,7 +113,6 @@ exports[`Verify Signup Email Controller Snapshot Test for verify email successfu
     },
     "message": "Account created and email verified successfully.",
     "success": true,
-    "token": "jwt",
   },
   "status": 201,
 }

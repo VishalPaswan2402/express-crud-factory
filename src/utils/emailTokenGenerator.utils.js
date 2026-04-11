@@ -1,5 +1,6 @@
 import crypto from "crypto";
 import bcrypt from 'bcrypt';
+import jwt from "jsonwebtoken"
 
 export const emailTokenGenerator = {
     validEmail: (email) => {
@@ -22,5 +23,26 @@ export const emailTokenGenerator = {
     emailToken: () => {
         const emailToken = crypto.randomBytes(32).toString("hex");
         return emailToken;
+    },
+    emailEncryptToken: (email, verifyType, emailTokenSecret) => {
+        const token = jwt.sign(
+            {
+                email: email,
+                verifyType: verifyType
+            },
+            emailTokenSecret.secret,
+            {
+                expiresIn: emailTokenSecret.expireIn
+            }
+        );
+        return token;
+    },
+    emailDecryptToken: (token, emailTokenConfig) => {
+        try {
+            const emailTokenData = jwt.verify(token, emailTokenConfig?.emailTokenSecret?.secret);
+            return emailTokenData;
+        } catch (error) {
+            return null;
+        }
     }
 }
