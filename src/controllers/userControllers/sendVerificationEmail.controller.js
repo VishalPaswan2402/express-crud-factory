@@ -34,7 +34,7 @@ const sendVerificationEmailController = (UserModel, userSecretConfig, emailSende
         if (create === 3) {
             const loggedUser = req.loggedUser;
             if (!loggedUser || !user._id.equals(loggedUser.id)) {
-                return errorResponse(res, 400, "Invalid request. Try again later.")
+                return errorResponse(res, 400, "User mismatch. Action not permitted.")
             }
         }
         if (!validEmailRequest(user)) {

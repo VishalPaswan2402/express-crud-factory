@@ -6,9 +6,9 @@ const verifyDestroyEmailController = (UserModel, isLink, emailTokenConfig) => as
         let myEmail = null;
         let myToken = null;
         if (isLink) {
-            const { token } = req.query;
+            const { token } = req.body;
             if (!token) {
-                return errorResponse(res, 400, "Verification token is missing. Please check your email link.");
+                return errorResponse(res, 400, "Verification token is missing.");
             }
             const tokenData = emailTokenGenerator.emailDecryptToken(token, emailTokenConfig);
             if (!tokenData || tokenData.verifyType !== 3) {
@@ -43,7 +43,7 @@ const verifyDestroyEmailController = (UserModel, isLink, emailTokenConfig) => as
         else {
             const loggedUser = req.loggedUser;
             if (!loggedUser || !user._id.equals(loggedUser.id)) {
-                return errorResponse(res, 400, "Invalid request. Try again later.")
+                return errorResponse(res, 400, "User mismatch. Action not permitted.")
             }
             const isValidOtp = await emailTokenGenerator.compareOtp(myToken, user.verifyToken);
             if (!isValidOtp) {

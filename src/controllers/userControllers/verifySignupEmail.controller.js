@@ -8,9 +8,9 @@ const verifySignupEmailController = (UserModel, userSecretConfig, isLink, emailT
         let myToken = null;
         let myEmail = null;
         if (isLink) {
-            const { token } = req.query;
+            const { token } = req.body;
             if (!token) {
-                return errorResponse(res, 400, "Verification token is missing. Please check your email link.");
+                return errorResponse(res, 400, "Verification token is missing.");
             }
             const tokenData = emailTokenGenerator.emailDecryptToken(token, emailTokenConfig);
             if (!tokenData || tokenData.verifyType !== 1) {
@@ -60,6 +60,7 @@ const verifySignupEmailController = (UserModel, userSecretConfig, isLink, emailT
         return loginResponse(res, 201, savedData, jwtToken, "Account created and email verified successfully.");
     }
     catch (error) {
+        console.log("signup error :",error);
         return errorResponse(res, 500, "Something went wrong. Please try again later.");
     }
 };

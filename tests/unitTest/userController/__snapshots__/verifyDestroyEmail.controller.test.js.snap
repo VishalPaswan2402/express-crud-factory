@@ -63,7 +63,7 @@ exports[`Verify Destroy Email Controller Snapshot Test for missing OTP in OTP mo
 exports[`Verify Destroy Email Controller Snapshot Test for missing token in link mode 1`] = `
 {
   "body": {
-    "message": "Verification token is missing. Please check your email link.",
+    "message": "Verification token is missing.",
     "success": false,
   },
   "status": 400,

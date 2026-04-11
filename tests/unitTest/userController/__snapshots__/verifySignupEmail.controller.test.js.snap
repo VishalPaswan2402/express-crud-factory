@@ -74,7 +74,7 @@ exports[`Verify Signup Email Controller Snapshot Test for token invalid 1`] = `
 exports[`Verify Signup Email Controller Snapshot Test for token missing (link) 1`] = `
 {
   "body": {
-    "message": "Verification token is missing. Please check your email link.",
+    "message": "Verification token is missing.",
     "success": false,
   },
   "status": 400,

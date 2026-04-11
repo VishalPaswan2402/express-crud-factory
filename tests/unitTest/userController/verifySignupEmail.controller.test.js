@@ -51,8 +51,7 @@ describe("Verify Signup Email Controller Snapshot Test", () => {
     };
     beforeEach(() => {
         req = {
-            query: { token: "test-token" },
-            body: { otp: "123456", email: "test@gmail.com" }
+            body: { otp: "123456", email: "test@gmail.com", token: "test-token" }
         };
         res = {
             status: jest.fn().mockReturnThis(),
@@ -80,7 +79,7 @@ describe("Verify Signup Email Controller Snapshot Test", () => {
     });
 
     test("for token missing (link)", async () => {
-        req.query = {};
+        req.body.token = "";
         const controller = setupController(true);
         await controller(req, res);
         expect(sanitizeResponse(res)).toMatchSnapshot();

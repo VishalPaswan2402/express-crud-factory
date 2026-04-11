@@ -26,12 +26,12 @@ function loginSignupApi(UserModel, userSecretConfig, emailSender, verifyMethod, 
     const router = express.Router({ mergeParams: true });
     router.post("/signup", jsonValidate, createUserController(UserModel, userSecretConfig, emailSender, verifyMethod, emailTokenConfig));
     router.post("/signup/send-verification", jsonValidate, sendVerificationEmailController(UserModel, userSecretConfig, emailSender, verifyMethod, 1, emailTokenConfig));
-    router.get("/signup/link/verify-email", verifySignupEmailController(UserModel, userSecretConfig, true, emailTokenConfig));
+    router.post("/signup/link/verify-email", jsonValidate, verifySignupEmailController(UserModel, userSecretConfig, true, emailTokenConfig));
     router.post("/signup/otp/verify-email", jsonValidate, verifySignupEmailController(UserModel, userSecretConfig, false));
     router.post("/login", jsonValidate, loginUserController(UserModel, userSecretConfig));
     router.get("/:userId/profile", isValidUserId, authenticateUser(userSecretConfig.jwtSecret), authorizeUser, getUserByIdController(UserModel));
     router.post("/:userId/delete-account/send-verification", jsonValidate, isValidUserId, authenticateUser(userSecretConfig.jwtSecret), authorizeUser, sendVerificationEmailController(UserModel, userSecretConfig, emailSender, verifyMethod, 3, emailTokenConfig));
-    router.delete("/delete-account/link/verify-email", verifyDestroyEmailController(UserModel, true, emailTokenConfig));
+    router.post("/delete-account/link/verify-email", jsonValidate, verifyDestroyEmailController(UserModel, true, emailTokenConfig));
     router.post("/:userId/delete-account/otp/verify-email", jsonValidate, isValidUserId, authenticateUser(userSecretConfig.jwtSecret), authorizeUser, verifyDestroyEmailController(UserModel, false, emailTokenConfig));
     router.post("/forgot-password", jsonValidate, recoverPasswordController(UserModel, userSecretConfig, emailSender, verifyMethod, emailTokenConfig));
     router.post("/forgot-password/send-verification", jsonValidate, sendVerificationEmailController(UserModel, userSecretConfig, emailSender, verifyMethod, 2, emailTokenConfig));

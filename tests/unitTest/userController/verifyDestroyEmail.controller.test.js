@@ -35,8 +35,7 @@ describe("Verify Destroy Email Controller Snapshot Test", () => {
     });
     beforeEach(() => {
         req = {
-            query: { token: "valid-token" },
-            body: { otp: "123456", email: "test@gmail.com" },
+            body: { otp: "123456", email: "test@gmail.com", token: "valid-token" },
             loggedUser: { id: "123" }
         };
         res = {
@@ -62,7 +61,7 @@ describe("Verify Destroy Email Controller Snapshot Test", () => {
     });
 
     test("for missing token in link mode", async () => {
-        req.query.token = "";
+        req.body.token = "";
         const controller = verifyDestroyEmailController(Model, true, emailTokenConfig);
         await controller(req, res);
         expect(sanitizeResponse(res)).toMatchSnapshot();
@@ -117,7 +116,7 @@ describe("Verify Destroy Email Controller Snapshot Test", () => {
                 verifyTokenExpires: Date.now() + 10000
             })
         });
-        req.query.token = "wrong-token";
+        req.body.token = "wrong-token";
         const controller = verifyDestroyEmailController(Model, true, emailTokenConfig);
         await controller(req, res);
         expect(sanitizeResponse(res)).toMatchSnapshot();
