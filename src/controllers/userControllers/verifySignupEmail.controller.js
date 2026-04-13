@@ -60,7 +60,6 @@ const verifySignupEmailController = (UserModel, userSecretConfig, isLink, emailT
         return loginResponse(res, 201, savedData, jwtToken, "Account created and email verified successfully.");
     }
     catch (error) {
-        console.log("signup error :",error);
         return errorResponse(res, 500, "Something went wrong. Please try again later.");
     }
 };
