@@ -18,7 +18,7 @@ const verifyRecoverEmailController = (UserModel, isLink, userSecretConfig, email
             return errorResponse(res, 422, "Password and confirm password must match.");
         }
         if (isLink) {
-            const { token } = req.query;
+            const { token } = req.body;
             if (!token) {
                 return errorResponse(res, 400, "Verification token is missing. Please check your email link.");
             }
@@ -65,7 +65,11 @@ const verifyRecoverEmailController = (UserModel, isLink, userSecretConfig, email
         user.password = hashPassword;
         const savedUser = await user.save();
         const savedData = await userAfterVerification(savedUser);
-        return successResponse(res, 200, savedData, "Password updated successfully.");
+        const userData = {
+            fullName: savedData.fullname,
+            email: savedData.email
+        };
+        return successResponse(res, 200, userData, "Password updated successfully.");
     }
     catch (error) {
         return errorResponse(res, 500, "Something went wrong. Please try again later.");

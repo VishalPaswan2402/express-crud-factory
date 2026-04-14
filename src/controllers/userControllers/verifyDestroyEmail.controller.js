@@ -29,6 +29,12 @@ const verifyDestroyEmailController = (UserModel, isLink, emailTokenConfig) => as
         if (!user) {
             return errorResponse(res, 404, "User not found.");
         }
+        if (!isLink) {
+            const loggedUser = req.loggedUser;
+            if (!loggedUser || !user._id.equals(loggedUser.id)) {
+                return errorResponse(res, 400, "User mismatch. Action not permitted.")
+            }
+        }
         if (!user.isActive) {
             return errorResponse(res, 403, `Your account is blocked. Deletion is not allowed.`);
         }
@@ -41,10 +47,6 @@ const verifyDestroyEmailController = (UserModel, isLink, emailTokenConfig) => as
             }
         }
         else {
-            const loggedUser = req.loggedUser;
-            if (!loggedUser || !user._id.equals(loggedUser.id)) {
-                return errorResponse(res, 400, "User mismatch. Action not permitted.")
-            }
             const isValidOtp = await emailTokenGenerator.compareOtp(myToken, user.verifyToken);
             if (!isValidOtp) {
                 return errorResponse(res, 422, "Incorrect OTP. Please try again.");

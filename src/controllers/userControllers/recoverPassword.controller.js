@@ -47,7 +47,6 @@ const recoverPasswordController = (UserModel, userSecretConfig, emailSender, ver
         await user.save();
         await verificationMailSender.sendEmail(emailSender, verifyMethod, user.email, 2, user.fullname, verificationSend);
         const userData = {
-            userId: user._id,
             fullName: user.fullname,
             email: user.email
         };
