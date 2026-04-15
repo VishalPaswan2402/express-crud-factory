@@ -3,20 +3,20 @@ import { errorResponse, successResponse } from "../../utils/response.utils.js";
 
 const searchByTitleController = (PostModel) => async (req, res) => {
     try {
-        const { search } = req.query;
+        const { text } = req.query;
         const { userId } = req.params;
         const page = parseInt(req.query.page) || 1;
         const limit = parseInt(req.query.limit) || 10;
         const skip = (page - 1) * limit;
-        if (!search) {
-            return errorResponse(res, 400, "Search query is required.");
+        if (!text) {
+            return errorResponse(res, 400, "Text query is required.");
         }
         if (!userId) {
             return errorResponse(res, 400, "User ID is required.");
         }
         const query = {
             author: userId,
-            title: { $regex: search, $options: "i" }
+            title: { $regex: text, $options: "i" }
         };
         const pageData = await querySearch.pageRange(PostModel, query, page, limit);
         if (!pageData.value) {

@@ -39,7 +39,7 @@ export default function postRoutes(UserModel, PostModel, userSecretConfig) {
         allPostController(UserModel, PostModel)
     );
     router.get(
-        "/:postId/share-post",
+        "/:postId/view/shared-post",
         isValidPostId,
         sharePostController(PostModel)
     );
