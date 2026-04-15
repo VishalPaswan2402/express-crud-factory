@@ -53,7 +53,7 @@ describe("Search By Title Controller Snapshot Tests", () => {
     });
 
     test("for userId missing.", async () => {
-        req.query = { search: "react" };
+        req.query = { text: "react" };
         req.params = {};
         const controller = searchByTitleController(PostModel);
         await controller(req, res);
@@ -62,7 +62,7 @@ describe("Search By Title Controller Snapshot Tests", () => {
     });
 
     test("for page exceeds total pages.", async () => {
-        req.query = { search: "react", page: "5", limit: "2" };
+        req.query = { text: "react", page: "5", limit: "2" };
         req.params = { userId: "123" };
         mockPageRange.mockResolvedValue({
             value: false,
@@ -75,7 +75,7 @@ describe("Search By Title Controller Snapshot Tests", () => {
     });
 
     test("for find posts successfully.", async () => {
-        req.query = { search: "react", page: "1", limit: "2" };
+        req.query = { text: "react", page: "1", limit: "2" };
         req.params = { userId: "123" };
         const mockPosts = [
             { title: "React Guide", author: "123" },
@@ -100,7 +100,7 @@ describe("Search By Title Controller Snapshot Tests", () => {
     });
 
     test("for no result found.", async () => {
-        req.query = { search: "unknown", page: "1", limit: "2" };
+        req.query = { text: "unknown", page: "1", limit: "2" };
         req.params = { userId: "123" };
         mockPageRange.mockResolvedValue({
             value: true,
@@ -121,7 +121,7 @@ describe("Search By Title Controller Snapshot Tests", () => {
     });
 
     test("for should handle server error.", async () => {
-        req.query = { search: "react" };
+        req.query = { text: "react" };
         req.params = { userId: "123" };
         mockPageRange.mockRejectedValue(new Error("DB Error"));
         const controller = searchByTitleController(PostModel);

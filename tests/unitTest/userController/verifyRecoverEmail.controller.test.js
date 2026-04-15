@@ -63,7 +63,8 @@ describe("Verify Recover Email Controller Snapshot Test", () => {
                 password: "NewPass@123",
                 confirmPassword: "NewPass@123",
                 otp: "123456",
-                email: "test@gmail.com"
+                email: "test@gmail.com",
+                token: "valid-token"
             }
         };
         res = {
@@ -112,7 +113,7 @@ describe("Verify Recover Email Controller Snapshot Test", () => {
     });
 
     test("for missing token in link mode", async () => {
-        req.query.token = "";
+        req.body.token = "";
         const controller = verifyRecoverEmailController(Model, true, userSecretConfig, emailTokenConfig);
         await controller(req, res);
         expect(sanitizeResponse(res)).toMatchSnapshot();
@@ -176,7 +177,7 @@ describe("Verify Recover Email Controller Snapshot Test", () => {
                 verifyTokenExpires: Date.now() + 10000
             })
         );
-        req.query.token = "wrong";
+        req.body.token = "wrong";
         const controller = verifyRecoverEmailController(Model, true, userSecretConfig, emailTokenConfig);
         await controller(req, res);
         expect(sanitizeResponse(res)).toMatchSnapshot();

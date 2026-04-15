@@ -54,7 +54,7 @@ exports[`Search By Title Controller Snapshot Tests for page exceeds total pages.
 exports[`Search By Title Controller Snapshot Tests for search text missing. 1`] = `
 {
   "body": {
-    "message": "Search query is required.",
+    "message": "Text query is required.",
     "success": false,
   },
   "status": 400,

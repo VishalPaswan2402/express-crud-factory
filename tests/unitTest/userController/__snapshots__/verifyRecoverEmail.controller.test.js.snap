@@ -105,8 +105,7 @@ exports[`Verify Recover Email Controller Snapshot Test for successful password u
   "body": {
     "data": {
       "email": "test@gmail.com",
-      "fullname": "Test User",
-      "userId": "mocked-user-id",
+      "fullName": "Test User",
     },
     "message": "Password updated successfully.",
     "success": true,
@@ -120,8 +119,7 @@ exports[`Verify Recover Email Controller Snapshot Test for successful password u
   "body": {
     "data": {
       "email": "test@gmail.com",
-      "fullname": "Test User",
-      "userId": "mocked-user-id",
+      "fullName": "Test User",
     },
     "message": "Password updated successfully.",
     "success": true,
