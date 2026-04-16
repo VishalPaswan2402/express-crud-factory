@@ -107,23 +107,27 @@ Project starter :
 
 ```js
 import express from 'express'
+import cors from "cors";
 import { loginSignupFactory, postArticleFactory, jsonErrorHandler, connectDatabase } from "express-crud-factory";
-import UserModel from './models/user.model.js';
-import PostModel from './models/post.model.js';
+import UserModel from './models/user.model.js';  // import your user model schema. 
+import PostModel from './models/post.model.js';  // import your post article model schema.
 
-const port = 3000;
 const app = express();
+
+const backend_port = 3000;
+const frontend_base_url = `your_frontend_base_url`;
+const database_url = 'your_mongoDB_database_url';
+
+app.use(cors({ origin: frontend_base_url }));
 app.use(express.json());
 app.use(jsonErrorHandler);
-
-const db_url = 'mongodb://127.0.0.1:27017/expressCrudFactory';
-await connectDatabase(db_url);
+await connectDatabase(database_url);
 
 // jwt secret and hashing configuration
-const secretConfig = {
+const secretsConfig = {
     jwtSecret: {
-        secretKey: "1jsd23owie45xnzbm67pqlmx89", // your secret key for jwt signature
-        expireIn: "1h"  // token expire in hour
+        secretKey: "a-string-secret-at-least-256-bits-long", // secret key for jwt signature
+        expireInDays: 1  // token expire in hour
     },
     bcryptSecret: {
         saltRounds: 10 // hashing salt round
@@ -134,24 +138,28 @@ const secretConfig = {
 const emailConfig = {
     mailProvider: {
         host: "smtp.ethereal.email", // your email host provider
-        secure: false, // true in production
-        username: "patrick.rice9@ethereal.email", // your email username
-        password: "XXyT7k2dW1b1WyKxPB" // your email password
+        secure: false, // assign true value in production
+        username: "your_email_username", // your email username
+        password: "your_email_password" // your email password
     },
     verifyMethod: {
         projectName: "Express-Crud-Factory", // your project name
         otpLinkExpiryMinutes: 2, // otp expires in minutes
-        unverifiedUserExpiryDays: 1, // user destroyed if email not verified in days
-        usingLink: true, // true -> link verification method , false -> OTP verification method
-        frontendBaseUrl: `http://localhost:${port}` // use if usinglink = true , else optional
+        unverifiedUserExpiryDays: 1, // user deleted if email is not verified in days
+        usingLink: true, // true -> link verification method and false -> OTP verification method
+        verifySecretKey: "a-string-secret-at-least-256-bits-long", // ( use if usingLink = true else optional) secret key for email signature
+        frontendBaseUrl: frontend_base_url // ( use if usinglink = true  else optional)
     }
 }
 
-app.use("/user", loginSignupFactory(UserModel, secretConfig, emailConfig));
-app.use("/user/post", postArticleFactory(UserModel, PostModel, secretConfig));
+const userAPI = loginSignupFactory(UserModel, secretsConfig, emailConfig);
+const postAPI = postArticleFactory(UserModel, PostModel, secretsConfig);
 
-app.listen(port, () => {
-    console.log("Server is running on port...", port)
+app.use("/user", userAPI);
+app.use("/user/post", postAPI);
+
+app.listen(backend_port, () => {
+    console.log("Server is running on port...", backend_port)
 })
 ```
 
@@ -256,35 +264,38 @@ Server is running on port 3000
 
 ## API end-points
 
+#### User API Endpoints :
+This section outlines all available User API endpoints used for authentication, account management, email verification, OTP handling, account deletion, and password recovery. These endpoints follow RESTful principles and support key user workflows such as signup, login, email verification, account destruction, and recovery, ensuring secure and structured interaction between the client and server.
+
 ```
-# User API Endpoints
-
-POST Request     :   /user/login
-GET Request      :   /user/:userId
 POST Request     :   /user/signup
-GET Request      :   /user/signup/:userId/verify-email
-POST Request     :   /user/signup/:userId/send-email
-POST Request     :   /user/signup/:userId/verify-email
-POST Request     :   /user/destroy/:userId/send-email
-POST Request     :   /user/destroy/:userId/verify-email
-DELETE Request   :   /user/destroy/:userId/verify-email
-POST Request     :   /user/recover-password
-POST Request     :   /user/recover/:userId/send-email
-POST Request     :   /user/recover/:userId/verify-email
-POST Request     :   /user/recover/:userId/otp/verify-email
+POST Request     :   /user/signup/send-verification
+POST Request     :   /user/signup/link/verify-email
+POST Request     :   /user/signup/otp/verify-email
+POST Request     :   /user/login
+GET Request      :   /user/:userId/profile
+POST Request     :   /user/:userId/delete-account/send-verification
+POST Request     :   /user/delete-account/link/verify-email
+POST Request     :   /user/:userId/delete-account/otp/verify-email
+POST Request     :   /user/forgot-password
+POST Request     :   /user/forgot-password/send-verification
+POST Request     :   /user/reset-password/link/verify-email
+POST Request     :   /user/reset-password/otp/verify-email
+```
 
+#### Post Articles API Endpoints :
+This section defines all Post Articles API endpoints used for creating, retrieving, updating, searching, and deleting user posts. It includes features like post creation, editing, pinning, trashing, sharing, and fetching posts (single or multiple), along with pagination support for efficiently handling large datasets, while maintaining proper user-based access control.
 
-# Post Articles API Endpoints
-
+```
 POST Request     :   /user/post/:userId/new-post
 GET Request      :   /user/post/:userId/:postId/get-post
-GET Request      :   /user/post/:userId/all-post
-GET Request      :   /user/post/:postId/share-post
+GET Request      :   /user/post/:userId/all-post?page=1&limit=10
+GET Request      :   /user/post/:postId/view/shared-post
 PATCH Request    :   /user/post/:userId/:postId/edit-post
 PATCH Request    :   /user/post/:userId/:postId/pin-post
 PATCH Request    :   /user/post/:userId/:postId/trash-post
 DELETE Request   :   /user/post/:userId/:postId/delete-post
-GET Request      :   /user/post/:userId/search
+GET Request      :   /user/post/:userId/search?text=title&page=1&limit=10
 ```
 
 Visit [https://github.com/VishalPaswan2402/express-crud-factory-starter/tree/main/docs](https://github.com/VishalPaswan2402/express-crud-factory-starter/tree/main/docs) for detailed API request / response samples and use-cases.
@@ -323,7 +334,7 @@ This package is helpful for:
 
 ## License
 
-This project is licensed under the ISC License. 
+This project is licensed under the MIT License. 
 
 [https://express-crud-factory-license.onrender.com/](https://express-crud-factory-license.onrender.com/)
   
