@@ -62,3 +62,13 @@ exports[`Share Post Controller Snapshot Test for post article not found. 1`] = `
   "status": 404,
 }
 `;
+
+exports[`Share Post Controller Snapshot Test for shared post can't view due to trashed 1`] = `
+{
+  "body": {
+    "message": "You cannot view a trashed article.",
+    "success": false,
+  },
+  "status": 410,
+}
+`;

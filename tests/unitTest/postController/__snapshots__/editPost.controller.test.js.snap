@@ -70,6 +70,16 @@ exports[`Edit Post Controller Snapshot Test for post article not found. 1`] = `
 }
 `;
 
+exports[`Edit Post Controller Snapshot Test for post can't updated due to trashed 1`] = `
+{
+  "body": {
+    "message": "You cannot edit a trashed article.",
+    "success": false,
+  },
+  "status": 410,
+}
+`;
+
 exports[`Edit Post Controller Snapshot Test for update post successfully. 1`] = `
 {
   "body": {

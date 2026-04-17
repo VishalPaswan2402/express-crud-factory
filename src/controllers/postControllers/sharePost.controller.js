@@ -7,6 +7,9 @@ const sharePostController = (PostModel) => async (req, res) => {
         if (!postData) {
             return errorResponse(res, 404, "Article not found.");
         };
+        if (postData.isTrashed) {
+            return errorResponse(res, 410, "You cannot view a trashed article.");
+        }
         return successResponse(res, 200, postData, "Shared article retrieved successfully.");
     }
     catch (error) {

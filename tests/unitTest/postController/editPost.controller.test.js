@@ -85,7 +85,6 @@ describe("Edit Post Controller Snapshot Test", () => {
             _id: req.params.userId,
             email: "test@gmail.com",
             fullname: "UserTest",
-            password: "testPassword",
             username: "test",
             isActive: true,
             articles: []
@@ -103,12 +102,41 @@ describe("Edit Post Controller Snapshot Test", () => {
         expect(result).toMatchSnapshot();
     });
 
+    test("for post can't updated due to trashed", async () => {
+        let savedUser = {
+            _id: req.params.userId,
+            email: "test@gmail.com",
+            fullname: "UserTest",
+            username: "test",
+            isActive: true,
+            articles: [req.params.postId]
+        };
+        UserModel.findById.mockResolvedValue(savedUser);
+        const savedPost = {
+            _id: req.params.postId,
+            author: req.params.userId,
+            description: "postDescription",
+            title: "postTitle",
+            isTrashed: true,
+            save: jest.fn()
+        };
+        PostModel.findById.mockResolvedValue(savedPost);
+        const controller = editPostController(UserModel, PostModel);
+        await controller(req, res);
+        expect(PostModel.findById).toHaveBeenCalledWith(req.params.postId);
+        expect(savedPost.save).not.toHaveBeenCalled();
+        const result = {
+            status: res.status.mock.calls[0][0],
+            body: res.json.mock.calls[0][0]
+        };
+        expect(result).toMatchSnapshot();
+    });
+
     test("for update post successfully.", async () => {
         let savedUser = {
             _id: req.params.userId,
             email: "test@gmail.com",
             fullname: "UserTest",
-            password: "testPassword",
             username: "test",
             isActive: true,
             articles: [req.params.postId]

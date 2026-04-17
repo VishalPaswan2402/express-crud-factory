@@ -21,6 +21,9 @@ const markPostController = (UserModel, PostModel, isTrash) => async (req, res) =
             msg = postData.isTrashed ? "Article moved to trash." : "Article restored from trash.";
         }
         else {
+            if (postData.isTrashed) {
+                return errorResponse(res, 410, "You cannot pin a trashed article.");
+            }
             postData.isPinned = !postData.isPinned;
             msg = postData.isPinned ? "Article pinned successfully." : "Article unpinned successfully.";
         }

@@ -18,6 +18,9 @@ const editPostController = (UserModel, PostModel) => async (req, res) => {
         if (postData.author != userId) {
             return errorResponse(res, 403, "You do not have permission to edit this article.");
         }
+        if (postData.isTrashed) {
+            return errorResponse(res, 410, "You cannot edit a trashed article.");
+        }
         postData.title = title;
         postData.description = description;
         await postData.save();

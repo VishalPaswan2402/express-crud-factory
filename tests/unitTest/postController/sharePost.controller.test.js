@@ -66,6 +66,27 @@ describe("Share Post Controller Snapshot Test", () => {
         expect(result).toMatchSnapshot();
     });
 
+    test("for shared post can't view due to trashed", async () => {
+        const savedPost = {
+            _id: req.params.postId,
+            author: req.params.userId,
+            description: "postDescription",
+            title: "postTitle",
+            isTrashed: true,
+            save: jest.fn()
+        };
+        PostModel.findById.mockResolvedValue(savedPost);
+        const controller = sharePostController(PostModel);
+        await controller(req, res);
+        expect(PostModel.findById).toHaveBeenCalledWith(req.params.postId);
+        expect(savedPost.save).not.toHaveBeenCalled();
+        const result = {
+            status: res.status.mock.calls[0][0],
+            body: res.json.mock.calls[0][0]
+        };
+        expect(result).toMatchSnapshot();
+    });
+
     test("for post article found successfully.", async () => {
         const savedPost = {
             _id: req.params.postId,

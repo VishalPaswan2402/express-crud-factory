@@ -40,6 +40,16 @@ exports[`Mark Post Controller Snapshot Test for post article not found. 1`] = `
 }
 `;
 
+exports[`Mark Post Controller Snapshot Test for post can't pinned due to trashed 1`] = `
+{
+  "body": {
+    "message": "You cannot pin a trashed article.",
+    "success": false,
+  },
+  "status": 410,
+}
+`;
+
 exports[`Mark Post Controller Snapshot Test for post pinned and unpinned successfully. 1`] = `
 {
   "body": {
