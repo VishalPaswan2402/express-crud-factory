@@ -1,7 +1,7 @@
 import { emailTokenGenerator } from "../../utils/emailTokenGenerator.utils.js";
 import { errorResponse, successResponse } from "../../utils/response.utils.js";
 
-const verifyDestroyEmailController = (UserModel, isLink, emailTokenConfig) => async (req, res) => {
+const verifyDestroyEmailController = (UserModel, PostModel, isLink, emailTokenConfig) => async (req, res) => {
     try {
         let myEmail = null;
         let myToken = null;
@@ -52,6 +52,7 @@ const verifyDestroyEmailController = (UserModel, isLink, emailTokenConfig) => as
                 return errorResponse(res, 422, "Incorrect OTP. Please try again.");
             }
         }
+        const allPosts = await PostModel.deleteMany({ author: user._id });
         const deleteData = await UserModel.findByIdAndDelete(user._id);
         const deletedData = {
             username: deleteData.username,

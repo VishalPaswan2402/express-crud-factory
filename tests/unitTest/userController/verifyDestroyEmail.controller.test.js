@@ -21,7 +21,7 @@ beforeAll(async () => {
 });
 
 describe("Verify Destroy Email Controller Snapshot Test", () => {
-    let req, res, Model, emailTokenConfig;
+    let req, res, UserModel, PostModel, emailTokenConfig;
     const sanitizeResponse = (res) => {
         const body = { ...res.json.mock.calls[0][0] };
         if (body?.data?.userId) body.data.userId = "mocked-user-id";
@@ -42,11 +42,14 @@ describe("Verify Destroy Email Controller Snapshot Test", () => {
             status: jest.fn().mockReturnThis(),
             json: jest.fn()
         };
-        Model = {
+        UserModel = {
             findById: jest.fn(),
             findByIdAndDelete: jest.fn(),
             findOne: jest.fn()
         };
+        PostModel = {
+            deleteMany: jest.fn()
+        }
         emailTokenConfig = {
             emailTokenSecret: {
                 secret: "123456",
@@ -62,53 +65,53 @@ describe("Verify Destroy Email Controller Snapshot Test", () => {
 
     test("for missing token in link mode", async () => {
         req.body.token = "";
-        const controller = verifyDestroyEmailController(Model, true, emailTokenConfig);
+        const controller = verifyDestroyEmailController(UserModel, PostModel, true, emailTokenConfig);
         await controller(req, res);
         expect(sanitizeResponse(res)).toMatchSnapshot();
     });
 
     test("for missing OTP in OTP mode", async () => {
         req.body.otp = "";
-        const controller = verifyDestroyEmailController(Model, false, emailTokenConfig);
+        const controller = verifyDestroyEmailController(UserModel, PostModel, false, emailTokenConfig);
         await controller(req, res);
         expect(sanitizeResponse(res)).toMatchSnapshot();
     });
 
     test("for user not found", async () => {
-        Model.findOne.mockReturnValue({
+        UserModel.findOne.mockReturnValue({
             select: jest.fn().mockResolvedValue(null)
         });
-        const controller = verifyDestroyEmailController(Model, true, emailTokenConfig);
+        const controller = verifyDestroyEmailController(UserModel, PostModel, true, emailTokenConfig);
         await controller(req, res);
         expect(sanitizeResponse(res)).toMatchSnapshot();
     });
 
     test("for inactive user", async () => {
-        Model.findOne.mockReturnValue({
+        UserModel.findOne.mockReturnValue({
             select: jest.fn().mockResolvedValue({
                 isActive: false
             })
         });
-        const controller = verifyDestroyEmailController(Model, true, emailTokenConfig);
+        const controller = verifyDestroyEmailController(UserModel, PostModel, true, emailTokenConfig);
         await controller(req, res);
         expect(sanitizeResponse(res)).toMatchSnapshot();
     });
 
     test("for expired token", async () => {
-        Model.findOne.mockReturnValue({
+        UserModel.findOne.mockReturnValue({
             select: jest.fn().mockResolvedValue({
                 isActive: true,
                 verifyToken: "abc",
                 verifyTokenExpires: Date.now() - 1000
             })
         });
-        const controller = verifyDestroyEmailController(Model, true, emailTokenConfig);
+        const controller = verifyDestroyEmailController(UserModel, PostModel, true, emailTokenConfig);
         await controller(req, res);
         expect(sanitizeResponse(res)).toMatchSnapshot();
     });
 
     test("for invalid link token", async () => {
-        Model.findOne.mockReturnValue({
+        UserModel.findOne.mockReturnValue({
             select: jest.fn().mockResolvedValue({
                 _id: { equals: jest.fn(() => true) },
                 isActive: true,
@@ -117,14 +120,14 @@ describe("Verify Destroy Email Controller Snapshot Test", () => {
             })
         });
         req.body.token = "wrong-token";
-        const controller = verifyDestroyEmailController(Model, true, emailTokenConfig);
+        const controller = verifyDestroyEmailController(UserModel, PostModel, true, emailTokenConfig);
         await controller(req, res);
         expect(sanitizeResponse(res)).toMatchSnapshot();
     });
 
     test("for invalid OTP", async () => {
         emailTokenGenerator.compareOtp.mockResolvedValue(false);
-        Model.findOne.mockReturnValue({
+        UserModel.findOne.mockReturnValue({
             select: jest.fn().mockResolvedValue({
                 _id: { equals: jest.fn(() => true) },
                 isActive: true,
@@ -132,7 +135,7 @@ describe("Verify Destroy Email Controller Snapshot Test", () => {
                 verifyTokenExpires: Date.now() + 10000
             })
         });
-        const controller = verifyDestroyEmailController(Model, false, emailTokenConfig);
+        const controller = verifyDestroyEmailController(UserModel, PostModel, false, emailTokenConfig);
         await controller(req, res);
         expect(sanitizeResponse(res)).toMatchSnapshot();
     });
@@ -144,17 +147,18 @@ describe("Verify Destroy Email Controller Snapshot Test", () => {
             verifyToken: "valid-token",
             verifyTokenExpires: Date.now() + 10000
         };
-        Model.findOne.mockReturnValue({
+        UserModel.findOne.mockReturnValue({
             select: jest.fn().mockResolvedValue(user)
         });
-        Model.findByIdAndDelete.mockResolvedValue({
+        UserModel.findByIdAndDelete.mockResolvedValue({
             username: "test",
             fullname: "Test User",
             email: "test@gmail.com"
         });
-        const controller = verifyDestroyEmailController(Model, true, emailTokenConfig);
+        const controller = verifyDestroyEmailController(UserModel, PostModel, true, emailTokenConfig);
         await controller(req, res);
-        expect(Model.findByIdAndDelete).toHaveBeenCalledWith("123");
+        expect(PostModel.deleteMany).toHaveBeenCalledWith({ author: user._id });
+        expect(UserModel.findByIdAndDelete).toHaveBeenCalledWith("123");
         expect(sanitizeResponse(res)).toMatchSnapshot();
     });
 
@@ -166,26 +170,27 @@ describe("Verify Destroy Email Controller Snapshot Test", () => {
             verifyToken: "hashedOtp",
             verifyTokenExpires: Date.now() + 10000
         };
-        Model.findOne.mockReturnValue({
+        UserModel.findOne.mockReturnValue({
             select: jest.fn().mockResolvedValue(user)
         });
-        Model.findByIdAndDelete.mockResolvedValue({
+        UserModel.findByIdAndDelete.mockResolvedValue({
             username: "test",
             fullname: "Test User",
             email: "test@gmail.com"
         });
-        const controller = verifyDestroyEmailController(Model, false, emailTokenConfig);
+        const controller = verifyDestroyEmailController(UserModel, PostModel, false, emailTokenConfig);
         await controller(req, res);
         expect(emailTokenGenerator.compareOtp).toHaveBeenCalled();
-        expect(Model.findByIdAndDelete).toHaveBeenCalled();
+        expect(PostModel.deleteMany).toHaveBeenCalledWith({ author: user._id });
+        expect(UserModel.findByIdAndDelete).toHaveBeenCalledWith(user._id);
         expect(sanitizeResponse(res)).toMatchSnapshot();
     });
 
     test("for database error", async () => {
-        Model.findOne.mockReturnValue({
+        UserModel.findOne.mockReturnValue({
             select: jest.fn().mockRejectedValue(new Error("DB error"))
         });
-        const controller = verifyDestroyEmailController(Model, true, emailTokenConfig);
+        const controller = verifyDestroyEmailController(UserModel, PostModel, true, emailTokenConfig);
         await controller(req, res);
         expect(sanitizeResponse(res)).toMatchSnapshot();
     });

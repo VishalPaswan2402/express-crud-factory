@@ -12,7 +12,7 @@ import verifyDestroyEmailController from "../controllers/userControllers/verifyD
 import recoverPasswordController from "../controllers/userControllers/recoverPassword.controller.js";
 import verifyRecoverEmailController from "../controllers/userControllers/verifyRecoverEmail.controller.js";
 
-export default function userRoutes(UserModel, userSecretConfig, emailSender, verifyMethod, emailTokenConfig) {
+export default function userRoutes(UserModel, PostModel, userSecretConfig, emailSender, verifyMethod, emailTokenConfig) {
     const router = express.Router({ mergeParams: true });
     router.post(
         "/signup",
@@ -57,7 +57,7 @@ export default function userRoutes(UserModel, userSecretConfig, emailSender, ver
     router.post(
         "/delete-account/link/verify-email",
         jsonValidate,
-        verifyDestroyEmailController(UserModel, true, emailTokenConfig)
+        verifyDestroyEmailController(UserModel, PostModel, true, emailTokenConfig)
     );
     router.post(
         "/:userId/delete-account/otp/verify-email",
@@ -65,7 +65,7 @@ export default function userRoutes(UserModel, userSecretConfig, emailSender, ver
         isValidUserId,
         authenticateUser(userSecretConfig.jwtSecret),
         authorizeUser,
-        verifyDestroyEmailController(UserModel, false, emailTokenConfig)
+        verifyDestroyEmailController(UserModel, PostModel, false, emailTokenConfig)
     );
     router.post(
         "/forgot-password",

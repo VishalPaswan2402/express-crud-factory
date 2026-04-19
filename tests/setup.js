@@ -40,7 +40,7 @@ const emailConfig = {
     }
 }
 
-app.use('/user', loginSignupFactory(DefaultUser, secretsConfig, emailConfig));
+app.use('/user', loginSignupFactory(DefaultUser, DefaultPost, secretsConfig, emailConfig));
 app.use('/user/post', postArticleFactory(DefaultUser, DefaultPost, secretsConfig));
 
 app.listen(port, () => {

@@ -1,7 +1,10 @@
-export default function loginSignupFactoryValidator(UserModel, configOptions = {}, emailConfig = {}) {
+export default function loginSignupFactoryValidator(UserModel, PostModel, configOptions = {}, emailConfig = {}) {
     const { jwtSecret = {}, bcryptSecret = {} } = configOptions;
     if (!UserModel) {
         throw new Error("UserModel is required to Login_Signup_Factory");
+    }
+    if (!PostModel) {
+        throw new Error("PostModel is required to Login_Signup_Factory");
     }
     if (!jwtSecret || Object.keys(jwtSecret).length === 0) {
         throw new Error("Jwt secret is required to Login_Signup_Factory");
