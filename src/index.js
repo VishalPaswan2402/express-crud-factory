@@ -1,7 +1,8 @@
+import loginSignupFactoryConfigure from './config/loginSignupFactory.config.js';
+import postArticleFactoryConfigure from './config/postArticleFactory.config.js';
 import { jsonErrorHandler } from './middlewares/jsonErrorHandler.middleware.js';
 import { loginSignupApi, postArticleAPI } from './routes/crud.routes.js';
 import { connectDatabase } from './utils/connectDatabase.utils.js';
-import { loginSignupFactoryConfigure, postArticleFactoryConfigure } from './validator/factory.configure.js';
 import loginSignupFactoryValidator from './validator/loginSignupFactory.validator.js';
 import postArticleFactoryValidator from './validator/postArticleFactory.validator.js';
 

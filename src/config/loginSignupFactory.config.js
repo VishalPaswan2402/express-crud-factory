@@ -1,8 +1,8 @@
-import { authSecretConfig } from "../config/authSecret.config.js";
-import { emailVerificationConfig } from "../config/emailVerification.config.js";
-import { nodemailerConfig } from "../config/nodemailer.config.js";
+import { authSecretConfig } from "./authSecret.config.js";
+import { emailVerificationConfig } from "./emailVerification.config.js";
+import { nodemailerConfig } from "./nodemailer.config.js";
 
-export const loginSignupFactoryConfigure = (configOptions = {}, emailConfig = {}) => {
+const loginSignupFactoryConfigure = (configOptions = {}, emailConfig = {}) => {
     const { jwtSecret = {}, bcryptSecret = {} } = configOptions;
     const userSecretConfig = authSecretConfig(jwtSecret, bcryptSecret);
     const emailSender = nodemailerConfig(emailConfig.mailProvider);
@@ -14,8 +14,4 @@ export const loginSignupFactoryConfigure = (configOptions = {}, emailConfig = {}
     return { userSecretConfig, emailSender, verifyMethod, emailTokenConfig }
 };
 
-export const postArticleFactoryConfigure = (configOptions = {}) => {
-    const { jwtSecret = {}, bcryptSecret = {} } = configOptions;
-    const userSecretConfig = authSecretConfig(jwtSecret, bcryptSecret);
-    return userSecretConfig;
-};
+export default loginSignupFactoryConfigure;
