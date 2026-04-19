@@ -19,8 +19,7 @@ const loginUserController = (UserModel, userSecretConfig) => async (req, res) =>
         if (!dataByUsername.emailVerified) {
             if (dataByUsername.destroyDataAfter > Date.now()) {
                 const userData = {
-                    userId: dataByUsername._id,
-                    fullName: dataByUsername.fullName,
+                    fullname: dataByUsername.fullname,
                     email: dataByUsername.email
                 };
                 return successResponse(res, 200, userData, "Please verify your email.");

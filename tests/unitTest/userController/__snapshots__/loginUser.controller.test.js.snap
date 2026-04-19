@@ -78,7 +78,7 @@ exports[`Login User Controller Snapshot Test for successful login. 1`] = `
       "articles": 0,
       "email": "test@gmail.com",
       "emailVerified": true,
-      "fullName": "User Test",
+      "fullname": "User Test",
       "isActive": true,
       "username": "test",
     },
@@ -95,8 +95,7 @@ exports[`Login User Controller Snapshot Test for unverified email but not expire
   "body": {
     "data": {
       "email": "test@gmail.com",
-      "fullName": "User Test",
-      "userId": "507f1f77bcf86cd799439011",
+      "fullname": "User Test",
     },
     "message": "Please verify your email.",
     "success": true,

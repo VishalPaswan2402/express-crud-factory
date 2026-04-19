@@ -31,7 +31,7 @@ describe("Login User Controller Snapshot Test", () => {
     const baseUser = {
         _id: "507f1f77bcf86cd799439011",
         username: "test",
-        fullName: "User Test",
+        fullname: "User Test",
         email: "test@gmail.com",
         password: "hashedPassword",
         emailVerified: true,
@@ -42,7 +42,7 @@ describe("Login User Controller Snapshot Test", () => {
             return {
                 _id: this._id,
                 username: this.username,
-                fullName: this.fullName,
+                fullname: this.fullname,
                 email: this.email,
                 emailVerified: this.emailVerified,
                 isActive: this.isActive,
@@ -176,7 +176,7 @@ describe("Login User Controller Snapshot Test", () => {
         const user = {
             _id: "507f1f77bcf86cd799439011",
             username: "test",
-            fullName: "User Test",
+            fullname: "User Test",
             email: "test@gmail.com",
             password: "hashedPassword",
             emailVerified: true,
@@ -187,7 +187,7 @@ describe("Login User Controller Snapshot Test", () => {
                 return {
                     _id: this._id,
                     username: this.username,
-                    fullName: this.fullName,
+                    fullname: this.fullname,
                     email: this.email,
                     password: this.password,
                     destroyDataAfter: this.destroyDataAfter,
