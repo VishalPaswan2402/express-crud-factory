@@ -3,9 +3,9 @@ import { passwordHashing } from "../../utils/passwordHashing.utils.js";
 import { errorResponse, successResponse } from "../../utils/response.utils.js";
 import { userAfterVerification } from "../../utils/userAfterVerification.utils.js";
 
-const verifyRecoverEmailController = (UserModel, isLink, userSecretConfig, emailTokenConfig) => async (req, res) => {
+const verifyRecoverEmailController = (UserModel, isLink, userSecretConfig) => async (req, res) => {
     try {
-        let myEmail = null;
+        let user = null;
         let myToken = null;
         const { password, confirmPassword } = req.body;
         if (!password || !confirmPassword) {
@@ -22,12 +22,11 @@ const verifyRecoverEmailController = (UserModel, isLink, userSecretConfig, email
             if (!token) {
                 return errorResponse(res, 400, "Verification token is missing. Please check your email link.");
             }
-            const tokenData = emailTokenGenerator.emailDecryptToken(token, emailTokenConfig);
-            if (!tokenData || tokenData.verifyType !== 2) {
-                return errorResponse(res, 410, "Your verification link has expired or invalid. Please request a new one.");
-            }
             myToken = token;
-            myEmail = tokenData.email;
+            user = await UserModel.findOne({ verifyToken: token }).select("+verifyToken +verifyTokenType +verifyTokenExpires +destroyDataAfter +otpRequestCount +otpLastRequest");
+            if (!user) {
+                return errorResponse(res, 404, "Invalid token. Please re-check it.")
+            }
         }
         else {
             const { otp, email } = req.body;
@@ -35,11 +34,10 @@ const verifyRecoverEmailController = (UserModel, isLink, userSecretConfig, email
                 return errorResponse(res, 400, "OTP and email is required.");
             }
             myToken = otp;
-            myEmail = email;
-        }
-        const user = await UserModel.findOne({ email: myEmail }).select("+verifyToken +verifyTokenExpires +destroyDataAfter +otpRequestCount +otpLastRequest");
-        if (!user) {
-            return errorResponse(res, 404, "User not found.");
+            user = await UserModel.findOne({ email: email }).select("+verifyToken +verifyTokenType +verifyTokenExpires +destroyDataAfter +otpRequestCount +otpLastRequest");
+            if (!user) {
+                return errorResponse(res, 404, "User not found.");
+            }
         }
         if (!user.emailVerified) {
             return errorResponse(res, 403, `Email not verified. You can't recover the account.`);
@@ -48,14 +46,12 @@ const verifyRecoverEmailController = (UserModel, isLink, userSecretConfig, email
             return errorResponse(res, 403, `Your account is blocked. Recovery is not allowed.`);
         }
         if (!user.verifyToken || !user.verifyTokenExpires || user.verifyTokenExpires < Date.now()) {
-            return errorResponse(res, 410, "Your OTP has expired. Please request a new one.");
+            return errorResponse(res, 410, `Your ${isLink ? "verification link" : "OTP"} has expired. Please request a new one.`);
         }
-        if (isLink) {
-            if (myToken !== user.verifyToken) {
-                return errorResponse(res, 400, "This verification link is invalid. Please request a new one.");
-            }
+        if (!user.verifyTokenType || user.verifyTokenType !== "recover_token") {
+            return errorResponse(res, 410, `Your ${isLink ? "verification link" : "OTP"} is invalid. Please request a new one.`)
         }
-        else {
+        if (!isLink) {
             const isValidOtp = await emailTokenGenerator.compareOtp(myToken, user.verifyToken);
             if (!isValidOtp) {
                 return errorResponse(res, 422, "Incorrect OTP. Please try again.");

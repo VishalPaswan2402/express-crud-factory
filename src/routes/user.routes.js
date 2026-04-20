@@ -12,22 +12,22 @@ import verifyDestroyEmailController from "../controllers/userControllers/verifyD
 import recoverPasswordController from "../controllers/userControllers/recoverPassword.controller.js";
 import verifyRecoverEmailController from "../controllers/userControllers/verifyRecoverEmail.controller.js";
 
-export default function userRoutes(UserModel, PostModel, userSecretConfig, emailSender, verifyMethod, emailTokenConfig) {
+export default function userRoutes(UserModel, PostModel, userSecretConfig, emailSender, verifyMethod) {
     const router = express.Router({ mergeParams: true });
     router.post(
         "/signup",
         jsonValidate,
-        createUserController(UserModel, userSecretConfig, emailSender, verifyMethod, emailTokenConfig)
+        createUserController(UserModel, userSecretConfig, emailSender, verifyMethod)
     );
     router.post(
         "/signup/send-verification",
         jsonValidate,
-        sendVerificationEmailController(UserModel, userSecretConfig, emailSender, verifyMethod, 1, emailTokenConfig)
+        sendVerificationEmailController(UserModel, userSecretConfig, emailSender, verifyMethod, 1)
     );
     router.post(
         "/signup/link/verify-email",
         jsonValidate,
-        verifySignupEmailController(UserModel, userSecretConfig, true, emailTokenConfig)
+        verifySignupEmailController(UserModel, userSecretConfig, true)
     );
     router.post(
         "/signup/otp/verify-email",
@@ -52,12 +52,12 @@ export default function userRoutes(UserModel, PostModel, userSecretConfig, email
         isValidUserId,
         authenticateUser(userSecretConfig.jwtSecret),
         authorizeUser,
-        sendVerificationEmailController(UserModel, userSecretConfig, emailSender, verifyMethod, 3, emailTokenConfig)
+        sendVerificationEmailController(UserModel, userSecretConfig, emailSender, verifyMethod, 3)
     );
     router.post(
         "/delete-account/link/verify-email",
         jsonValidate,
-        verifyDestroyEmailController(UserModel, PostModel, true, emailTokenConfig)
+        verifyDestroyEmailController(UserModel, PostModel, true)
     );
     router.post(
         "/:userId/delete-account/otp/verify-email",
@@ -65,27 +65,27 @@ export default function userRoutes(UserModel, PostModel, userSecretConfig, email
         isValidUserId,
         authenticateUser(userSecretConfig.jwtSecret),
         authorizeUser,
-        verifyDestroyEmailController(UserModel, PostModel, false, emailTokenConfig)
+        verifyDestroyEmailController(UserModel, PostModel, false)
     );
     router.post(
         "/forgot-password",
         jsonValidate,
-        recoverPasswordController(UserModel, userSecretConfig, emailSender, verifyMethod, emailTokenConfig)
+        recoverPasswordController(UserModel, userSecretConfig, emailSender, verifyMethod)
     );
     router.post(
         "/forgot-password/send-verification",
         jsonValidate,
-        sendVerificationEmailController(UserModel, userSecretConfig, emailSender, verifyMethod, 2, emailTokenConfig)
+        sendVerificationEmailController(UserModel, userSecretConfig, emailSender, verifyMethod, 2)
     );
     router.post(
         "/reset-password/link/verify-email",
         jsonValidate,
-        verifyRecoverEmailController(UserModel, true, userSecretConfig, emailTokenConfig)
+        verifyRecoverEmailController(UserModel, true, userSecretConfig)
     );
     router.post(
         "/reset-password/otp/verify-email",
         jsonValidate,
-        verifyRecoverEmailController(UserModel, false, userSecretConfig, emailTokenConfig)
+        verifyRecoverEmailController(UserModel, false, userSecretConfig)
     );
     return router;
 }

@@ -33,6 +33,11 @@ const defaultUserSchema = new Schema({
         default: null,
         select: false
     },
+    verifyTokenType: {
+        type: String,
+        default: null,
+        select: false
+    },
     verifyTokenExpires: {
         type: Date,
         default: null,

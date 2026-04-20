@@ -1,9 +1,9 @@
 import { emailTokenGenerator } from "./emailTokenGenerator.utils.js"
 
 export const verificationToken = {
-    saveSendToken: async (verifyMethod, userSecretConfig, emailTokenConfig, create, email) => {
+    saveSendToken: async (verifyMethod, userSecretConfig, create) => {
         if (verifyMethod.usingLink) {
-            const saveToken = emailTokenGenerator.emailEncryptToken(email, create, emailTokenConfig?.emailTokenSecret);
+            const saveToken = emailTokenGenerator.emailToken();
             const sendToken = `${verifyMethod.frontendBaseUrl}/user/${create === 1 ? 'signup' : create === 2 ? 'reset-password' : 'delete-account'}/link/verify-email?token=${saveToken}`;
             return { saveToken, sendToken };
         }

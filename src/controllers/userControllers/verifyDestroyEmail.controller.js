@@ -1,21 +1,20 @@
 import { emailTokenGenerator } from "../../utils/emailTokenGenerator.utils.js";
 import { errorResponse, successResponse } from "../../utils/response.utils.js";
 
-const verifyDestroyEmailController = (UserModel, PostModel, isLink, emailTokenConfig) => async (req, res) => {
+const verifyDestroyEmailController = (UserModel, PostModel, isLink) => async (req, res) => {
     try {
-        let myEmail = null;
+        let user = null;
         let myToken = null;
         if (isLink) {
             const { token } = req.body;
             if (!token) {
                 return errorResponse(res, 400, "Verification token is missing.");
             }
-            const tokenData = emailTokenGenerator.emailDecryptToken(token, emailTokenConfig);
-            if (!tokenData || tokenData.verifyType !== 3) {
-                return errorResponse(res, 410, "Your verification link has expired or invalid. Please request a new one.");
-            }
             myToken = token;
-            myEmail = tokenData.email;
+            user = await UserModel.findOne({ verifyToken: token }).select("+verifyToken +verifyTokenType +verifyTokenExpires");
+            if (!user) {
+                return errorResponse(res, 404, "Invalid token. Please re-check it.")
+            }
         }
         else {
             const { otp, email } = req.body;
@@ -23,11 +22,10 @@ const verifyDestroyEmailController = (UserModel, PostModel, isLink, emailTokenCo
                 return errorResponse(res, 400, "OTP and email is required.");
             }
             myToken = otp;
-            myEmail = email;
-        }
-        const user = await UserModel.findOne({ email: myEmail }).select("+verifyToken +verifyTokenExpires");
-        if (!user) {
-            return errorResponse(res, 404, "User not found.");
+            user = await UserModel.findOne({ email: email }).select("+verifyToken +verifyTokenType +verifyTokenExpires");
+            if (!user) {
+                return errorResponse(res, 404, "User not found.");
+            }
         }
         if (!isLink) {
             const loggedUser = req.loggedUser;
@@ -41,12 +39,10 @@ const verifyDestroyEmailController = (UserModel, PostModel, isLink, emailTokenCo
         if (!user.verifyToken || !user.verifyTokenExpires || user.verifyTokenExpires < Date.now()) {
             return errorResponse(res, 410, `Your ${isLink ? "verification link" : "OTP"} has expired. Please request a new one.`);
         }
-        if (isLink) {
-            if (user.verifyToken !== myToken) {
-                return errorResponse(res, 400, "This verification link is invalid. Please request a new one.");
-            }
+        if (!user.verifyTokenType || user.verifyTokenType !== "destroy_token") {
+            return errorResponse(res, 410, `Your ${isLink ? "verification link" : "OTP"} is invalid. Please request a new one.`);
         }
-        else {
+        if (!isLink) {
             const isValidOtp = await emailTokenGenerator.compareOtp(myToken, user.verifyToken);
             if (!isValidOtp) {
                 return errorResponse(res, 422, "Incorrect OTP. Please try again.");

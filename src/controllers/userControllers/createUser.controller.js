@@ -5,7 +5,7 @@ import { errorResponse, successResponse } from "../../utils/response.utils.js";
 import { verificationMailSender } from "../../utils/verificationMailSender.utils.js";
 import { verificationToken } from "../../utils/verificationToken.utils.js";
 
-const createUserController = (UserModel, userSecretConfig, emailSender, verifyMethod, emailTokenConfig) => async (req, res) => {
+const createUserController = (UserModel, userSecretConfig, emailSender, verifyMethod) => async (req, res) => {
     try {
         const { email, username, fullname, password, confirmPassword } = req.body;
         if (!email || !username || !fullname || !password || !confirmPassword) {
@@ -42,11 +42,12 @@ const createUserController = (UserModel, userSecretConfig, emailSender, verifyMe
         });
         const data = await modelData.save();
         try {
-            const generatedToken = await verificationToken.saveSendToken(verifyMethod, userSecretConfig, emailTokenConfig, 1, data.email);
+            const generatedToken = await verificationToken.saveSendToken(verifyMethod, userSecretConfig, 1);
             let verificationSave = generatedToken.saveToken;
             let verificationSend = generatedToken.sendToken;
             data.verifyToken = verificationSave;
             data.otpRequestCount = 1;
+            data.verifyTokenType = "create_token";
             data.verifyTokenExpires = dataExpiryTime.otpLinkExpire(verifyMethod.otpLinkExpiryMinutes);
             await data.save();
             await verificationMailSender.sendEmail(emailSender, verifyMethod, data.email, 1, data.fullname, verificationSend);

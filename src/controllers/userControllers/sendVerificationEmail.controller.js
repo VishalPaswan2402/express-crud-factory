@@ -4,7 +4,7 @@ import { validEmailRequest } from "../../utils/validEmailRequest.utils.js";
 import { verificationMailSender } from "../../utils/verificationMailSender.utils.js";
 import { verificationToken } from "../../utils/verificationToken.utils.js";
 
-const sendVerificationEmailController = (UserModel, userSecretConfig, emailSender, verifyMethod, create, emailTokenConfig) => async (req, res) => {
+const sendVerificationEmailController = (UserModel, userSecretConfig, emailSender, verifyMethod, create) => async (req, res) => {
     try {
         const { email } = req.body;
         if (!email) {
@@ -40,7 +40,7 @@ const sendVerificationEmailController = (UserModel, userSecretConfig, emailSende
         if (!validEmailRequest(user)) {
             return errorResponse(res, 429, "OTP request limit exceeded. Please try again later.");
         }
-        const generatedToken = await verificationToken.saveSendToken(verifyMethod, userSecretConfig, emailTokenConfig, create, user.email);
+        const generatedToken = await verificationToken.saveSendToken(verifyMethod, userSecretConfig, create);
         let verificationSave = generatedToken.saveToken;
         let verificationSend = generatedToken.sendToken;
         const otpCount = user.otpRequestCount + 1;
@@ -49,6 +49,7 @@ const sendVerificationEmailController = (UserModel, userSecretConfig, emailSende
         }
         user.otpRequestCount = otpCount;
         user.verifyToken = verificationSave;
+        user.verifyTokenType = create === 1 ? "create_token" : create === 2 ? "recover_token" : "destroy_token";
         user.verifyTokenExpires = dataExpiryTime.otpLinkExpire(verifyMethod.otpLinkExpiryMinutes);
         await user.save();
         await verificationMailSender.sendEmail(emailSender, verifyMethod, user.email, create, user.fullname, verificationSend);

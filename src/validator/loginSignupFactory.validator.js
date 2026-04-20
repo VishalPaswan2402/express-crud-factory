@@ -36,10 +36,6 @@ export default function loginSignupFactoryValidator(UserModel, PostModel, config
         ) {
             throw new Error("Email configuration frontendBaseUrl are missing.");
         }
-        if (!emailConfig.verifyMethod.verifySecretKey || emailConfig.verifyMethod.verifySecretKey == ""
-        ) {
-            throw new Error("Email configuration verifySecretKey are missing.");
-        }
     }
     if (emailConfig.verifyMethod.otpLinkExpiryMinutes <= 0) {
         throw new Error("OTP/link expiry minutes must be greater than or equal to 1.");

@@ -3,6 +3,7 @@ export const userAfterVerification = async (user) => {
     user.emailVerified = true;
     user.isActive = true;
     user.verifyToken = null;
+    user.verifyTokenType = null;
     user.verifyTokenExpires = null;
     user.destroyDataAfter = null;
     user.otpRequestCount = 0;
@@ -12,6 +13,7 @@ export const userAfterVerification = async (user) => {
     const savedData = data.toObject();
     delete savedData.password;
     delete savedData.verifyToken;
+    delete savedData.verifyTokenType;
     delete savedData.verifyTokenExpires;
     delete savedData.destroyDataAfter;
     delete savedData.otpRequestCount;

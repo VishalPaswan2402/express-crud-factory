@@ -14,7 +14,7 @@ await connectDatabase(db_url);
 // secret configuration
 const secretsConfig = {
     jwtSecret: {
-        secretKey: "093hfor02yc7hdh46a9c0b2d5e093rbchw322je4v62c5d7e8f184hdyqb3kf6i2z",
+        secretKey: "your_jwt_secret_key_at_least_256_bits_long",
         expireInDays: 1
     },
     bcryptSecret: {
@@ -27,15 +27,14 @@ const emailConfig = {
     mailProvider: {
         host: "smtp.ethereal.email",
         secure: false,
-        username: "herta.muller@ethereal.email",
-        password: "khFdgXewnAKvYSzSma"
+        username: "your_email_username",
+        password: "your_email_password"
     },
     verifyMethod: {
         projectName: "Express-Crud-Factory",
-        otpLinkExpiryMinutes: 2,
+        otpLinkExpiryMinutes: 10,
         unverifiedUserExpiryDays: 1,
-        usingLink: true, // true -> link and false -> OTP
-        verifySecretKey: "093hfjsbc451e4f6a9c0b2d5e7f8a1ckr912je4v62c5d7e8f1a3c6lelq0f6i2z", // if link = true
+        usingLink: false, // true -> link and false -> OTP
         frontendBaseUrl: `http://localhost:${port}` // if usinglink = true (use your frontend base url)
     }
 }

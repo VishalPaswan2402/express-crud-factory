@@ -9,8 +9,8 @@ import postArticleFactoryValidator from './validator/postArticleFactory.validato
 // for new user account setup
 function loginSignupFactory(UserModel, PostModel, configOptions = {}, emailConfig = {}) {
     loginSignupFactoryValidator(UserModel, PostModel, configOptions, emailConfig);
-    const { userSecretConfig, emailSender, verifyMethod, emailTokenConfig } = loginSignupFactoryConfigure(configOptions, emailConfig);
-    return loginSignupApi(UserModel, PostModel, userSecretConfig, emailSender, verifyMethod, emailTokenConfig);
+    const { userSecretConfig, emailSender, verifyMethod } = loginSignupFactoryConfigure(configOptions, emailConfig);
+    return loginSignupApi(UserModel, PostModel, userSecretConfig, emailSender, verifyMethod);
 };
 
 // for posting article.

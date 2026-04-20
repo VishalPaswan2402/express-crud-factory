@@ -21,28 +21,7 @@ export const emailTokenGenerator = {
         return isValid;
     },
     emailToken: () => {
-        const emailToken = crypto.randomBytes(32).toString("hex");
+        const emailToken = crypto.randomBytes(100).toString("hex");
         return emailToken;
     },
-    emailEncryptToken: (email, verifyType, emailTokenSecret) => {
-        const token = jwt.sign(
-            {
-                email: email,
-                verifyType: verifyType
-            },
-            emailTokenSecret.secret,
-            {
-                expiresIn: emailTokenSecret.expireIn
-            }
-        );
-        return token;
-    },
-    emailDecryptToken: (token, emailTokenConfig) => {
-        try {
-            const emailTokenData = jwt.verify(token, emailTokenConfig?.emailTokenSecret?.secret);
-            return emailTokenData;
-        } catch (error) {
-            return null;
-        }
-    }
 }
