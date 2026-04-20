@@ -77,7 +77,7 @@ export default function postRoutes(UserModel, PostModel, userSecretConfig) {
         isValidUserId,
         authenticateUser(userSecretConfig.jwtSecret),
         authorizeUser,
-        searchByTitleController(PostModel)
+        searchByTitleController(UserModel, PostModel)
     );
     return router;
 }

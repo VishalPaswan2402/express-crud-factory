@@ -4,8 +4,15 @@ import { errorResponse, successResponse } from "../../utils/response.utils.js";
 const allPostController = (UserModel, PostModel) => async (req, res) => {
     try {
         const { userId } = req.params;
-        const page = parseInt(req.query.page) || 1;
-        const limit = parseInt(req.query.limit) || 10;
+        let page = req.query.page ? Number(req.query.page) : 1;
+        let limit = req.query.limit ? Number(req.query.limit) : 10;
+        if (!Number.isInteger(page) || page < 1) {
+            return errorResponse(res, 400, "Invalid page value");
+        }
+        if (!Number.isInteger(limit) || limit < 1) {
+            return errorResponse(res, 400, "Invalid limit value");
+        }
+        limit = Math.min(limit, 50);
         const skip = (page - 1) * limit;
         const userData = await UserModel.findById(userId);
         if (!userData) {

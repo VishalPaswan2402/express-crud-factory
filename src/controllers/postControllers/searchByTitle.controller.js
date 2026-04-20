@@ -1,18 +1,29 @@
 import { querySearch } from "../../utils/querySearch.utils.js";
 import { errorResponse, successResponse } from "../../utils/response.utils.js";
 
-const searchByTitleController = (PostModel) => async (req, res) => {
+const searchByTitleController = (UserModel, PostModel) => async (req, res) => {
     try {
         const { text } = req.query;
         const { userId } = req.params;
-        const page = parseInt(req.query.page) || 1;
-        const limit = parseInt(req.query.limit) || 10;
+        let page = req.query.page ? Number(req.query.page) : 1;
+        let limit = req.query.limit ? Number(req.query.limit) : 10;
+        if (!Number.isInteger(page) || page < 1) {
+            return errorResponse(res, 400, "Invalid page value");
+        }
+        if (!Number.isInteger(limit) || limit < 1) {
+            return errorResponse(res, 400, "Invalid limit value");
+        }
+        limit = Math.min(limit, 50);
         const skip = (page - 1) * limit;
         if (!text) {
             return errorResponse(res, 400, "Text query is required.");
         }
         if (!userId) {
             return errorResponse(res, 400, "User ID is required.");
+        }
+        const userData = await UserModel.findById(userId);
+        if (!userData) {
+            return errorResponse(res, 404, "User not found.");
         }
         const query = {
             author: userId,
