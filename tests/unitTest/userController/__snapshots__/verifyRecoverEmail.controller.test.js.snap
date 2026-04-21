@@ -23,7 +23,7 @@ exports[`Verify Recover Email Controller Snapshot Test for email not verified 1`
 exports[`Verify Recover Email Controller Snapshot Test for expired token 1`] = `
 {
   "body": {
-    "message": "Your OTP has expired. Please request a new one.",
+    "message": "Your verification link has expired. Please request a new one.",
     "success": false,
   },
   "status": 410,
@@ -50,13 +50,13 @@ exports[`Verify Recover Email Controller Snapshot Test for invalid OTP 1`] = `
 }
 `;
 
-exports[`Verify Recover Email Controller Snapshot Test for invalid link token 1`] = `
+exports[`Verify Recover Email Controller Snapshot Test for invalid token type 1`] = `
 {
   "body": {
-    "message": "This verification link is invalid. Please request a new one.",
+    "message": "Your verification link is invalid. Please request a new one.",
     "success": false,
   },
-  "status": 400,
+  "status": 410,
 }
 `;
 
@@ -131,7 +131,7 @@ exports[`Verify Recover Email Controller Snapshot Test for successful password u
 exports[`Verify Recover Email Controller Snapshot Test for user not found 1`] = `
 {
   "body": {
-    "message": "User not found.",
+    "message": "Invalid token. Please re-check it.",
     "success": false,
   },
   "status": 404,

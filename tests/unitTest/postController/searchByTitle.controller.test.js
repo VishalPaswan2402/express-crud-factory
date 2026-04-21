@@ -1,4 +1,4 @@
-import { beforeEach, beforeAll, describe, expect, jest } from "@jest/globals";
+import { beforeEach, beforeAll, describe, expect, jest, test } from "@jest/globals";
 
 const mockPageRange = jest.fn();
 const mockQueryData = jest.fn();
@@ -20,7 +20,7 @@ beforeAll(async () => {
 });
 
 describe("Search By Title Controller Snapshot Tests", () => {
-    let req, res, PostModel;
+    let req, res, UserModel, PostModel;
     const sanitizeResponse = (res) => {
         const body = { ...res.json.mock.calls[0][0] };
         return {
@@ -37,50 +37,75 @@ describe("Search By Title Controller Snapshot Tests", () => {
             status: jest.fn().mockReturnThis(),
             json: jest.fn()
         };
+        UserModel = {
+            findById: jest.fn()
+        };
         PostModel = {};
-    });
-    afterEach(() => {
         jest.clearAllMocks();
     });
 
-    test("for search text missing.", async () => {
+    test("for search text missing", async () => {
         req.query = {};
         req.params = { userId: "123" };
-        const controller = searchByTitleController(PostModel);
+        const controller = searchByTitleController(UserModel, PostModel);
         await controller(req, res);
-        const result = sanitizeResponse(res);
-        expect(result).toMatchSnapshot();
+        expect(sanitizeResponse(res)).toMatchSnapshot();
     });
 
-    test("for userId missing.", async () => {
+    test("for userId missing", async () => {
         req.query = { text: "react" };
         req.params = {};
-        const controller = searchByTitleController(PostModel);
+        const controller = searchByTitleController(UserModel, PostModel);
         await controller(req, res);
-        const result = sanitizeResponse(res);
-        expect(result).toMatchSnapshot();
+        expect(sanitizeResponse(res)).toMatchSnapshot();
     });
 
-    test("for page exceeds total pages.", async () => {
+    test("for invalid page value", async () => {
+        req.query = { text: "react", page: "0" };
+        req.params = { userId: "123" };
+        const controller = searchByTitleController(UserModel, PostModel);
+        await controller(req, res);
+        expect(sanitizeResponse(res)).toMatchSnapshot();
+    });
+
+    test("for invalid limit value", async () => {
+        req.query = { text: "react", limit: "0" };
+        req.params = { userId: "123" };
+        const controller = searchByTitleController(UserModel, PostModel);
+        await controller(req, res);
+        expect(sanitizeResponse(res)).toMatchSnapshot();
+    });
+
+    test("for user not found", async () => {
+        req.query = { text: "react" };
+        req.params = { userId: "123" };
+        UserModel.findById.mockResolvedValue(null);
+        const controller = searchByTitleController(UserModel, PostModel);
+        await controller(req, res);
+        expect(sanitizeResponse(res)).toMatchSnapshot();
+    });
+
+    test("for page exceeds total pages", async () => {
         req.query = { text: "react", page: "5", limit: "2" };
         req.params = { userId: "123" };
+        UserModel.findById.mockResolvedValue({ _id: "123" });
         mockPageRange.mockResolvedValue({
             value: false,
             totalPages: 2
         });
-        const controller = searchByTitleController(PostModel);
+        const controller = searchByTitleController(UserModel, PostModel);
         await controller(req, res);
-        const result = sanitizeResponse(res);
-        expect(result).toMatchSnapshot();
+        expect(sanitizeResponse(res)).toMatchSnapshot();
     });
 
-    test("for find posts successfully.", async () => {
+    test("for find posts successfully", async () => {
         req.query = { text: "react", page: "1", limit: "2" };
         req.params = { userId: "123" };
         const mockPosts = [
             { title: "React Guide", author: "123" },
             { title: "Learning React", author: "123" }
         ];
+        UserModel.findById.mockResolvedValue({ _id: "123" });
         mockPageRange.mockResolvedValue({
             value: true,
             totalPages: 1,
@@ -93,15 +118,15 @@ describe("Search By Title Controller Snapshot Tests", () => {
             totalPages: 1,
             currentPage: 1
         });
-        const controller = searchByTitleController(PostModel);
+        const controller = searchByTitleController(UserModel, PostModel);
         await controller(req, res);
-        const result = sanitizeResponse(res);
-        expect(result).toMatchSnapshot();
+        expect(sanitizeResponse(res)).toMatchSnapshot();
     });
 
-    test("for no result found.", async () => {
+    test("for no result found", async () => {
         req.query = { text: "unknown", page: "1", limit: "2" };
         req.params = { userId: "123" };
+        UserModel.findById.mockResolvedValue({ _id: "123" });
         mockPageRange.mockResolvedValue({
             value: true,
             totalPages: 1,
@@ -114,19 +139,18 @@ describe("Search By Title Controller Snapshot Tests", () => {
             totalPages: 1,
             currentPage: 1
         });
-        const controller = searchByTitleController(PostModel);
+        const controller = searchByTitleController(UserModel, PostModel);
         await controller(req, res);
-        const result = sanitizeResponse(res);
-        expect(result).toMatchSnapshot();
+        expect(sanitizeResponse(res)).toMatchSnapshot();
     });
 
-    test("for should handle server error.", async () => {
+    test("for should handle server error", async () => {
         req.query = { text: "react" };
         req.params = { userId: "123" };
+        UserModel.findById.mockResolvedValue({ _id: "123" });
         mockPageRange.mockRejectedValue(new Error("DB Error"));
-        const controller = searchByTitleController(PostModel);
+        const controller = searchByTitleController(UserModel, PostModel);
         await controller(req, res);
-        const result = sanitizeResponse(res);
-        expect(result).toMatchSnapshot();
+        expect(sanitizeResponse(res)).toMatchSnapshot();
     });
 });

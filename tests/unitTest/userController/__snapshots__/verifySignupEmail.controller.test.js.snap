@@ -31,13 +31,13 @@ exports[`Verify Signup Email Controller Snapshot Test for email already verified
 }
 `;
 
-exports[`Verify Signup Email Controller Snapshot Test for invalid/expired token (link) 1`] = `
+exports[`Verify Signup Email Controller Snapshot Test for missing OTP/email 1`] = `
 {
   "body": {
-    "message": "Your verification link has expired or invalid. Please request a new one.",
+    "message": "OTP and email is required.",
     "success": false,
   },
-  "status": 410,
+  "status": 400,
 }
 `;
 
@@ -61,16 +61,6 @@ exports[`Verify Signup Email Controller Snapshot Test for token expired 1`] = `
 }
 `;
 
-exports[`Verify Signup Email Controller Snapshot Test for token invalid 1`] = `
-{
-  "body": {
-    "message": "This verification link is invalid. Please request a new one.",
-    "success": false,
-  },
-  "status": 400,
-}
-`;
-
 exports[`Verify Signup Email Controller Snapshot Test for token missing (link) 1`] = `
 {
   "body": {
@@ -81,10 +71,20 @@ exports[`Verify Signup Email Controller Snapshot Test for token missing (link) 1
 }
 `;
 
+exports[`Verify Signup Email Controller Snapshot Test for token type invalid 1`] = `
+{
+  "body": {
+    "message": "Your verification link is invalid. Please request a new one.",
+    "success": false,
+  },
+  "status": 410,
+}
+`;
+
 exports[`Verify Signup Email Controller Snapshot Test for user not found 1`] = `
 {
   "body": {
-    "message": "User not found.",
+    "message": "Invalid token. Please re-check it.",
     "success": false,
   },
   "status": 404,

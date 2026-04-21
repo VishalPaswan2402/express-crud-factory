@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, jest, test } from "@jest/globals";
+import { beforeAll, beforeEach, describe, expect, jest, test } from "@jest/globals";
 
 jest.unstable_mockModule("../../../src/utils/generateJwtToken.utils.js", () => ({
     generateJwtToken: jest.fn()
@@ -6,8 +6,7 @@ jest.unstable_mockModule("../../../src/utils/generateJwtToken.utils.js", () => (
 
 jest.unstable_mockModule("../../../src/utils/emailTokenGenerator.utils.js", () => ({
     emailTokenGenerator: {
-        compareOtp: jest.fn(),
-        emailDecryptToken: jest.fn()
+        compareOtp: jest.fn()
     }
 }));
 
@@ -20,35 +19,28 @@ let generateJwtToken, emailTokenGenerator, userAfterVerification;
 
 beforeAll(async () => {
     generateJwtToken = (await import("../../../src/utils/generateJwtToken.utils.js")).generateJwtToken;
-
     emailTokenGenerator = (await import("../../../src/utils/emailTokenGenerator.utils.js")).emailTokenGenerator;
-
     userAfterVerification = (await import("../../../src/utils/userAfterVerification.utils.js")).userAfterVerification;
-
     verifySignupEmailController = (await import(
         "../../../src/controllers/userControllers/verifySignupEmail.controller.js"
     )).default;
 });
 
 describe("Verify Signup Email Controller Snapshot Test", () => {
-    let req, res, UserModel, userSecretConfig, emailTokenConfig;
+    let req, res, UserModel, userSecretConfig;
     const setupController = (isLink = true) => {
-        return verifySignupEmailController(
-            UserModel,
-            userSecretConfig,
-            isLink,
-            emailTokenConfig
-        );
+        return verifySignupEmailController(UserModel, userSecretConfig, isLink);
     };
     const sanitizeResponse = (res) => {
         const body = { ...res.json.mock.calls[0][0] };
-        if (body?.data?._id) body.data._id = "mocked-id";
-        if (body?.data?.userId) body.data.userId = "mocked-user-id";
         return {
             status: res.status.mock.calls[0][0],
             body
         };
     };
+    const mockSelect = (data) => ({
+        select: jest.fn().mockResolvedValue(data)
+    });
     beforeEach(() => {
         req = {
             body: { otp: "123456", email: "test@gmail.com", token: "test-token" }
@@ -58,23 +50,12 @@ describe("Verify Signup Email Controller Snapshot Test", () => {
             json: jest.fn()
         };
         UserModel = {
-            findById: jest.fn(),
             findByIdAndDelete: jest.fn(),
             findOne: jest.fn()
         };
-        emailTokenConfig = {
-            emailTokenSecret: {
-                secret: "123456",
-                expireIn: "2m"
-            }
-        }
         userSecretConfig = {
             jwtSecret: "secret"
         };
-        emailTokenGenerator.emailDecryptToken.mockReturnValue({
-            email: "test@gmail.com",
-            verifyType: 1
-        });
         jest.clearAllMocks();
     });
 
@@ -85,28 +66,24 @@ describe("Verify Signup Email Controller Snapshot Test", () => {
         expect(sanitizeResponse(res)).toMatchSnapshot();
     });
 
-    test("for invalid/expired token (link)", async () => {
-        emailTokenGenerator.emailDecryptToken.mockReturnValue(null);
-        const controller = setupController(true);
+    test("for missing OTP/email", async () => {
+        req.body.otp = "";
+        const controller = setupController(false);
         await controller(req, res);
         expect(sanitizeResponse(res)).toMatchSnapshot();
     });
 
     test("for user not found", async () => {
-        UserModel.findOne.mockReturnValue({
-            select: jest.fn().mockResolvedValue(null)
-        });
+        UserModel.findOne.mockReturnValue(mockSelect(null));
         const controller = setupController(true);
         await controller(req, res);
         expect(sanitizeResponse(res)).toMatchSnapshot();
     });
 
     test("for email already verified", async () => {
-        UserModel.findOne.mockReturnValue({
-            select: jest.fn().mockResolvedValue({
-                emailVerified: true
-            })
-        });
+        UserModel.findOne.mockReturnValue(mockSelect({
+            emailVerified: true
+        }));
         const controller = setupController(true);
         await controller(req, res);
         expect(sanitizeResponse(res)).toMatchSnapshot();
@@ -116,40 +93,40 @@ describe("Verify Signup Email Controller Snapshot Test", () => {
         const user = {
             _id: "123",
             emailVerified: false,
-            destroyDataAfter: Date.now() - 1000
+            destroyDataAfter: Date.now() - 1000,
+            verifyToken: "token",
+            verifyTokenType: "create_token"
         };
-        UserModel.findOne.mockReturnValue({
-            select: jest.fn().mockResolvedValue(user)
-        });
+        UserModel.findOne.mockReturnValue(mockSelect(user));
         const controller = setupController(true);
         await controller(req, res);
+        expect(UserModel.findByIdAndDelete).toHaveBeenCalledWith("123");
         expect(sanitizeResponse(res)).toMatchSnapshot();
     });
 
     test("for token expired", async () => {
         const user = {
             emailVerified: false,
+            verifyToken: "token",
+            verifyTokenExpires: Date.now() - 1000,
             destroyDataAfter: Date.now() + 10000,
-            verifyTokenExpires: Date.now() - 1000
+            verifyTokenType: "create_token"
         };
-        UserModel.findOne.mockReturnValue({
-            select: jest.fn().mockResolvedValue(user)
-        });
+        UserModel.findOne.mockReturnValue(mockSelect(user));
         const controller = setupController(true);
         await controller(req, res);
         expect(sanitizeResponse(res)).toMatchSnapshot();
     });
 
-    test("for token invalid", async () => {
+    test("for token type invalid", async () => {
         const user = {
             emailVerified: false,
-            verifyToken: "wrong-token",
+            verifyToken: "token",
             verifyTokenExpires: Date.now() + 10000,
-            destroyDataAfter: Date.now() + 10000
+            destroyDataAfter: Date.now() + 10000,
+            verifyTokenType: "wrong_type"
         };
-        UserModel.findOne.mockReturnValue({
-            select: jest.fn().mockResolvedValue(user)
-        });
+        UserModel.findOne.mockReturnValue(mockSelect(user));
         const controller = setupController(true);
         await controller(req, res);
         expect(sanitizeResponse(res)).toMatchSnapshot();
@@ -161,11 +138,10 @@ describe("Verify Signup Email Controller Snapshot Test", () => {
             emailVerified: false,
             verifyToken: "hashed",
             verifyTokenExpires: Date.now() + 10000,
-            destroyDataAfter: Date.now() + 10000
+            destroyDataAfter: Date.now() + 10000,
+            verifyTokenType: "create_token"
         };
-        UserModel.findOne.mockReturnValue({
-            select: jest.fn().mockResolvedValue(user)
-        });
+        UserModel.findOne.mockReturnValue(mockSelect(user));
         const controller = setupController(false);
         await controller(req, res);
         expect(sanitizeResponse(res)).toMatchSnapshot();
@@ -177,15 +153,15 @@ describe("Verify Signup Email Controller Snapshot Test", () => {
             email: "test@gmail.com",
             emailVerified: false,
             verifyToken: "test-token",
+            verifyTokenType: "create_token",
             verifyTokenExpires: Date.now() + 10000,
             destroyDataAfter: Date.now() + 10000
         };
-        UserModel.findOne.mockReturnValue({
-            select: jest.fn().mockResolvedValue(user)
-        });
+        UserModel.findOne.mockReturnValue(mockSelect(user));
         userAfterVerification.mockResolvedValue({ id: "123" });
         const controller = setupController(true);
         await controller(req, res);
+        expect(userAfterVerification).toHaveBeenCalled();
         expect(sanitizeResponse(res)).toMatchSnapshot();
     });
 
@@ -196,16 +172,16 @@ describe("Verify Signup Email Controller Snapshot Test", () => {
             email: "test@gmail.com",
             emailVerified: false,
             verifyToken: "hashed",
+            verifyTokenType: "create_token",
             verifyTokenExpires: Date.now() + 10000,
             destroyDataAfter: Date.now() + 10000
         };
-        UserModel.findOne.mockReturnValue({
-            select: jest.fn().mockResolvedValue(user)
-        });
+        UserModel.findOne.mockReturnValue(mockSelect(user));
         userAfterVerification.mockResolvedValue({ id: "123" });
         generateJwtToken.mockReturnValue("jwt");
         const controller = setupController(false);
         await controller(req, res);
+        expect(generateJwtToken).toHaveBeenCalled();
         expect(sanitizeResponse(res)).toMatchSnapshot();
     });
 

@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
-exports[`Search By Title Controller Snapshot Tests for find posts successfully. 1`] = `
+exports[`Search By Title Controller Snapshot Tests for find posts successfully 1`] = `
 {
   "body": {
     "data": {
@@ -25,7 +25,27 @@ exports[`Search By Title Controller Snapshot Tests for find posts successfully. 
 }
 `;
 
-exports[`Search By Title Controller Snapshot Tests for no result found. 1`] = `
+exports[`Search By Title Controller Snapshot Tests for invalid limit value 1`] = `
+{
+  "body": {
+    "message": "Invalid limit value",
+    "success": false,
+  },
+  "status": 400,
+}
+`;
+
+exports[`Search By Title Controller Snapshot Tests for invalid page value 1`] = `
+{
+  "body": {
+    "message": "Invalid page value",
+    "success": false,
+  },
+  "status": 400,
+}
+`;
+
+exports[`Search By Title Controller Snapshot Tests for no result found 1`] = `
 {
   "body": {
     "data": {
@@ -41,7 +61,7 @@ exports[`Search By Title Controller Snapshot Tests for no result found. 1`] = `
 }
 `;
 
-exports[`Search By Title Controller Snapshot Tests for page exceeds total pages. 1`] = `
+exports[`Search By Title Controller Snapshot Tests for page exceeds total pages 1`] = `
 {
   "body": {
     "message": "Requested page not found. Page number exceeds total pages.",
@@ -51,7 +71,7 @@ exports[`Search By Title Controller Snapshot Tests for page exceeds total pages.
 }
 `;
 
-exports[`Search By Title Controller Snapshot Tests for search text missing. 1`] = `
+exports[`Search By Title Controller Snapshot Tests for search text missing 1`] = `
 {
   "body": {
     "message": "Text query is required.",
@@ -61,7 +81,7 @@ exports[`Search By Title Controller Snapshot Tests for search text missing. 1`] 
 }
 `;
 
-exports[`Search By Title Controller Snapshot Tests for should handle server error. 1`] = `
+exports[`Search By Title Controller Snapshot Tests for should handle server error 1`] = `
 {
   "body": {
     "message": "Something went wrong. Please try again later.",
@@ -71,7 +91,17 @@ exports[`Search By Title Controller Snapshot Tests for should handle server erro
 }
 `;
 
-exports[`Search By Title Controller Snapshot Tests for userId missing. 1`] = `
+exports[`Search By Title Controller Snapshot Tests for user not found 1`] = `
+{
+  "body": {
+    "message": "User not found.",
+    "success": false,
+  },
+  "status": 404,
+}
+`;
+
+exports[`Search By Title Controller Snapshot Tests for userId missing 1`] = `
 {
   "body": {
     "message": "User ID is required.",
