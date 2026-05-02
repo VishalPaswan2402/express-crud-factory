@@ -127,7 +127,7 @@ await connectDatabase(database_url);
 const secretsConfig = {
     jwtSecret: {
         secretKey: "a-string-secret-at-least-256-bits-long", // secret key for jwt signature
-        expireInDays: 1  // token expire in hour
+        expireInDays: 1  // token expire in days
     },
     bcryptSecret: {
         saltRounds: 10 // hashing salt round
@@ -137,7 +137,7 @@ const secretsConfig = {
 // email and verify method configuration
 const emailConfig = {
     mailProvider: {
-        host: "smtp.ethereal.email", // your email host provider
+        host: "your_email_host", // your email host provider
         secure: false, // assign true value in production
         username: "your_email_username", // your email username
         password: "your_email_password" // your email password
@@ -147,12 +147,11 @@ const emailConfig = {
         otpLinkExpiryMinutes: 2, // otp expires in minutes
         unverifiedUserExpiryDays: 1, // user deleted if email is not verified in days
         usingLink: true, // true -> link verification method and false -> OTP verification method
-        verifySecretKey: "a-string-secret-at-least-256-bits-long", // ( use if usingLink = true else optional) secret key for email signature
         frontendBaseUrl: frontend_base_url // ( use if usinglink = true  else optional)
     }
 }
 
-const userAPI = loginSignupFactory(UserModel, secretsConfig, emailConfig);
+const userAPI = loginSignupFactory(UserModel,PostModel, secretsConfig, emailConfig);
 const postAPI = postArticleFactory(UserModel, PostModel, secretsConfig);
 
 app.use("/user", userAPI);
@@ -174,9 +173,10 @@ const userSchema = new Schema({
     fullname: {  type: String,required: true },
     email: { type: String,unique: true,required: true },
     password: { type: String,required: true,select: false },
-    isActive: { type: Boolean,default: true },
+    isActive: { type: Boolean,default: false },
     emailVerified: { type: Boolean,default: false },
     verifyToken: { type: String,default: null,select: false },
+    verifyTokenType: { type: String,default: null,select: false },
     verifyTokenExpires: { type: Date,default: null,select: false },
     destroyDataAfter: { type: Date,default: null,select: false },
     otpRequestCount: { type: Number,default: 0,select: false },
@@ -252,15 +252,56 @@ Copy user model schema code.
 Copy project starter code.
 ```
 
-#### 6. Run your backend application :
+#### 6. Run your backend application from terminal :
 ```
 node index.js
 ```
 
 #### 7. After successful run you will see :
 ```
+MongoDB database connected successfully
 Server is running on port 3000
 ```
+
+## Email Testing (Using Ethereal) :
+This project uses Ethereal Email for testing email functionality during development.
+
+Ethereal is a fake SMTP service — it allows you to send emails without actually delivering them to real users.
+
+### Follow these Steps to Use :
+Go to [https://ethereal.email/](https://ethereal.email/)
+
+Click on "Create Ethereal Account"
+
+You will get account credentials like :
+
+```
+Name: your_test_name
+Username: your_test_email@ethereal.email
+Password: yourtest__password
+```
+### Configure these values in index.js file :
+
+```
+mailProvider: {
+    host: "smtp.ethereal.email",
+    secure: false,
+    username: "your_test_email@ethereal.email",
+    password: "yourtest__password"
+}
+```
+
+### Viewing Sent Emails :
+After setup click on "Open Mailbox" to to see the emails.
+
+After sending open that mail to see OTP and links for verification.
+
+### Note :
+Emails are not sent to real users.
+
+Accounts are temporary.
+
+Only for development/testing purposes.
 
 ## API end-points
 
@@ -273,7 +314,7 @@ POST Request     :   /user/signup/send-verification
 POST Request     :   /user/signup/link/verify-email
 POST Request     :   /user/signup/otp/verify-email
 POST Request     :   /user/login
-GET Request      :   /user/:userId/profile
+GET  Request     :   /user/:userId/profile
 POST Request     :   /user/:userId/delete-account/send-verification
 POST Request     :   /user/delete-account/link/verify-email
 POST Request     :   /user/:userId/delete-account/otp/verify-email
