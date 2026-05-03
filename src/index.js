@@ -7,9 +7,9 @@ import loginSignupFactoryValidator from './validator/loginSignupFactory.validato
 import postArticleFactoryValidator from './validator/postArticleFactory.validator.js';
 
 // for new user account setup
-function loginSignupFactory(UserModel, PostModel, configOptions = {}, emailConfig = {}) {
-    loginSignupFactoryValidator(UserModel, PostModel, configOptions, emailConfig);
-    const { userSecretConfig, emailSender, verifyMethod } = loginSignupFactoryConfigure(configOptions, emailConfig);
+function loginSignupFactory(UserModel, PostModel, configOptions = {}) {
+    loginSignupFactoryValidator(UserModel, PostModel, configOptions);
+    const { userSecretConfig, emailSender, verifyMethod } = loginSignupFactoryConfigure(configOptions.secretsConfig, configOptions.emailConfig);
     return loginSignupApi(UserModel, PostModel, userSecretConfig, emailSender, verifyMethod);
 };
 

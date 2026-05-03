@@ -1,7 +1,7 @@
 import express from "express";
 import { connectDatabase, jsonErrorHandler, loginSignupFactory, postArticleFactory } from "../src/index.js";
-import DefaultUser from "./models/user.model.js";
-import DefaultPost from "./models/postArticles.model.js";
+import UserModel from "./models/user.model.js";
+import PostModel from "./models/postArticles.model.js";
 const app = express();
 app.use(express.json());
 app.use(jsonErrorHandler);
@@ -35,12 +35,14 @@ const emailConfig = {
         otpLinkExpiryMinutes: 10,
         unverifiedUserExpiryDays: 1,
         usingLink: false, // true -> link and false -> OTP
-        frontendBaseUrl: `http://localhost:${port}` // if usinglink = true (use your frontend base url)
+        frontendBaseUrl: `http://localhost:${port}` // if usinglink = true (use your frontend base url to redirect on verification page)
     }
 }
 
-app.use('/user', loginSignupFactory(DefaultUser, DefaultPost, secretsConfig, emailConfig));
-app.use('/user/post', postArticleFactory(DefaultUser, DefaultPost, secretsConfig));
+const loginSignupConfig = { secretsConfig, emailConfig };
+
+app.use('/user', loginSignupFactory(UserModel, PostModel, loginSignupConfig));
+app.use('/user/post', postArticleFactory(UserModel, PostModel, secretsConfig));
 
 app.listen(port, () => {
     console.log("Server running on port", port);
