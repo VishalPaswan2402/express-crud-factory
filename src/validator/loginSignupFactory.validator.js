@@ -50,6 +50,11 @@ export default function loginSignupFactoryValidator(UserModel, PostModel, config
             `Configuration error : ${mailProvider.host === undefined ? "missing" : "Please provide a valid"} 'mailProvider.host' in emailConfig.`
         );
     }
+    if (mailProvider.port === undefined || typeof (mailProvider.port) !== "number") {
+        throw new Error(
+            `Configuration error : ${mailProvider.port === undefined ? "missing" : "invalid"} 'mailProvider.port'. Please provide a valid port number in emailConfig.`
+        );
+    }
     if (mailProvider.secure === undefined || typeof (mailProvider.secure) !== "boolean") {
         throw new Error(
             `Configuration error : ${mailProvider.secure === undefined ? "missing" : "invalid"} 'mailProvider.secure'. It must be a boolean (true or false) in emailConfig.`

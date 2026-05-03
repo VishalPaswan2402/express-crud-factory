@@ -25,9 +25,10 @@ const secretsConfig = {
 // email configuration
 const emailConfig = {
     mailProvider: {
-        host: "smtp.ethereal.email",
-        secure: false,
-        username: "your_email_username",
+        host: "smtp.ethereal.email",  // smtp.gmail.com for your email
+        port: 587, // 465 for your email
+        secure: false, // true when using personal email
+        username: "your_email",
         password: "your_email_password"
     },
     verifyMethod: {
