@@ -138,8 +138,9 @@ const secretsConfig = {
 const emailConfig = {
     mailProvider: {
         host: "your_email_host", // your email host provider
+        port: "your_email_port_number", // email port number
         secure: false, // assign true value in production
-        username: "your_email_username", // your email username
+        username: "your_email", // your email
         password: "your_email_password" // your email password
     },
     verifyMethod: {
@@ -151,7 +152,8 @@ const emailConfig = {
     }
 }
 
-const userAPI = loginSignupFactory(UserModel,PostModel, secretsConfig, emailConfig);
+const loginSignupConfig = { secretsConfig, emailConfig };
+const userAPI = loginSignupFactory(UserModel, PostModel, loginSignupConfig);
 const postAPI = postArticleFactory(UserModel, PostModel, secretsConfig);
 
 app.use("/user", userAPI);
@@ -278,16 +280,17 @@ You will get account credentials like :
 ```
 Name: your_test_name
 Username: your_test_email@ethereal.email
-Password: yourtest__password
+Password: your_test_password
 ```
 ### Configure these values in index.js file :
 
 ```
 mailProvider: {
     host: "smtp.ethereal.email",
+    port: 587,
     secure: false,
     username: "your_test_email@ethereal.email",
-    password: "yourtest__password"
+    password: "your_test_password"
 }
 ```
 
@@ -390,6 +393,10 @@ Passionate about building interactive and practical developer tools.
 
 ## Support
 
-⭐ If this project helps you, consider giving it a star on [GitHub.](https://github.com/VishalPaswan2402/express-crud-factory)
+If you find this package helpful, consider following me on :
+
+- GitHub : [https://github.com/VishalPaswan2402](https://github.com/VishalPaswan2402)
+- LinkedIn : [https://www.linkedin.com/in/vishal-paswan-59772925b/](https://www.linkedin.com/in/vishal-paswan-59772925b/)
+- Twitter/X : [https://x.com/VishalPaswan24](https://x.com/VishalPaswan24)
 
 Your support helps improve the project and motivates further development.
