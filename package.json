@@ -12,7 +12,7 @@
     "nodemon": "^3.1.14"
   },
   "name": "express-crud-factory",
-  "version": "3.0.1",
+  "version": "3.0.2",
   "description": "Express + Mongoose CRUD generator to automatically create REST APIs with dynamic routes, login-signup, email-verification, filtering, pagination, and clean scalable architecture.",
   "main": "index.js",
   "type": "module",
