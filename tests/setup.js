@@ -1,5 +1,5 @@
 import express from "express";
-import { connectDatabase, jsonErrorHandler, loginSignupFactory, postArticleFactory } from "../src/index.js";
+import { checkUserExistByUsernameOrEmail, connectDatabase, jsonErrorHandler, loginSignupFactory, postArticleFactory } from "../src/index.js";
 import UserModel from "./models/user.model.js";
 import PostModel from "./models/postArticles.model.js";
 const app = express();
@@ -43,6 +43,7 @@ const emailConfig = {
 const loginSignupConfig = { secretsConfig, emailConfig };
 
 app.use('/user', loginSignupFactory(UserModel, PostModel, loginSignupConfig));
+app.use("/user/check", checkUserExistByUsernameOrEmail(UserModel));
 app.use('/user/post', postArticleFactory(UserModel, PostModel, secretsConfig));
 
 app.listen(port, () => {

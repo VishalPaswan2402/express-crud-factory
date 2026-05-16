@@ -1,7 +1,7 @@
 import loginSignupFactoryConfigure from './config/loginSignupFactory.config.js';
 import postArticleFactoryConfigure from './config/postArticleFactory.config.js';
 import { jsonErrorHandler } from './middlewares/jsonErrorHandler.middleware.js';
-import { loginSignupApi, postArticleAPI } from './routes/crud.routes.js';
+import { checkUserExistByUsernameOrEmailApi, loginSignupApi, postArticleApi } from './routes/crud.routes.js';
 import { connectDatabase } from './utils/connectDatabase.utils.js';
 import loginSignupFactoryValidator from './validator/loginSignupFactory.validator.js';
 import postArticleFactoryValidator from './validator/postArticleFactory.validator.js';
@@ -17,7 +17,17 @@ function loginSignupFactory(UserModel, PostModel, configOptions = {}) {
 function postArticleFactory(UserModel, PostModel, configOptions = {}) {
     postArticleFactoryValidator(UserModel, PostModel, configOptions);
     const userSecretConfig = postArticleFactoryConfigure(configOptions);
-    return postArticleAPI(UserModel, PostModel, userSecretConfig);
+    return postArticleApi(UserModel, PostModel, userSecretConfig);
 };
 
-export { loginSignupFactory, postArticleFactory, jsonErrorHandler, connectDatabase };
+// for checking user exist by username or email
+function checkUserExistByUsernameOrEmail(UserModel) {
+    if (!UserModel) {
+        throw new Error(
+            "Missing 'UserModel': please provide a valid User model to initialize checkUserExistByUsernameOrEmail."
+        );
+    }
+    return checkUserExistByUsernameOrEmailApi(UserModel);
+};
+
+export { loginSignupFactory, postArticleFactory, jsonErrorHandler, connectDatabase, checkUserExistByUsernameOrEmail };

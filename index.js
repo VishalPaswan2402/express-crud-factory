@@ -1,1 +1,1 @@
-export { loginSignupFactory, postArticleFactory, jsonErrorHandler, connectDatabase } from './src/index.js'
+export { loginSignupFactory, postArticleFactory, jsonErrorHandler, connectDatabase, checkUserExistByUsernameOrEmail } from './src/index.js'
