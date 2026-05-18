@@ -1,0 +1,93 @@
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+
+exports[`Check User Exist Controllers test by email for email already exists 1`] = `
+{
+  "body": {
+    "message": "This email already exists. Please use another email.",
+    "success": false,
+  },
+  "status": 400,
+}
+`;
+
+exports[`Check User Exist Controllers test by email for email does not exist 1`] = `
+{
+  "body": {
+    "data": null,
+    "message": "Email verified successfully. You can continue.",
+    "success": true,
+  },
+  "status": 200,
+}
+`;
+
+exports[`Check User Exist Controllers test by email for email format is invalid 1`] = `
+{
+  "body": {
+    "message": "Invalid email format.",
+    "success": false,
+  },
+  "status": 400,
+}
+`;
+
+exports[`Check User Exist Controllers test by email for email is not provided 1`] = `
+{
+  "body": {
+    "message": "Please provide email to check whether user exist or not.",
+    "success": false,
+  },
+  "status": 422,
+}
+`;
+
+exports[`Check User Exist Controllers test by email for server error 1`] = `
+{
+  "body": {
+    "message": "Something went wrong. Please try again later.",
+    "success": false,
+  },
+  "status": 500,
+}
+`;
+
+exports[`Check User Exist Controllers test by username for server error 1`] = `
+{
+  "body": {
+    "message": "Something went wrong. Please try again later.",
+    "success": false,
+  },
+  "status": 500,
+}
+`;
+
+exports[`Check User Exist Controllers test by username for username already exists 1`] = `
+{
+  "body": {
+    "message": "This username already exists. Please use another username.",
+    "success": false,
+  },
+  "status": 400,
+}
+`;
+
+exports[`Check User Exist Controllers test by username for username does not exist 1`] = `
+{
+  "body": {
+    "data": null,
+    "message": "Username verified successfully. You can continue.",
+    "success": true,
+  },
+  "status": 200,
+}
+`;
+
+exports[`Check User Exist Controllers test by username for username is not provided 1`] = `
+{
+  "body": {
+    "message": "Please provide username to check whether user exist or not.",
+    "success": false,
+  },
+  "status": 422,
+}
+`;
