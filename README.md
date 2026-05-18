@@ -108,7 +108,7 @@ Project starter :
 ```js
 import express from 'express'
 import cors from "cors";
-import { loginSignupFactory, postArticleFactory, jsonErrorHandler, connectDatabase } from "express-crud-factory";
+import { checkUserExistByUsernameOrEmail, loginSignupFactory, postArticleFactory, jsonErrorHandler, connectDatabase } from "express-crud-factory";
 import UserModel from './models/user.model.js';  // import your user model schema. 
 import PostModel from './models/post.model.js';  // import your post article model schema.
 
@@ -154,9 +154,11 @@ const emailConfig = {
 
 const loginSignupConfig = { secretsConfig, emailConfig };
 const userAPI = loginSignupFactory(UserModel, PostModel, loginSignupConfig);
+const checkUserExist = checkUserExistByUsernameOrEmail(UserModel);
 const postAPI = postArticleFactory(UserModel, PostModel, secretsConfig);
 
 app.use("/user", userAPI);
+app.use("/user/check", checkUserExist);
 app.use("/user/post", postAPI);
 
 app.listen(backend_port, () => {
@@ -312,34 +314,36 @@ Only for development/testing purposes.
 This section outlines all available User API endpoints used for authentication, account management, email verification, OTP handling, account deletion, and password recovery. These endpoints follow RESTful principles and support key user workflows such as signup, login, email verification, account destruction, and recovery, ensuring secure and structured interaction between the client and server.
 
 ```
-POST Request     :   /user/signup
-POST Request     :   /user/signup/send-verification
-POST Request     :   /user/signup/link/verify-email
-POST Request     :   /user/signup/otp/verify-email
-POST Request     :   /user/login
-GET  Request     :   /user/:userId/profile
-POST Request     :   /user/:userId/delete-account/send-verification
-POST Request     :   /user/delete-account/link/verify-email
-POST Request     :   /user/:userId/delete-account/otp/verify-email
-POST Request     :   /user/forgot-password
-POST Request     :   /user/forgot-password/send-verification
-POST Request     :   /user/reset-password/link/verify-email
-POST Request     :   /user/reset-password/otp/verify-email
+POST Request    :   /user/signup
+POST Request    :   /user/signup/send-verification
+POST Request    :   /user/signup/link/verify-email
+POST Request    :   /user/signup/otp/verify-email
+POST Request    :   /user/login
+GET  Request    :   /user/:userId/profile
+POST Request    :   /user/:userId/delete-account/send-verification
+POST Request    :   /user/delete-account/link/verify-email
+POST Request    :   /user/:userId/delete-account/otp/verify-email
+POST Request    :   /user/forgot-password
+POST Request    :   /user/forgot-password/send-verification
+POST Request    :   /user/reset-password/link/verify-email
+POST Request    :   /user/reset-password/otp/verify-email
+POST Request    :   /user/check/username
+POST Request    :   /user/check/email
 ```
 
 #### Post Articles API Endpoints :
 This section defines all Post Articles API endpoints used for creating, retrieving, updating, searching, and deleting user posts. It includes features like post creation, editing, pinning, trashing, sharing, and fetching posts (single or multiple), along with pagination support for efficiently handling large datasets, while maintaining proper user-based access control.
 
 ```
-POST Request     :   /user/post/:userId/new-post
-GET Request      :   /user/post/:userId/:postId/get-post
-GET Request      :   /user/post/:userId/all-post?page=1&limit=10
-GET Request      :   /user/post/:postId/view/shared-post
-PATCH Request    :   /user/post/:userId/:postId/edit-post
-PATCH Request    :   /user/post/:userId/:postId/pin-post
-PATCH Request    :   /user/post/:userId/:postId/trash-post
-DELETE Request   :   /user/post/:userId/:postId/delete-post
-GET Request      :   /user/post/:userId/search?text=title&page=1&limit=10
+POST Request    :   /user/post/:userId/new-post
+GET Request     :   /user/post/:userId/:postId/get-post
+GET Request     :   /user/post/:userId/all-post?page=1&limit=10
+GET Request     :   /user/post/:postId/view/shared-post
+PATCH Request   :   /user/post/:userId/:postId/edit-post
+PATCH Request   :   /user/post/:userId/:postId/pin-post
+PATCH Request   :   /user/post/:userId/:postId/trash-post
+DELETE Request  :   /user/post/:userId/:postId/delete-post
+GET Request     :   /user/post/:userId/search?text=title&page=1&limit=10
 ```
 
 Visit [https://github.com/VishalPaswan2402/express-crud-factory-starter/tree/main/docs](https://github.com/VishalPaswan2402/express-crud-factory-starter/tree/main/docs) for detailed API request / response samples and use-cases.
