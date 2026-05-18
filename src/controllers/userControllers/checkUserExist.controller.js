@@ -1,5 +1,5 @@
 import { emailTokenGenerator } from "../../utils/emailTokenGenerator.utils.js";
-import { errorResponse, successResponse } from "../../utils/response.utils.js";
+import { checkUserResponse, errorResponse } from "../../utils/response.utils.js";
 
 export const checkUserExistByUsernameController = (UserModel) => async (req, res) => {
     try {
@@ -9,9 +9,9 @@ export const checkUserExistByUsernameController = (UserModel) => async (req, res
         }
         const isUserExist = await UserModel.findOne({ username: username });
         if (!isUserExist) {
-            return successResponse(res, 200, null, "Username verified successfully. You can continue.");
+            return checkUserResponse(res, 200, "Username verified successfully. You can continue.");
         }
-        return errorResponse(res, 400, "This username already exists. Please use another username.");
+        return errorResponse(res, 409, "This username already exists. Please use another username.");
     }
     catch (error) {
         return errorResponse(res, 500, "Something went wrong. Please try again later.");
@@ -29,9 +29,9 @@ export const checkUserExistByEmailController = (UserModel) => async (req, res) =
         }
         const isUserExist = await UserModel.findOne({ email: email });
         if (!isUserExist) {
-            return successResponse(res, 200, null, "Email verified successfully. You can continue.");
+            return checkUserResponse(res, 200, "Email verified successfully. You can continue.");
         }
-        return errorResponse(res, 400, "This email already exists. Please use another email.");
+        return errorResponse(res, 409, "This email already exists. Please use another email.");
     }
     catch (error) {
         return errorResponse(res, 500, "Something went wrong. Please try again later.");

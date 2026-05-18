@@ -15,9 +15,16 @@ export const loginResponse = (response, statusCode = 200, data = null, token = n
     });
 };
 
-export const errorResponse = (response, statusCode, message = "Something went wrong.") => {
+export const errorResponse = (response, statusCode = 500, message = "Something went wrong.") => {
     return response.status(statusCode).json({
         message: message,
         success: false
+    });
+};
+
+export const checkUserResponse = (response, statusCode = 200, message = "success") => {
+    return response.status(statusCode).json({
+        message: message,
+        success: true
     });
 };

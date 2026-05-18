@@ -6,14 +6,13 @@ exports[`Check User Exist Controllers test by email for email already exists 1`]
     "message": "This email already exists. Please use another email.",
     "success": false,
   },
-  "status": 400,
+  "status": 409,
 }
 `;
 
 exports[`Check User Exist Controllers test by email for email does not exist 1`] = `
 {
   "body": {
-    "data": null,
     "message": "Email verified successfully. You can continue.",
     "success": true,
   },
@@ -67,14 +66,13 @@ exports[`Check User Exist Controllers test by username for username already exis
     "message": "This username already exists. Please use another username.",
     "success": false,
   },
-  "status": 400,
+  "status": 409,
 }
 `;
 
 exports[`Check User Exist Controllers test by username for username does not exist 1`] = `
 {
   "body": {
-    "data": null,
     "message": "Username verified successfully. You can continue.",
     "success": true,
   },
