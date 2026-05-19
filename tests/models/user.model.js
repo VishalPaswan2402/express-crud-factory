@@ -20,6 +20,11 @@ const defaultUserSchema = new Schema({
         required: true,
         select: false
     },
+    jwtRefreshToken: {
+        type: String,
+        default: null,
+        select: false
+    },
     isActive: {
         type: Boolean,
         default: false

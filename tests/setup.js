@@ -1,10 +1,12 @@
 import express from "express";
+import cookieParser from "cookie-parser";
 import { checkUserExistByUsernameOrEmail, connectDatabase, jsonErrorHandler, loginSignupFactory, postArticleFactory } from "../src/index.js";
 import UserModel from "./models/user.model.js";
 import PostModel from "./models/postArticles.model.js";
 const app = express();
 app.use(express.json());
 app.use(jsonErrorHandler);
+app.use(cookieParser());
 const port = 3000;
 
 // database setup
@@ -14,8 +16,10 @@ await connectDatabase(db_url);
 // secret configuration
 const secretsConfig = {
     jwtSecret: {
-        secretKey: "your_jwt_secret_key_at_least_256_bits_long",
-        expireInDays: 1
+        secretKey: "your_jwt_token_secret_key_at_least_256_bits_long",
+        expireInHours: 1,
+        refreshKey: "your_jwt_refresh_token_secret_key_at_least_256_bits_long",
+        expireInDays: 7
     },
     bcryptSecret: {
         saltRounds: 10

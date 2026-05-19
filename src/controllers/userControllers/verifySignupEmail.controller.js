@@ -1,5 +1,5 @@
 import { emailTokenGenerator } from "../../utils/emailTokenGenerator.utils.js";
-import { generateJwtToken } from "../../utils/generateJwtToken.utils.js";
+import { generateJwtRefreshToken, generateJwtToken } from "../../utils/generateJwtToken.utils.js";
 import { errorResponse, loginResponse, successResponse } from "../../utils/response.utils.js";
 import { userAfterVerification } from "../../utils/userAfterVerification.utils.js";
 
@@ -13,7 +13,7 @@ const verifySignupEmailController = (UserModel, userSecretConfig, isLink) => asy
                 return errorResponse(res, 400, "Verification token is missing.");
             }
             myToken = token;
-            user = await UserModel.findOne({ verifyToken: token }).select("+verifyToken +verifyTokenType +verifyTokenExpires +destroyDataAfter +otpRequestCount +otpLastRequest");
+            user = await UserModel.findOne({ verifyToken: token }).select("+verifyToken +jwtRefreshToken +verifyTokenType +verifyTokenExpires +destroyDataAfter +otpRequestCount +otpLastRequest");
             if (!user) {
                 return errorResponse(res, 404, "Invalid token. Please re-check it.")
             }
@@ -24,7 +24,7 @@ const verifySignupEmailController = (UserModel, userSecretConfig, isLink) => asy
                 return errorResponse(res, 400, "OTP and email is required.");
             }
             myToken = otp;
-            user = await UserModel.findOne({ email: email }).select("+verifyToken +verifyTokenType +verifyTokenExpires +destroyDataAfter +otpRequestCount +otpLastRequest");
+            user = await UserModel.findOne({ email: email }).select("+verifyToken +jwtRefreshToken +verifyTokenType +verifyTokenExpires +destroyDataAfter +otpRequestCount +otpLastRequest");
             if (!user) {
                 return errorResponse(res, 404, "User not found.");
             }
@@ -48,12 +48,16 @@ const verifySignupEmailController = (UserModel, userSecretConfig, isLink) => asy
                 return errorResponse(res, 422, "Incorrect OTP. Please try again.");
             }
         }
-        const savedData = await userAfterVerification(user);
+        let savedData = await userAfterVerification(user);
+        delete savedData.jwtRefreshToken;
         if (isLink) {
             return successResponse(res, 201, savedData, "Account created and email verified successfully.");
         }
-        const jwtToken = generateJwtToken(savedData, userSecretConfig.jwtSecret);
-        return loginResponse(res, 201, savedData, jwtToken, "Account created and email verified successfully.");
+        const refreshToken = generateJwtRefreshToken(savedData._id, userSecretConfig.jwtSecret);
+        user.jwtRefreshToken = refreshToken;
+        await user.save();
+        const accessToken = generateJwtToken(savedData, userSecretConfig.jwtSecret);
+        return loginResponse(res, 201, savedData, accessToken, refreshToken, "Account created and email verified successfully.");
     }
     catch (error) {
         return errorResponse(res, 500, "Something went wrong. Please try again later.");

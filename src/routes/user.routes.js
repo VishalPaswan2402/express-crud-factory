@@ -11,6 +11,7 @@ import isValidUserId from "../middlewares/validUserId.middleware.js";
 import verifyDestroyEmailController from "../controllers/userControllers/verifyDestroyEmail.controller.js";
 import recoverPasswordController from "../controllers/userControllers/recoverPassword.controller.js";
 import verifyRecoverEmailController from "../controllers/userControllers/verifyRecoverEmail.controller.js";
+import refreshTokenController from "../controllers/userControllers/refreshToken.controller.js";
 
 export default function userRoutes(UserModel, PostModel, userSecretConfig, emailSender, verifyMethod) {
     const router = express.Router({ mergeParams: true });
@@ -86,6 +87,11 @@ export default function userRoutes(UserModel, PostModel, userSecretConfig, email
         "/reset-password/otp/verify-email",
         jsonValidate,
         verifyRecoverEmailController(UserModel, false, userSecretConfig)
+    );
+    router.post(
+        "/:userId/refresh-token",
+        isValidUserId,
+        refreshTokenController(UserModel, userSecretConfig)
     );
     return router;
 }

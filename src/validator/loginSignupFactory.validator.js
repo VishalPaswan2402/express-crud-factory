@@ -26,6 +26,16 @@ export default function loginSignupFactoryValidator(UserModel, PostModel, config
             `Configuration error : ${jwtSecret.secretKey === undefined ? "missing" : "invalid"} 'jwtSecret.secretKey'. Add a valid secret key in secretsConfig.`
         );
     }
+    if (jwtSecret.expireInHours !== undefined && (typeof (jwtSecret.expireInHours) !== "number" || jwtSecret.expireInHours < 1)) {
+        throw new Error(
+            "Configuration error: 'jwtSecret.expireInHours' must be a number greater than or equal to 1. Set a valid value in secretsConfig."
+        );
+    }
+    if (jwtSecret.refreshKey === undefined || typeof (jwtSecret.refreshKey) !== "string" || jwtSecret.refreshKey.trim() === "") {
+        throw new Error(
+            `Configuration error : ${jwtSecret.refreshKey === undefined ? "missing" : "invalid"} 'jwtSecret.refreshKey'. Add a valid refresh key in secretsConfig.`
+        );
+    }
     if (jwtSecret.expireInDays !== undefined && (typeof (jwtSecret.expireInDays) !== "number" || jwtSecret.expireInDays < 1)) {
         throw new Error(
             "Configuration error: 'jwtSecret.expireInDays' must be a number greater than or equal to 1. Set a valid value in secretsConfig."
