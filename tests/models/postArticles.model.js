@@ -31,11 +31,16 @@ const defaultPostSchema = new Schema({
         type: Boolean,
         default: false
     },
-    deletedAt: {
+    deleteAt: {
         type: Date,
         default: null
     },
 }, { timestamps: true });
+
+defaultPostSchema.index(
+    { deleteAt: 1 },
+    { expireAfterSeconds: 0 }
+);
 
 const PostModel = mongoose.model("DefaultPost", defaultPostSchema);
 export default PostModel;

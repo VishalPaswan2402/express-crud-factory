@@ -16,7 +16,7 @@ const markPostController = (UserModel, PostModel, isTrash) => async (req, res) =
         };
         let msg = "Article moved to trash.";
         if (isTrash) {
-            postData.isTrashed ? postData.deletedAt = null : postData.deletedAt = new Date();
+            postData.isTrashed ? postData.deleteAt = null : postData.deleteAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
             postData.isTrashed = !postData.isTrashed;
             msg = postData.isTrashed ? "Article moved to trash." : "Article restored from trash.";
         }
