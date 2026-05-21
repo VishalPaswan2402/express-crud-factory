@@ -143,7 +143,7 @@ await connectDatabase(database_url);
 const secretsConfig = {
     jwtSecret: {
         secretKey: "a-string-secret-at-least-256-bits-long", // secret key for access token signature
-        expireInHours: 1  // access token expire in hours
+        expireInHours: 1,  // access token expire in hours
         refreshKey: "another-string-secret-at-least-256-bits-long", // secret key for refresh token signature
         expireInDays: 7 // refresh token expire in days
     },
