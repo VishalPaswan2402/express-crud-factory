@@ -1,5 +1,5 @@
 import { emailTokenGenerator } from "../../utils/emailTokenGenerator.utils.js";
-import { generateJwtRefreshToken, generateJwtToken } from "../../utils/generateJwtToken.utils.js";
+import { generateJwtAccessToken, generateJwtRefreshToken } from "../../utils/generateJwtToken.utils.js";
 import { errorResponse, loginResponse, successResponse } from "../../utils/response.utils.js";
 import { userAfterVerification } from "../../utils/userAfterVerification.utils.js";
 
@@ -56,7 +56,7 @@ const verifySignupEmailController = (UserModel, userSecretConfig, isLink) => asy
         const refreshToken = generateJwtRefreshToken(savedData._id, userSecretConfig.jwtSecret);
         user.jwtRefreshToken = refreshToken;
         await user.save();
-        const accessToken = generateJwtToken(savedData, userSecretConfig.jwtSecret);
+        const accessToken = generateJwtAccessToken(savedData, userSecretConfig.jwtSecret);
         return loginResponse(res, 201, savedData, accessToken, refreshToken, "Account created and email verified successfully.");
     }
     catch (error) {

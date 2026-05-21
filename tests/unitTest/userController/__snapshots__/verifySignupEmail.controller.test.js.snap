@@ -94,12 +94,13 @@ exports[`Verify Signup Email Controller Snapshot Test for user not found 1`] = `
 exports[`Verify Signup Email Controller Snapshot Test for verify email successfully (OTP) 1`] = `
 {
   "body": {
+    "accessToken": "jwt",
     "data": {
       "id": "123",
     },
     "message": "Account created and email verified successfully.",
+    "refreshToken": "refreshJwt",
     "success": true,
-    "token": "jwt",
   },
   "status": 201,
 }

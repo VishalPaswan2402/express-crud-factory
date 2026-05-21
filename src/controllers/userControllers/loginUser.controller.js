@@ -1,4 +1,4 @@
-import { generateJwtRefreshToken, generateJwtToken } from "../../utils/generateJwtToken.utils.js";
+import { generateJwtAccessToken, generateJwtRefreshToken } from "../../utils/generateJwtToken.utils.js";
 import { passwordHashing } from "../../utils/passwordHashing.utils.js";
 import { errorResponse, loginResponse, successResponse } from "../../utils/response.utils.js";
 
@@ -40,7 +40,7 @@ const loginUserController = (UserModel, userSecretConfig) => async (req, res) =>
         delete findData.destroyDataAfter;
         delete findData.jwtRefreshToken;
         findData.articles = findData.articles.length;
-        const accessToken = generateJwtToken(findData, userSecretConfig.jwtSecret);
+        const accessToken = generateJwtAccessToken(findData, userSecretConfig.jwtSecret);
         return loginResponse(res, 200, findData, accessToken, refreshToken, "User logged in successfully.");
     }
     catch (error) {

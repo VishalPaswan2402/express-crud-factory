@@ -1,0 +1,87 @@
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+
+exports[`Refresh Token Controller Snapshot Test db save error 1`] = `
+{
+  "body": {
+    "message": "Something went wrong. Please try again later.",
+    "success": false,
+  },
+  "status": 500,
+}
+`;
+
+exports[`Refresh Token Controller Snapshot Test for invalid refresh token 1`] = `
+{
+  "body": {
+    "message": "Invalid refresh token.",
+    "success": false,
+  },
+  "status": 401,
+}
+`;
+
+exports[`Refresh Token Controller Snapshot Test for missing refresh token 1`] = `
+{
+  "body": {
+    "message": "Authentication token is missing.",
+    "success": false,
+  },
+  "status": 401,
+}
+`;
+
+exports[`Refresh Token Controller Snapshot Test for unauthorized user 1`] = `
+{
+  "body": {
+    "message": "Unauthorized user.",
+    "success": false,
+  },
+  "status": 401,
+}
+`;
+
+exports[`Refresh Token Controller Snapshot Test for user not found 1`] = `
+{
+  "body": {
+    "message": "User not found.",
+    "success": false,
+  },
+  "status": 404,
+}
+`;
+
+exports[`Refresh Token Controller Snapshot Test jwt verify error 1`] = `
+{
+  "body": {
+    "message": "Something went wrong. Please try again later.",
+    "success": false,
+  },
+  "status": 500,
+}
+`;
+
+exports[`Refresh Token Controller Snapshot Test success - body token 1`] = `
+{
+  "body": {
+    "accessToken": "accessToken",
+    "data": null,
+    "message": "Access token refreshed successfully.",
+    "refreshToken": "refreshToken",
+    "success": true,
+  },
+  "status": 200,
+}
+`;
+
+exports[`Refresh Token Controller Snapshot Test success - cookie token 1`] = `
+{
+  "body": {
+    "accessToken": "accessToken",
+    "data": null,
+    "message": "Access token refreshed successfully.",
+    "refreshToken": "refreshToken",
+    "success": true,
+  },
+  "status": 200,
+}
+`;

@@ -1,6 +1,6 @@
 import jwt from "jsonwebtoken";
 import { errorResponse, loginResponse, successResponse } from "../../utils/response.utils.js";
-import { generateJwtRefreshToken, generateJwtToken } from "../../utils/generateJwtToken.utils.js";
+import { generateJwtAccessToken, generateJwtRefreshToken } from "../../utils/generateJwtToken.utils.js";
 
 const refreshTokenController = (UserModel, userSecretConfig) => async (req, res) => {
     try {
@@ -32,7 +32,7 @@ const refreshTokenController = (UserModel, userSecretConfig) => async (req, res)
         if (userExist.jwtRefreshToken !== token) {
             return errorResponse(res, 401, "Invalid refresh token.");
         }
-        const accessToken = generateJwtToken(userExist, userSecretConfig.jwtSecret);
+        const accessToken = generateJwtAccessToken(userExist, userSecretConfig.jwtSecret);
         const newRefreshToken = generateJwtRefreshToken(userId, userSecretConfig.jwtSecret);
         userExist.jwtRefreshToken = newRefreshToken;
         await userExist.save();

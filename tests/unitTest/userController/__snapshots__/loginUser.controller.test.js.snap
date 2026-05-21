@@ -73,6 +73,7 @@ exports[`Login User Controller Snapshot Test for missing username. 1`] = `
 exports[`Login User Controller Snapshot Test for successful login. 1`] = `
 {
   "body": {
+    "accessToken": "mocked-jwt-token",
     "data": {
       "_id": "507f1f77bcf86cd799439011",
       "articles": 0,
@@ -83,8 +84,8 @@ exports[`Login User Controller Snapshot Test for successful login. 1`] = `
       "username": "test",
     },
     "message": "User logged in successfully.",
+    "refreshToken": "mocked-refresh-jwt-token",
     "success": true,
-    "token": "mocked-jwt-token",
   },
   "status": 200,
 }

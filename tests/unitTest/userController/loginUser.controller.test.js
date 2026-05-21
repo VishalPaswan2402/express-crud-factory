@@ -4,10 +4,11 @@ import loginUserController from '../../../src/controllers/userControllers/loginU
 import { passwordHashing } from '../../../src/utils/passwordHashing.utils';
 
 await jest.unstable_mockModule("../../../src/utils/generateJwtToken.utils.js", () => ({
-    generateJwtToken: jest.fn()
+    generateJwtAccessToken: jest.fn(),
+    generateJwtRefreshToken: jest.fn()
 }));
 
-const { generateJwtToken } = await import("../../../src/utils/generateJwtToken.utils.js");
+const { generateJwtAccessToken, generateJwtRefreshToken } = await import("../../../src/utils/generateJwtToken.utils.js");
 
 describe("Login User Controller Snapshot Test", () => {
     let req;
@@ -20,8 +21,11 @@ describe("Login User Controller Snapshot Test", () => {
     });
     const sanitizeResponse = (res) => {
         const body = { ...res.json.mock.calls[0][0] };
-        if (body?.token) {
-            body.token = "mocked-jwt-token";
+        if (body?.accessToken) {
+            body.accessToken = "mocked-jwt-token";
+        }
+        if (body?.refreshToken) {
+            body.refreshToken = "mocked-refresh-jwt-token";
         }
         return {
             status: res.status.mock.calls[0][0],
@@ -59,6 +63,7 @@ describe("Login User Controller Snapshot Test", () => {
         };
         res = {
             status: jest.fn().mockReturnThis(),
+            cookie: jest.fn().mockReturnThis(),
             json: jest.fn(),
         };
         Model = {
@@ -69,11 +74,15 @@ describe("Login User Controller Snapshot Test", () => {
         userSecretConfig = {
             jwtSecret: {
                 secret: "test-secret",
-                expireIn: "7d"
+                expireIn: "1h",
+                refreshKey: "refresh-secret",
+                refreshExpireIn: "7d",
             }
         };
-        generateJwtToken.mockReset();
-        generateJwtToken.mockImplementation(() => "fake-jwt-token");
+        generateJwtAccessToken.mockReset();
+        generateJwtRefreshToken.mockReset();
+        generateJwtAccessToken.mockImplementation(() => "fake-jwt-token");
+        generateJwtRefreshToken.mockImplementation(() => "fake-refresh-jwt-token");
         jest.spyOn(passwordHashing, "comparePassword").mockReset();
     });
     afterEach(() => {
@@ -183,6 +192,7 @@ describe("Login User Controller Snapshot Test", () => {
             isActive: true,
             destroyDataAfter: Date.now() + 10000,
             articles: [],
+            save: jest.fn().mockResolvedValue(true),
             toObject() {
                 return {
                     _id: this._id,
@@ -202,11 +212,11 @@ describe("Login User Controller Snapshot Test", () => {
         });
         jest.spyOn(passwordHashing, "comparePassword")
             .mockResolvedValue(true);
-        generateJwtToken.mockReturnValue("fake-jwt-token");
+        generateJwtAccessToken.mockReturnValue("fake-jwt-token");
+        generateJwtRefreshToken.mockReturnValue("fake-refresh-jwt-token");
         const controller = loginUserController(Model, userSecretConfig);
         await controller(req, res);
         const result = sanitizeResponse(res);
-        // expect(res.status).toHaveBeenCalledWith(200);
         expect(result).toMatchSnapshot();
     });
 

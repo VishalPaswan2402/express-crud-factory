@@ -1,7 +1,8 @@
 import { beforeAll, beforeEach, describe, expect, jest, test } from "@jest/globals";
 
 jest.unstable_mockModule("../../../src/utils/generateJwtToken.utils.js", () => ({
-    generateJwtToken: jest.fn()
+    generateJwtAccessToken: jest.fn(),
+    generateJwtRefreshToken: jest.fn()
 }));
 
 jest.unstable_mockModule("../../../src/utils/emailTokenGenerator.utils.js", () => ({
@@ -15,10 +16,11 @@ jest.unstable_mockModule("../../../src/utils/userAfterVerification.utils.js", ()
 }));
 
 let verifySignupEmailController;
-let generateJwtToken, emailTokenGenerator, userAfterVerification;
+let generateJwtAccessToken, generateJwtRefreshToken, emailTokenGenerator, userAfterVerification;
 
 beforeAll(async () => {
-    generateJwtToken = (await import("../../../src/utils/generateJwtToken.utils.js")).generateJwtToken;
+    generateJwtAccessToken = (await import("../../../src/utils/generateJwtToken.utils.js")).generateJwtAccessToken;
+    generateJwtRefreshToken = (await import("../../../src/utils/generateJwtToken.utils.js")).generateJwtRefreshToken;
     emailTokenGenerator = (await import("../../../src/utils/emailTokenGenerator.utils.js")).emailTokenGenerator;
     userAfterVerification = (await import("../../../src/utils/userAfterVerification.utils.js")).userAfterVerification;
     verifySignupEmailController = (await import(
@@ -47,6 +49,7 @@ describe("Verify Signup Email Controller Snapshot Test", () => {
         };
         res = {
             status: jest.fn().mockReturnThis(),
+            cookie: jest.fn().mockReturnThis(),
             json: jest.fn()
         };
         UserModel = {
@@ -173,15 +176,19 @@ describe("Verify Signup Email Controller Snapshot Test", () => {
             emailVerified: false,
             verifyToken: "hashed",
             verifyTokenType: "create_token",
+            jwtRefreshToken: null,
             verifyTokenExpires: Date.now() + 10000,
-            destroyDataAfter: Date.now() + 10000
+            destroyDataAfter: Date.now() + 10000,
+            save: jest.fn().mockResolvedValue(true)
         };
         UserModel.findOne.mockReturnValue(mockSelect(user));
         userAfterVerification.mockResolvedValue({ id: "123" });
-        generateJwtToken.mockReturnValue("jwt");
+        generateJwtRefreshToken.mockReturnValue("refreshJwt");
+        generateJwtAccessToken.mockReturnValue("jwt");
         const controller = setupController(false);
         await controller(req, res);
-        expect(generateJwtToken).toHaveBeenCalled();
+        expect(generateJwtRefreshToken).toHaveBeenCalled();
+        expect(generateJwtAccessToken).toHaveBeenCalled();
         expect(sanitizeResponse(res)).toMatchSnapshot();
     });
 
