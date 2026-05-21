@@ -1,4 +1,4 @@
-<img src="./assets/logo.png" alt="Express CRUD Factory Starter Logo" width="100%"/>
+<img src="https://raw.githubusercontent.com/VishalPaswan2402/express-crud-factory/main/assets/logo.png" alt="Express CRUD Factory Starter Logo" width="100%"/>
 
 # Secure API Practice Kit
 [![Npm Pa](https://img.shields.io/badge/NPM-Package-blue)](https://www.npmjs.com/package/express-crud-factory) [![Project Downloads](https://img.shields.io/npm/dt/express-crud-factory?label=Project%20Setup%20Downloads)](https://github.com/VishalPaswan2402/express-crud-factory-setup)  [![License](https://img.shields.io/npm/l/express-crud-factory?label=License)](https://express-crud-factory-license.onrender.com/) [![Contributors](https://img.shields.io/badge/Contributors-1-orange)](https://github.com/VishalPaswan2402)
@@ -6,7 +6,7 @@
 
 A **practice-ready backend API kit** designed for developers who want to **learn secure API integration using real-world authentication and CRUD operations**.
 
-This package provides a **ready-to-use backend with User Authentication and Post/Article APIs along with email verification using link or OTP**, making it easy for frontend developers to practice working with APIs.
+This package provides a **ready-to-use backend with User Authentication and Post/Article APIs along with email verification using link or OTP and also option for refresh token**, making it easy for frontend developers to practice working with APIs.
 
 **It is ideal for developers learning:**
 
@@ -20,7 +20,7 @@ This package provides a **ready-to-use backend with User Authentication and Post
 
 
 ## Why this package ?
-Many frontend developers struggle to practice API integration because they don't have a backend.
+Many frontend developers struggle to practice API integration because they don't have a backend APIs.
 
 **Express-Crud-Factory solves this problem.**
 
@@ -39,56 +39,70 @@ This allows you to **practice real production-like API workflows**.
 ## Features
 
 - #### Plug & Play Backend
-    - Ready-to-use Express CRUD APIs
-    - Minimal setup required
-    - Perfect for frontend developers
+  - Ready-to-use Express CRUD APIs
+  - Minimal setup required
+  - Perfect for frontend developers and rapid prototyping
 
 - #### Authentication Made Simple
-    - Signup & Login APIs
-    - JWT-based authentication
-    - Easy integration with frontend apps
+  - Signup & Login APIs
+  - JWT-based authentication system
+  - Easy integration with frontend applications
 
 - #### Email Verification (2 Methods)
-  - OTP-based verification
+  - OTP-based email verification
   - Email link verification
-  - Choose what fits your project
+  - Flexible verification flow based on project requirements
 
 - #### Resend Verification Support
-  - Resend OTP or email verification link
-  - Smooth user onboarding experience
+  - Resend OTP or verification email link
+  - Smooth onboarding experience for users
 
 - #### Forgot Password Flow
-  - Reset password using OTP or email link
+  - Reset password using OTP or verification email link
   - Secure and beginner-friendly implementation
 
+- #### Access Token & Refresh Token Flow
+  - Secure authentication using access and refresh tokens
+  - Auto-refresh access tokens without forcing users to log in again
+  - Secure refresh token handling using HTTP-only cookies or database storage
+
+- #### Username & Email Availability Check API
+  - Real-time username and email validation
+  - Instant signup feedback
+  - Debounced API requests for performance optimization
+  - Prevent duplicate account creation
+
+- #### Auto Delete Trash Data After 7 Days
+  - Soft delete with trash recovery support
+  - Automatically remove trashed records after 7 days using TTL indexes or schedulers
+  - Restore deleted data before permanent deletion
+  - Helps maintain a clean and optimized database
+
 - #### User CRUD APIs
-  - Create, read, update, delete users
+  - Create, read, update, and delete users
   - Ready for direct frontend consumption
 
 - #### Post / Article CRUD APIs
-  - Full CRUD support for posts/articles
-  - Great for blogs or content apps
+  - Full CRUD support for posts and articles
+  - Suitable for blogs, CMS platforms, and content applications
 
 - #### Pagination Support
-  - Fetch data with page & limit
-  - Optimized for large datasets
+  - Fetch paginated data using page and limit
+  - Optimized for large datasets and infinite scrolling
 
 - #### Built-in Validations
   - Email format validation
-  - Strong password rules
-  - Clean error responses for frontend handling
-
-- #### Factory Pattern Architecture
-  - Reusable controllers
-  - Easily extend to new models
+  - Strong password validation rules
+  - Consistent and frontend-friendly error responses
 
 - #### Frontend-Friendly Responses
-  - Consistent API response structure
-  - Easy to handle in React, Vue, etc.
+  - Standardized API response structure
+  - Easy integration with React, Vue, Angular, and mobile applications
 
-- #### Built for Learning
-  - Understand real-world backend flows
-  - Great for practice projects & portfolio
+- #### Beginner Friendly & Production Ready
+  - Easy-to-understand project structure
+  - Great for learning backend development concepts
+  - Suitable for real-world scalable applications
 
 ## Installation
 
@@ -108,6 +122,7 @@ Project starter :
 ```js
 import express from 'express'
 import cors from "cors";
+import cookieParser from "cookie-parser";
 import { checkUserExistByUsernameOrEmail, loginSignupFactory, postArticleFactory, jsonErrorHandler, connectDatabase } from "express-crud-factory";
 import UserModel from './models/user.model.js';  // import your user model schema. 
 import PostModel from './models/post.model.js';  // import your post article model schema.
@@ -119,6 +134,7 @@ const frontend_base_url = `your_frontend_base_url`;
 const database_url = 'your_mongoDB_database_url';
 
 app.use(cors({ origin: frontend_base_url }));
+app.use(cookieParser());
 app.use(express.json());
 app.use(jsonErrorHandler);
 await connectDatabase(database_url);
@@ -126,8 +142,10 @@ await connectDatabase(database_url);
 // jwt secret and hashing configuration
 const secretsConfig = {
     jwtSecret: {
-        secretKey: "a-string-secret-at-least-256-bits-long", // secret key for jwt signature
-        expireInDays: 1  // token expire in days
+        secretKey: "a-string-secret-at-least-256-bits-long", // secret key for access token signature
+        expireInHours: 1  // access token expire in hours
+        refreshKey: "another-string-secret-at-least-256-bits-long", // secret key for refresh token signature
+        expireInDays: 7 // refresh token expire in days
     },
     bcryptSecret: {
         saltRounds: 10 // hashing salt round
@@ -177,6 +195,7 @@ const userSchema = new Schema({
     fullname: {  type: String,required: true },
     email: { type: String,unique: true,required: true },
     password: { type: String,required: true,select: false },
+    jwtRefreshToken: { type: String,default: null,select: false },
     isActive: { type: Boolean,default: false },
     emailVerified: { type: Boolean,default: false },
     verifyToken: { type: String,default: null,select: false },
@@ -208,6 +227,11 @@ const postSchema = new Schema({
     isTrashed: { type: Boolean,default: false },
     deletedAt: { type: Date,default: null }
 },{ timestamps: true });
+
+postSchema.index(
+    { deleteAt: 1 },
+    { expireAfterSeconds: 0 }
+);
 
 const PostModel =mongoose.model("PostModel", postSchema);
 export default PostModel;
@@ -329,6 +353,7 @@ POST Request    :   /user/reset-password/link/verify-email
 POST Request    :   /user/reset-password/otp/verify-email
 POST Request    :   /user/check/username
 POST Request    :   /user/check/email
+POST Request    :   /user/:userId/refresh-token
 ```
 
 #### Post Articles API Endpoints :
@@ -380,6 +405,24 @@ This package is helpful for:
     
 -   MERN stack learners
 
+## Author
+
+**Vishal Paswan**
+Web Developer  
+Passionate about building interactive and practical developer tools.
+
+## Bug Reports & Suggestions
+
+Found a bug or have a suggestion for improvement?
+
+Feel free to open an issue or start a discussion in the GitHub repository. Your feedback helps improve the package and makes it better for everyone.
+
+- Issues → For bug reports and feature requests  
+  [https://github.com/VishalPaswan2402/express-crud-factory/issues](https://github.com/VishalPaswan2402/express-crud-factory/issues)
+
+- Discussions → For questions, ideas, and community discussions  
+  [https://github.com/VishalPaswan2402/express-crud-factory/discussions](https://github.com/VishalPaswan2402/express-crud-factory/discussions)
+
 ## License
 
 This project is licensed under the MIT License. 
@@ -389,15 +432,10 @@ This project is licensed under the MIT License.
 Copyright (c) 2026 Vishal Paswan
 
 
-## Author
-
-**Vishal Paswan**
-Web Developer  
-Passionate about building interactive and practical developer tools.
-
 ## Support
+⭐ If this project helps you, consider giving it a star on [https://github.com/VishalPaswan2402/express-crud-factory](https://github.com/VishalPaswan2402/express-crud-factory).
 
-If you find this package helpful, consider following me on :
+You can also follow me on :
 
 - GitHub : [https://github.com/VishalPaswan2402](https://github.com/VishalPaswan2402)
 - LinkedIn : [https://www.linkedin.com/in/vishal-paswan-59772925b/](https://www.linkedin.com/in/vishal-paswan-59772925b/)
