@@ -3,6 +3,7 @@ import cookieParser from "cookie-parser";
 import { checkUserExistByUsernameOrEmail, connectDatabase, jsonErrorHandler, loginSignupFactory, postArticleFactory } from "../src/index.js";
 import UserModel from "./models/user.model.js";
 import PostModel from "./models/postArticles.model.js";
+import ExpiredTokensModel from "./models/expiredTokens.model.js";
 const app = express();
 app.use(express.json());
 app.use(jsonErrorHandler);
@@ -46,9 +47,9 @@ const emailConfig = {
 
 const loginSignupConfig = { secretsConfig, emailConfig };
 
-app.use('/user', loginSignupFactory(UserModel, PostModel, loginSignupConfig));
+app.use('/user', loginSignupFactory(UserModel, ExpiredTokensModel, PostModel, loginSignupConfig));
 app.use("/user/check", checkUserExistByUsernameOrEmail(UserModel));
-app.use('/user/post', postArticleFactory(UserModel, PostModel, secretsConfig));
+app.use('/user/post', postArticleFactory(UserModel, ExpiredTokensModel, PostModel, secretsConfig));
 
 app.listen(port, () => {
     console.log("Server running on port", port);

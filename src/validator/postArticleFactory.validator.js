@@ -1,7 +1,12 @@
-export default function postArticleFactoryValidator(UserModel, PostModel, configOptions = {}) {
+export default function postArticleFactoryValidator(UserModel, ExpiredTokensModel, PostModel, configOptions = {}) {
     if (!UserModel) {
         throw new Error(
             "Missing 'UserModel': please provide a valid User model to initialize postArticleFactory."
+        );
+    }
+    if (!ExpiredTokensModel) {
+        throw new Error(
+            "Missing 'ExpiredTokens': please provide a valid ExpiredTokens model to initialize LoginSignupFactory."
         );
     }
     if (!PostModel) {

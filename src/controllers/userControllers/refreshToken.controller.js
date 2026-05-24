@@ -39,6 +39,9 @@ const refreshTokenController = (UserModel, userSecretConfig) => async (req, res)
         return loginResponse(res, 200, null, accessToken, newRefreshToken, "Access token refreshed successfully.");
     }
     catch (error) {
+        if (error.name === "JsonWebTokenError" || error.name === "TokenExpiredError") {
+            return errorResponse(res, 401, "Invalid refresh token. Please log in again.");
+        }
         return errorResponse(res, 500, "Something went wrong. Please try again later.");
     }
 }

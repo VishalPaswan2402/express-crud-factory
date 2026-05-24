@@ -12,8 +12,9 @@ import verifyDestroyEmailController from "../controllers/userControllers/verifyD
 import recoverPasswordController from "../controllers/userControllers/recoverPassword.controller.js";
 import verifyRecoverEmailController from "../controllers/userControllers/verifyRecoverEmail.controller.js";
 import refreshTokenController from "../controllers/userControllers/refreshToken.controller.js";
+import logoutUserController from "../controllers/userControllers/logoutUser.controller.js";
 
-export default function userRoutes(UserModel, PostModel, userSecretConfig, emailSender, verifyMethod) {
+export default function userRoutes(UserModel, ExpiredTokensModel, PostModel, userSecretConfig, emailSender, verifyMethod) {
     const router = express.Router({ mergeParams: true });
     router.post(
         "/signup",
@@ -43,7 +44,7 @@ export default function userRoutes(UserModel, PostModel, userSecretConfig, email
     router.get(
         "/:userId/profile",
         isValidUserId,
-        authenticateUser(userSecretConfig.jwtSecret),
+        authenticateUser(userSecretConfig.jwtSecret, ExpiredTokensModel),
         authorizeUser,
         getUserByIdController(UserModel)
     );
@@ -51,7 +52,7 @@ export default function userRoutes(UserModel, PostModel, userSecretConfig, email
         "/:userId/delete-account/send-verification",
         jsonValidate,
         isValidUserId,
-        authenticateUser(userSecretConfig.jwtSecret),
+        authenticateUser(userSecretConfig.jwtSecret, ExpiredTokensModel),
         authorizeUser,
         sendVerificationEmailController(UserModel, userSecretConfig, emailSender, verifyMethod, 3)
     );
@@ -64,7 +65,7 @@ export default function userRoutes(UserModel, PostModel, userSecretConfig, email
         "/:userId/delete-account/otp/verify-email",
         jsonValidate,
         isValidUserId,
-        authenticateUser(userSecretConfig.jwtSecret),
+        authenticateUser(userSecretConfig.jwtSecret, ExpiredTokensModel),
         authorizeUser,
         verifyDestroyEmailController(UserModel, PostModel, false)
     );
@@ -92,6 +93,13 @@ export default function userRoutes(UserModel, PostModel, userSecretConfig, email
         "/:userId/refresh-token",
         isValidUserId,
         refreshTokenController(UserModel, userSecretConfig)
+    );
+    router.post(
+        "/:userId/logout",
+        isValidUserId,
+        authenticateUser(userSecretConfig.jwtSecret, ExpiredTokensModel),
+        authorizeUser,
+        logoutUserController(UserModel, ExpiredTokensModel)
     );
     return router;
 }

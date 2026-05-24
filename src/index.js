@@ -7,17 +7,17 @@ import loginSignupFactoryValidator from './validator/loginSignupFactory.validato
 import postArticleFactoryValidator from './validator/postArticleFactory.validator.js';
 
 // for new user account setup
-function loginSignupFactory(UserModel, PostModel, configOptions = {}) {
-    loginSignupFactoryValidator(UserModel, PostModel, configOptions);
+function loginSignupFactory(UserModel, ExpiredTokensModel, PostModel, configOptions = {}) {
+    loginSignupFactoryValidator(UserModel, ExpiredTokensModel, PostModel, configOptions);
     const { userSecretConfig, emailSender, verifyMethod } = loginSignupFactoryConfigure(configOptions.secretsConfig, configOptions.emailConfig);
-    return loginSignupApi(UserModel, PostModel, userSecretConfig, emailSender, verifyMethod);
+    return loginSignupApi(UserModel, ExpiredTokensModel, PostModel, userSecretConfig, emailSender, verifyMethod);
 };
 
 // for posting article.
-function postArticleFactory(UserModel, PostModel, configOptions = {}) {
-    postArticleFactoryValidator(UserModel, PostModel, configOptions);
+function postArticleFactory(UserModel, ExpiredTokensModel, PostModel, configOptions = {}) {
+    postArticleFactoryValidator(UserModel, ExpiredTokensModel, PostModel, configOptions);
     const userSecretConfig = postArticleFactoryConfigure(configOptions);
-    return postArticleApi(UserModel, PostModel, userSecretConfig);
+    return postArticleApi(UserModel, ExpiredTokensModel, PostModel, userSecretConfig);
 };
 
 // for checking user exist by username or email
