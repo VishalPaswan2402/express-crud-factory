@@ -104,6 +104,13 @@ This allows you to **practice real production-like API workflows**.
   - Great for learning backend development concepts
   - Suitable for real-world scalable applications
 
+- #### Logout Functionality
+  - Secure user logout with token clearing
+  - Removes authentication cookies on logout
+  - Supports JWT token invalidation / blacklist flow
+  - Prevents access using expired or logged-out tokens
+  - Production-ready session handling for better security
+
 ## Installation
 
 Using npm  
@@ -126,6 +133,7 @@ import cookieParser from "cookie-parser";
 import { checkUserExistByUsernameOrEmail, loginSignupFactory, postArticleFactory, jsonErrorHandler, connectDatabase } from "express-crud-factory";
 import UserModel from './models/user.model.js';  // import your user model schema. 
 import PostModel from './models/post.model.js';  // import your post article model schema.
+import ExpiredTokensModel from "./models/expiredTokens.model.js"; // import your expired tokens model schema.
 
 const app = express();
 
@@ -171,9 +179,9 @@ const emailConfig = {
 }
 
 const loginSignupConfig = { secretsConfig, emailConfig };
-const userAPI = loginSignupFactory(UserModel, PostModel, loginSignupConfig);
+const userAPI = loginSignupFactory(UserModel, ExpiredTokensModel, PostModel, loginSignupConfig);
 const checkUserExist = checkUserExistByUsernameOrEmail(UserModel);
-const postAPI = postArticleFactory(UserModel, PostModel, secretsConfig);
+const postAPI = postArticleFactory(UserModel, ExpiredTokensModel, PostModel, secretsConfig);
 
 app.use("/user", userAPI);
 app.use("/user/check", checkUserExist);
@@ -237,6 +245,26 @@ const PostModel =mongoose.model("PostModel", postSchema);
 export default PostModel;
 ```
 
+Expired Tokens Model Schema :
+
+```js
+import mongoose from 'mongoose';
+const Schema = mongoose.Schema;
+
+const expiredTokensSchema = new Schema({
+    accessToken: { type: String,required: true },
+    expireTime: { type: Date,required: true }
+});
+
+expiredTokensSchema.index(
+    { expireTime: 1 },
+    { expireAfterSeconds: 0 }
+);
+
+const ExpiredTokensModel = mongoose.model("ExpiredTokensModel", expiredTokensSchema);
+export default ExpiredTokensModel;
+```
+
 ## Project setup
 
 #### 1. Create a projectFolder and run this command in terminal :
@@ -259,8 +287,9 @@ npm install express-crud-factory
 projectFolder 
 │
 ├── models
+│ 	└── expiredTokens.model.js
 │ 	└── post.model.js
-│ 	└── user.model.js 
+|   └── user.model.js 
 │   
 ├── index.js
 ├── package-lock.json
@@ -275,6 +304,9 @@ Copy post model schema code.
 
 ## In user.model.js file
 Copy user model schema code.
+
+## In expiredTokens.model.js file
+Copy expired tokens model schema 
 
 ## In index.js file
 Copy project starter code.
@@ -354,6 +386,7 @@ POST Request    :   /user/reset-password/otp/verify-email
 POST Request    :   /user/check/username
 POST Request    :   /user/check/email
 POST Request    :   /user/:userId/refresh-token
+POST Request    :   /user/:userId/logout
 ```
 
 #### Post Articles API Endpoints :
