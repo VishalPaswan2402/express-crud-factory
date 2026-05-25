@@ -1,3 +1,5 @@
+import { errorResponse } from "../../utils/response.utils.js";
+
 const logoutUserController = (UserModel, ExpiredTokensModel) => async (req, res) => {
     try {
         const { userId } = req.params;

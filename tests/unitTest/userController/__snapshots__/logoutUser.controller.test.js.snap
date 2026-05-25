@@ -1,0 +1,51 @@
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+
+exports[`Logout User Controller Snapshot Test database find error 1`] = `
+{
+  "body": {
+    "message": "Something went wrong. Please try again later.",
+    "success": false,
+  },
+  "status": 500,
+}
+`;
+
+exports[`Logout User Controller Snapshot Test expired token save error 1`] = `
+{
+  "body": {
+    "message": "Something went wrong. Please try again later.",
+    "success": false,
+  },
+  "status": 500,
+}
+`;
+
+exports[`Logout User Controller Snapshot Test for user not found 1`] = `
+{
+  "body": {
+    "message": "User not found.",
+    "success": false,
+  },
+  "status": 404,
+}
+`;
+
+exports[`Logout User Controller Snapshot Test success logout 1`] = `
+{
+  "body": {
+    "message": "User logged out successfully.",
+    "success": true,
+  },
+  "status": 200,
+}
+`;
+
+exports[`Logout User Controller Snapshot Test user save error 1`] = `
+{
+  "body": {
+    "message": "Something went wrong. Please try again later.",
+    "success": false,
+  },
+  "status": 500,
+}
+`;
