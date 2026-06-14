@@ -124,7 +124,10 @@ yarn add express-crud-factory
 
 ## How to use factory
 
-Project starter :
+### Project starter :
+
+This setup demonstrates how to configure and initialize a complete authentication and article management backend using Express.js and MongoDB with `express-crud-factory`. It includes database connection setup, middleware configuration, JWT authentication, bcrypt password hashing, email verification, OTP/link-based account verification, refresh token handling, and article posting APIs. The configuration is designed to provide a secure and scalable backend structure with minimal boilerplate code, making it suitable for modern MERN stack applications and production-ready authentication systems.
+
 
 ```js
 import express from 'express'
@@ -192,7 +195,10 @@ app.listen(backend_port, () => {
 })
 ```
 
-User Model Schema :
+### User Model Schema :
+
+This Mongoose schema defines the structure of user data for the application. It includes fields for authentication, account verification, refresh token management, OTP request tracking, and user activity status. Sensitive fields such as passwords, refresh tokens, and verification tokens are excluded from query results using `select: false` for improved security. The schema also establishes a relationship between users and their articles through MongoDB ObjectId references, enabling efficient data association and scalable content management.
+
 
 ```js
 import mongoose from "mongoose";
@@ -219,7 +225,10 @@ const UserModel = mongoose.model("UserModel", userSchema);
 export default UserModel;
 ```
 
-Post Model Schema :
+### Post Model Schema :
+
+This Mongoose schema defines the structure of article or post data within the application. It includes fields for the post title, description, author reference, likes, comments, and post status management such as pinned or trashed states. The schema establishes a relationship between posts and users using MongoDB ObjectId references. It also supports soft deletion functionality with `deletedAt` timestamps and automatic document expiration using MongoDB TTL indexing. Additionally, timestamps are enabled to automatically track post creation and update times.
+
 
 ```js
 import mongoose from "mongoose";
@@ -245,7 +254,10 @@ const PostModel =mongoose.model("PostModel", postSchema);
 export default PostModel;
 ```
 
-Expired Tokens Model Schema :
+### Expired Tokens Model Schema :
+
+This Mongoose schema is used to manage expired or invalidated JWT access tokens for secure authentication handling. It stores the access token along with its expiration time, allowing the application to blacklist tokens after logout or forced session termination. A MongoDB TTL (Time-To-Live) index is applied to automatically remove expired token records from the database once their expiration time is reached, helping maintain database efficiency and improving security.
+
 
 ```js
 import mongoose from 'mongoose';
